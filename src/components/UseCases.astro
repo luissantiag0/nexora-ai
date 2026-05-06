@@ -1,0 +1,43 @@
+---
+const useCases = [
+  {
+    title: "Ecommerce businesses",
+    description: "Automate catalog updates, customer inquiries, and post-purchase workflows to protect margin and improve fulfillment speed."
+  },
+  {
+    title: "Startups",
+    description: "Help lean teams execute more with fewer hires by automating repetitive ops, reporting, and customer-facing processes."
+  },
+  {
+    title: "Enterprises",
+    description: "Standardize execution across departments with secure AI systems that reduce process friction and improve operational consistency."
+  },
+  {
+    title: "Restaurants / local businesses",
+    description: "Automate bookings, customer communication, invoicing, and daily admin to free teams for service and growth."
+  }
+];
+---
+
+<section id="use-cases" class="section-spacing border-t border-border-subtle/80">
+  <div class="container-shell">
+    <div class="max-w-3xl">
+      <span class="section-eyebrow">Use Cases</span>
+      <h2 class="section-heading">Applied AI for the teams that run your business</h2>
+      <p class="section-copy">
+        We tailor AI systems to specific industry bottlenecks so teams can improve output without adding operational complexity.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-6 md:grid-cols-2">
+      {
+        useCases.map((item) => (
+          <article class="card-surface p-7">
+            <h3 class="text-xl font-semibold leading-snug text-white">{item.title}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-text-muted md:text-[0.95rem]">{item.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

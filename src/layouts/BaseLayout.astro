@@ -1,0 +1,27 @@
+---
+import "../styles/global.css";
+
+const {
+  title = "NexoraAI | AI Automation Agency",
+  description = "NexoraAI builds AI automation systems, RAG platforms, AI invoicing tools, ebook generation systems, and custom SaaS solutions for modern businesses."
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#07070A" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+
+  <body class="bg-surface text-white antialiased">
+    <slot />
+  </body>
+</html>

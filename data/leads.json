@@ -1,0 +1,62 @@
+[
+  {
+    "id": "851278da-ec99-4bfb-8d0a-8fd3d453ec6c",
+    "name": "Test User",
+    "email": "test@test.com",
+    "company": "TestCorp",
+    "message": "prueba",
+    "timestamp": "2026-05-05T15:45:45.927Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-05T15:52:41.329Z",
+      "subject": "Next steps for TestCorp automation audit",
+      "body": "Hi Test User, thanks for reaching out. I'd like to share a quick automation audit for TestCorp and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "def4a0f2-494a-46af-b131-9cec93af8a37",
+    "name": "d",
+    "email": "d@gmail.com",
+    "company": "d",
+    "message": "fd",
+    "timestamp": "2026-05-05T15:49:45.337Z",
+    "status": "contacted",
+    "notes": [
+      {
+        "id": "9433f271-1f2f-448d-97e9-3e7777ba618e",
+        "text": "d",
+        "createdAt": "2026-05-05T15:50:30.169Z"
+      }
+    ],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-05T15:50:24.135Z",
+      "subject": "Following up on your NexoraAI request",
+      "body": "Hi d, following up on our previous message. Are you available this week to review next steps for d?"
+    }
+  },
+  {
+    "id": "2c675dfa-edae-4835-8abe-47f1a041970c",
+    "name": "d",
+    "email": "d@gmail.com",
+    "company": "d",
+    "message": "d",
+    "timestamp": "2026-05-05T15:56:11.650Z",
+    "status": "closed_lost",
+    "notes": [
+      {
+        "id": "99e5c77c-f641-466a-ac5d-f0e84bf5add9",
+        "text": "d",
+        "createdAt": "2026-05-05T15:56:36.795Z"
+      }
+    ],
+    "followUp": {
+      "shouldFollowUp": false,
+      "preparedAt": "",
+      "subject": "",
+      "body": ""
+    }
+  }
+]

@@ -1,0 +1,47 @@
+---
+const features = [
+  {
+    title: "OpenAI / LLM integration",
+    description:
+      "Deploy AI capabilities your team can trust, with dependable outputs that support day-to-day business decisions."
+  },
+  {
+    title: "RAG pipelines",
+    description:
+      "Turn scattered documents into a reliable answer layer so teams spend less time searching and more time executing."
+  },
+  {
+    title: "Automation workflows",
+    description:
+      "Automate repetitive process steps across your stack to reduce delays, eliminate manual follow-up, and keep work moving."
+  },
+  {
+    title: "SaaS architecture",
+    description:
+      "Launch systems built to scale with your company, so performance and reliability hold as demand grows."
+  }
+];
+---
+
+<section id="technology" class="section-spacing border-t border-border-subtle/80">
+  <div class="container-shell">
+    <div class="max-w-3xl">
+      <span class="section-eyebrow">Technology</span>
+      <h2 class="section-heading">Built with modern AI infrastructure</h2>
+      <p class="section-copy">
+        Our technology stack is designed to convert AI into dependable business execution, not one-off technical experiments.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-6 md:grid-cols-2">
+      {
+        features.map((feature) => (
+          <article class="card-surface p-7">
+            <h3 class="text-xl font-semibold leading-snug text-white">{feature.title}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-text-muted md:text-[0.95rem]">{feature.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

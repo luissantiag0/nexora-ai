@@ -1,0 +1,47 @@
+---
+const services = [
+  {
+    title: "AI invoicing systems",
+    description:
+      "Reduce billing delays and admin overhead by automating invoice creation, reminders, and reconciliation from end to end."
+  },
+  {
+    title: "RAG knowledge systems (chat with data)",
+    description:
+      "Give teams instant answers from company knowledge so they resolve requests faster and depend less on internal bottlenecks."
+  },
+  {
+    title: "AI ebook generation",
+    description:
+      "Turn internal expertise into publish-ready content pipelines that shorten production cycles and scale lead generation assets."
+  },
+  {
+    title: "Business automation systems",
+    description:
+      "Automate cross-team workflows to remove repetitive handoffs, improve speed of execution, and lower operating costs."
+  }
+];
+---
+
+<section id="services" class="section-spacing border-t border-border-subtle/80">
+  <div class="container-shell">
+    <div class="max-w-3xl">
+      <span class="section-eyebrow">Services</span>
+      <h2 class="section-heading">AI systems designed for business execution</h2>
+      <p class="section-copy">
+        We build and deploy automation systems tied to concrete business outcomes: lower costs, faster delivery, and higher team throughput.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-6 md:grid-cols-2">
+      {
+        services.map((service) => (
+          <article class="card-surface p-7">
+            <h3 class="text-xl font-semibold leading-snug text-white">{service.title}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-text-muted md:text-[0.95rem]">{service.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
