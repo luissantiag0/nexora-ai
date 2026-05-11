@@ -1,44 +1,34 @@
-import type { APIRoute } from "astro";
-import { actualizarEstadoLead, ESTADOS_LEAD } from "../../../lib/leadStorage";
+import { E as ESTADOS_LEAD, a as actualizarEstadoLead } from './leadStorage_DT8eBzY6.mjs';
 
-export const prerender = false;
-
-const json = (status: number, body: Record<string, unknown>) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" }
-  });
-
-export const POST: APIRoute = async ({ request }) => {
+const prerender = false;
+const json = (status, body) => new Response(JSON.stringify(body), {
+  status,
+  headers: { "Content-Type": "application/json" }
+});
+const POST = async ({ request }) => {
   try {
     const body = await request.json();
-
     const leadId = String(body?.leadId ?? "").trim();
     const nuevoEstado = String(body?.estado ?? "").trim();
-
     if (!leadId || !nuevoEstado) {
       return json(400, {
         success: false,
         message: "Faltan parámetros obligatorios."
       });
     }
-
-    if (!ESTADOS_LEAD.includes(nuevoEstado as any)) {
+    if (!ESTADOS_LEAD.includes(nuevoEstado)) {
       return json(400, {
         success: false,
         message: "Estado no válido."
       });
     }
-
-    const ok = await actualizarEstadoLead(leadId, nuevoEstado as any);
-
+    const ok = await actualizarEstadoLead(leadId, nuevoEstado);
     if (!ok) {
       return json(404, {
         success: false,
         message: "Lead no encontrado."
       });
     }
-
     return json(200, {
       success: true,
       message: "Estado actualizado correctamente."
@@ -51,3 +41,13 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 };
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  POST,
+  prerender
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };

@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { actualizarEstadoLead, ESTADOS_LEAD } from "../../../lib/leadStorage";
+import { añadirNotaLead } from "../../../lib/leadStorage";
 
 export const prerender = false;
 
@@ -14,40 +14,33 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
 
     const leadId = String(body?.leadId ?? "").trim();
-    const nuevoEstado = String(body?.estado ?? "").trim();
+    const nota = String(body?.nota ?? "").trim();
 
-    if (!leadId || !nuevoEstado) {
+    if (!leadId || !nota) {
       return json(400, {
         success: false,
         message: "Faltan parámetros obligatorios."
       });
     }
 
-    if (!ESTADOS_LEAD.includes(nuevoEstado as any)) {
-      return json(400, {
-        success: false,
-        message: "Estado no válido."
-      });
-    }
-
-    const ok = await actualizarEstadoLead(leadId, nuevoEstado as any);
+    const ok = await añadirNotaLead(leadId, nota);
 
     if (!ok) {
       return json(404, {
         success: false,
-        message: "Lead no encontrado."
+        message: "No se pudo añadir la nota."
       });
     }
 
     return json(200, {
       success: true,
-      message: "Estado actualizado correctamente."
+      message: "Nota añadida correctamente."
     });
   } catch (error) {
-    console.error("[update-api] Error:", error);
+    console.error("[add-note-api] Error:", error);
     return json(500, {
       success: false,
-      message: "No se pudo actualizar el estado."
+      message: "No se pudo añadir la nota."
     });
   }
 };

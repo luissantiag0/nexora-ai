@@ -1,0 +1,101 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { ui } from "../../lib/uiClasses";
+
+import {
+  loginAdmin,
+} from "../../lib/auth";
+
+import {
+  SESSION_COOKIE,
+  sessionCookieConfig,
+} from "../../lib/session";
+
+export const prerender = false;
+
+let error = "";
+
+if (Astro.request.method === "POST") {
+  const formData =
+    await Astro.request.formData();
+
+  const email = String(
+    formData.get("email") || ""
+  );
+
+  const password = String(
+    formData.get("password") || ""
+  );
+
+  const result =
+    await loginAdmin(
+      email,
+      password
+    );
+
+  if (!result) {
+    error =
+      "Credenciales incorrectas.";
+  } else {
+    Astro.cookies.set(
+      SESSION_COOKIE,
+      result.token,
+      sessionCookieConfig
+    );
+
+    return Astro.redirect("/admin");
+  }
+}
+---
+
+<BaseLayout
+  title="Login Admin"
+  description="Acceso CRM"
+>
+  <main class={ui.section}>
+    <div class="mx-auto max-w-md">
+
+      <h1 class="text-3xl font-semibold text-white">
+        Login Admin
+      </h1>
+
+      <p class="mt-2 text-white/60">
+        Acceso interno NexoraAI
+      </p>
+
+      {error && (
+        <p class="mt-5 text-red-400">
+          {error}
+        </p>
+      )}
+
+      <form
+        method="POST"
+        class="mt-8 space-y-4"
+      >
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          class="w-full rounded-xl bg-white/5 p-4 text-white"
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Contraseña"
+          class="w-full rounded-xl bg-white/5 p-4 text-white"
+        />
+
+        <button
+          class="w-full rounded-xl bg-white py-4 text-black"
+        >
+          Entrar
+        </button>
+
+      </form>
+
+    </div>
+  </main>
+</BaseLayout>

@@ -1,0 +1,186 @@
+---
+/*
+=========================================
+PROPS ESPERADAS
+=========================================
+
+const timeline = [
+  {
+    tipo: "estado",
+    estado: "contactado",
+    fecha: "2026-05-11T10:00:00.000Z",
+  },
+
+  {
+    tipo: "nota",
+    texto: "Cliente interesado en automatización.",
+    fecha: "2026-05-11T12:00:00.000Z",
+  },
+];
+
+<LeadTimeline timeline={timeline} />
+*/
+
+const { timeline = [] } = Astro.props;
+
+const statusLabels = {
+  nuevo: "Nuevo",
+  contactado: "Contactado",
+  cualificado: "Cualificado",
+  propuesta_enviada: "Propuesta enviada",
+  ganado: "Ganado",
+  perdido: "Perdido",
+};
+
+/* =========================================
+   ORDENAR EVENTOS
+========================================= */
+
+const eventosOrdenados = [...timeline].sort(
+  (a, b) =>
+    new Date(b.fecha).getTime() -
+    new Date(a.fecha).getTime()
+);
+---
+
+<section class="rounded-2xl border border-white/10 bg-white/5 p-6">
+
+  {/* HEADER */}
+
+  <div class="flex items-center justify-between">
+
+    <div>
+
+      <h2 class="text-xl font-semibold text-white">
+        Timeline del Lead
+      </h2>
+
+      <p class="mt-1 text-sm text-white/50">
+        Actividad y cambios recientes
+      </p>
+
+    </div>
+
+    <span class="text-sm text-white/40">
+      {eventosOrdenados.length} eventos
+    </span>
+
+  </div>
+
+  {/* EMPTY */}
+
+  {eventosOrdenados.length === 0 ? (
+
+    <div class="mt-8 rounded-xl border border-white/10 bg-black/20 p-5">
+
+      <p class="text-sm text-white/50">
+        No hay actividad registrada.
+      </p>
+
+    </div>
+
+  ) : (
+
+    <div class="relative mt-8">
+
+      {/* LÍNEA */}
+
+      <div class="absolute left-[11px] top-0 h-full w-px bg-white/10" />
+
+      <div class="space-y-8">
+
+        {eventosOrdenados.map((evento) => (
+
+          <div class="relative flex gap-5">
+
+            {/* DOT */}
+
+            <div
+              class={`relative z-10 mt-1 h-6 w-6 rounded-full border ${
+                evento.tipo === "estado"
+                  ? "border-emerald-400 bg-emerald-500/20"
+                  : "border-sky-400 bg-sky-500/20"
+              }`}
+            />
+
+            {/* CARD */}
+
+            <div class="flex-1 rounded-2xl border border-white/10 bg-black/20 p-5">
+
+              {/* TOP */}
+
+              <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+
+                <div>
+
+                  {evento.tipo === "estado" ? (
+
+                    <div>
+
+                      <p class="text-xs uppercase tracking-widest text-emerald-300">
+                        Cambio de estado
+                      </p>
+
+                      <h3 class="mt-1 text-lg font-medium text-white">
+                        {
+                          statusLabels[
+                            evento.estado
+                          ]
+                        }
+                      </h3>
+
+                    </div>
+
+                  ) : (
+
+                    <div>
+
+                      <p class="text-xs uppercase tracking-widest text-sky-300">
+                        Nota interna
+                      </p>
+
+                      <h3 class="mt-1 text-lg font-medium text-white">
+                        Nueva nota añadida
+                      </h3>
+
+                    </div>
+
+                  )}
+
+                </div>
+
+                <p class="text-sm text-white/40">
+                  {new Date(
+                    evento.fecha
+                  ).toLocaleString("es-ES")}
+                </p>
+
+              </div>
+
+              {/* BODY */}
+
+              {evento.tipo === "nota" && (
+
+                <div class="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+
+                  <p class="whitespace-pre-line text-white/80">
+                    {evento.texto}
+                  </p>
+
+                </div>
+
+              )}
+
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
+
+    </div>
+
+  )}
+
+</section>
