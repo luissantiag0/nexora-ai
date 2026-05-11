@@ -1,43 +1,62 @@
 ---
 const useCases = [
   {
-    title: "Ecommerce businesses",
-    description: "Automate catalog updates, customer inquiries, and post-purchase workflows to protect margin and improve fulfillment speed."
+    title: "Negocios de ecommerce",
+    description:
+      "Automatiza la actualización del catálogo, las consultas de clientes y los flujos postventa para proteger márgenes y mejorar la velocidad de entrega."
   },
   {
     title: "Startups",
-    description: "Help lean teams execute more with fewer hires by automating repetitive ops, reporting, and customer-facing processes."
+    description:
+      "Permite a equipos reducidos ejecutar más con menos contrataciones automatizando operaciones repetitivas, reporting y procesos de atención al cliente."
   },
   {
-    title: "Enterprises",
-    description: "Standardize execution across departments with secure AI systems that reduce process friction and improve operational consistency."
+    title: "Empresas (Enterprise)",
+    description:
+      "Estandariza la ejecución entre departamentos con sistemas de IA seguros que reducen fricción operativa y mejoran la consistencia de los procesos."
   },
   {
-    title: "Restaurants / local businesses",
-    description: "Automate bookings, customer communication, invoicing, and daily admin to free teams for service and growth."
+    title: "Restaurantes / negocios locales",
+    description:
+      "Automatiza reservas, comunicación con clientes, facturación y tareas administrativas diarias para liberar al equipo y centrarse en el servicio."
   }
 ];
 ---
 
-<section id="use-cases" class="section-spacing border-t border-border-subtle/80">
-  <div class="container-shell">
+<section id="use-cases" class="border-t border-white/10 bg-[#07070A]">
+  <div class="mx-auto max-w-7xl px-6 md:px-10 py-24 md:py-32">
+
     <div class="max-w-3xl">
-      <span class="section-eyebrow">Use Cases</span>
-      <h2 class="section-heading">Applied AI for the teams that run your business</h2>
-      <p class="section-copy">
-        We tailor AI systems to specific industry bottlenecks so teams can improve output without adding operational complexity.
+      <span class="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-white/60">
+        Casos de uso
+      </span>
+
+      <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+        IA aplicada a los equipos que hacen funcionar tu negocio
+      </h2>
+
+      <p class="mt-5 text-base leading-relaxed text-white/60 md:text-lg">
+        Adaptamos sistemas de IA a los cuellos de botella específicos de cada industria para aumentar la productividad sin aumentar la complejidad operativa.
       </p>
     </div>
 
-    <div class="mt-14 grid gap-6 md:grid-cols-2">
-      {
-        useCases.map((item) => (
-          <article class="card-surface p-7">
-            <h3 class="text-xl font-semibold leading-snug text-white">{item.title}</h3>
-            <p class="mt-3 text-sm leading-relaxed text-text-muted md:text-[0.95rem]">{item.description}</p>
-          </article>
-        ))
-      }
+    <div class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+
+      {useCases.map((item) => (
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10">
+
+          <h3 class="text-xl font-semibold text-white">
+            {item.title}
+          </h3>
+
+          <p class="mt-3 text-sm leading-relaxed text-white/60">
+            {item.description}
+          </p>
+
+        </article>
+      ))}
+
     </div>
+
   </div>
 </section>

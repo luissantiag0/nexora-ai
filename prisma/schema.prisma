@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+/**
+ * USUARIOS (clientes de tu SaaS / agencia)
+ */
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("client") // client | admin
+  createdAt DateTime @default(now())
+
+  leads     Lead[]
+}
+
+/**
+ * LEADS (CRM por usuario)
+ */
+model Lead {
+  id        String   @id @default(cuid())
+
+  name      String
+  email     String
+  company   String?
+  message   String
+
+  status    String   @default("new") // new, contacted, qualified, etc.
+
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

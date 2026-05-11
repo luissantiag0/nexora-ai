@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { appendLead, buildFollowUpPayload } from "../../lib/leadStorage";
+import { appendLead, buildFollowUpPayload } from "../../../lib/leadStorage";
 import { randomUUID } from "node:crypto";
 
 export const prerender = false;

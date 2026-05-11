@@ -6,13 +6,13 @@
     "company": "TestCorp",
     "message": "prueba",
     "timestamp": "2026-05-05T15:45:45.927Z",
-    "status": "new",
+    "status": "proposal_sent",
     "notes": [],
     "followUp": {
-      "shouldFollowUp": true,
-      "preparedAt": "2026-05-05T15:52:41.329Z",
-      "subject": "Next steps for TestCorp automation audit",
-      "body": "Hi Test User, thanks for reaching out. I'd like to share a quick automation audit for TestCorp and identify your highest-ROI opportunities."
+      "shouldFollowUp": false,
+      "preparedAt": null,
+      "subject": "",
+      "body": ""
     }
   },
   {
@@ -57,6 +57,198 @@
       "preparedAt": "",
       "subject": "",
       "body": ""
+    }
+  },
+  {
+    "id": "4119b301-804e-46f5-a37e-3d88af69f6de",
+    "name": "d",
+    "email": "d@gmail.com",
+    "company": "d",
+    "message": "ekodnqwodnqowdnqowiwdqwdqwdqwdqwdqwdqwdqwdq",
+    "timestamp": "2026-05-06T14:30:16.700Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-06T14:30:16.701Z",
+      "subject": "Next steps for d automation audit",
+      "body": "Hi d, thanks for reaching out. I'd like to share a quick automation audit for d and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "63b64e11-e02a-4241-8a83-dfe50a97db6c",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:51.585Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:51.586Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "e4f5ceda-20f3-4c45-b672-55e075968d18",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:52.801Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:52.801Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "83462dd6-9ce5-4a96-9cfb-7d812fbb803e",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:53.481Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:53.481Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "48719739-89d6-4aa4-9c97-5d5d75b7a10a",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:54.122Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:54.122Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "c05e5bb9-570b-4a56-9ee0-eab4abe6f3fc",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:54.273Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:54.273Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "b06c5f88-b28e-4167-9c6e-5422e23577b3",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:54.449Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:54.450Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "cf1a093f-5a11-408a-a4b4-302dfaeec093",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:54.593Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:54.593Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "b72552c8-4fc9-41f6-9969-d664c79e2fe1",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:54.737Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:54.738Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "36e9f4c1-a3bd-41d9-bbf0-74aabd7f33bf",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:54.889Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:54.889Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "c66639d3-2e3b-4053-b14b-27c551ba1379",
+    "name": "Luid",
+    "email": "lius@gmial.com",
+    "company": "Noseee",
+    "message": "dnowendwdnbwodnwod dowdnw",
+    "timestamp": "2026-05-07T12:39:55.041Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T12:39:55.042Z",
+      "subject": "Next steps for Noseee automation audit",
+      "body": "Hi Luid, thanks for reaching out. I'd like to share a quick automation audit for Noseee and identify your highest-ROI opportunities."
+    }
+  },
+  {
+    "id": "d5136702-3c46-4e67-8f78-715aa8a5caf0",
+    "name": "prueab",
+    "email": "prueba@gmail.com",
+    "company": "dwdsds",
+    "message": "ndowndowndwodwqdqwdqwdqwdqwdqw",
+    "timestamp": "2026-05-07T13:24:32.003Z",
+    "status": "new",
+    "notes": [],
+    "followUp": {
+      "shouldFollowUp": true,
+      "preparedAt": "2026-05-07T13:24:32.004Z",
+      "subject": "Next steps for dwdsds automation audit",
+      "body": "Hi prueab, thanks for reaching out. I'd like to share a quick automation audit for dwdsds and identify your highest-ROI opportunities."
     }
   }
 ]

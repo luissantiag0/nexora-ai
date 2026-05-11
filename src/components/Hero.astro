@@ -1,38 +1,87 @@
-<section class="section-spacing pt-18 md:pt-24">
-  <div class="container-shell">
-    <div class="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-16">
+<section class="relative overflow-hidden pb-20 pt-16 md:pb-24 md:pt-24">
+
+  <!-- background glow -->
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute left-1/2 top-[-10%] h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-white/5 blur-3xl"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-6 md:px-10">
+
+    <div class="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-16">
+
+      <!-- LEFT -->
       <div>
-        <span class="section-eyebrow">AI Automation Agency</span>
-        <h1 class="max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight text-white md:text-6xl">
-          Cut operating costs and reclaim team capacity with AI systems built for revenue operations
+
+        <span class="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-white/60">
+          Agencia de Automatización con IA
+        </span>
+
+        <h1 class="mt-6 max-w-4xl text-4xl font-semibold leading-[1.05] text-white md:text-6xl">
+          Reduce costes operativos y escala tu negocio con sistemas de IA listos para producción
         </h1>
-        <p class="mt-6 max-w-2xl text-base leading-relaxed text-text-muted md:text-lg">
-          NexoraAI helps B2B teams reduce manual workload, speed up execution, and scale service delivery through production-ready automation and AI software.
+
+        <p class="mt-6 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">
+          Creamos sistemas de automatización con IA que eliminan tareas manuales, aceleran los procesos del negocio y permiten escalar la operación sin aumentar el equipo.
         </p>
+
+        <!-- CTA -->
         <div class="mt-10 flex flex-wrap gap-4">
-          <button type="button" class="btn-primary" data-open-lead-modal>Book a 30-minute automation audit</button>
-          <a href="#services" class="btn-secondary">See how we deliver ROI</a>
+
+          <button
+            type="button"
+            data-open-lead-modal
+            class="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 font-semibold text-black transition hover:scale-[1.02]"
+          >
+            Solicitar análisis gratuito
+          </button>
+
+          <a href="#services" class="inline-flex items-center justify-center rounded-xl border border-white/15 px-6 py-3 text-white">
+            Ver implementaciones
+          </a>
+
         </div>
-        <p class="mt-4 text-sm text-text-muted">Built for teams that need measurable impact, not AI experiments.</p>
+
+        <p class="mt-5 text-sm text-white/40">
+          Diseñado para empresas que buscan resultados medibles, no experimentos con IA.
+        </p>
+
       </div>
 
-      <div class="card-surface p-7 md:p-8">
-        <p class="text-sm font-medium uppercase tracking-[0.14em] text-text-muted">Expected Outcomes</p>
+      <!-- RIGHT CARD -->
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md md:p-8 transition hover:border-white/20">
+
+        <p class="text-xs font-medium uppercase tracking-[0.14em] text-white/50">
+          Resultados esperados
+        </p>
+
         <ul class="mt-7 space-y-6">
-          <li class="border-b border-border-subtle pb-6">
-            <p class="text-3xl font-semibold text-white md:text-4xl">40%+</p>
-            <p class="mt-2 text-sm leading-relaxed text-text-muted">Reduction in repetitive operational workload</p>
+
+          <li class="border-b border-white/10 pb-6">
+            <p class="text-3xl font-semibold text-white md:text-4xl">-40%</p>
+            <p class="mt-2 text-sm leading-relaxed text-white/60">
+              Reducción de carga de trabajo manual repetitiva
+            </p>
           </li>
-          <li class="border-b border-border-subtle pb-6">
+
+          <li class="border-b border-white/10 pb-6">
             <p class="text-3xl font-semibold text-white md:text-4xl">24/7</p>
-            <p class="mt-2 text-sm leading-relaxed text-text-muted">Always-on execution across support and back-office tasks</p>
+            <p class="mt-2 text-sm leading-relaxed text-white/60">
+              Operación continua sin interrupciones en procesos clave
+            </p>
           </li>
+
           <li>
-            <p class="text-3xl font-semibold text-white md:text-4xl">Secure</p>
-            <p class="mt-2 text-sm leading-relaxed text-text-muted">Enterprise-ready delivery with reliable, scalable architecture</p>
+            <p class="text-3xl font-semibold text-white md:text-4xl">Escalable</p>
+            <p class="mt-2 text-sm leading-relaxed text-white/60">
+              Arquitectura preparada para crecer sin aumentar equipo
+            </p>
           </li>
+
         </ul>
+
       </div>
+
     </div>
+
   </div>
 </section>

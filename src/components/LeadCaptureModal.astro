@@ -1,242 +1,251 @@
+---
+---
+
+<!-- LEAD MODAL -->
 <div
   id="lead-capture-modal"
-  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="lead-modal-title"
   aria-hidden="true"
+  class="fixed inset-0 z-50 hidden items-center justify-center p-4"
 >
-  <div class="w-full max-w-2xl rounded-2xl border border-border-subtle bg-surface-elevated p-6 shadow-2xl md:p-8">
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <p class="section-eyebrow mb-3">Book your strategy call</p>
-        <h3 class="text-2xl font-semibold tracking-tight text-white md:text-3xl">Tell us what you need to automate</h3>
-        <p class="mt-3 text-sm leading-relaxed text-text-muted md:text-base">
-          Share your goals and current bottlenecks. We will follow up with a tailored automation strategy.
+  <!-- Backdrop -->
+  <div
+    id="lead-modal-backdrop"
+    class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+  ></div>
+
+  <!-- Panel -->
+  <div
+    id="lead-modal-panel"
+    class="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#0D1117] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.8)] transition-all duration-300"
+    style="transform: translateY(16px); opacity: 0;"
+  >
+
+    <!-- FORM -->
+    <div id="lead-modal-form-state">
+
+      <div class="border-b border-white/[0.07] px-6 py-5 md:px-8">
+        <h2 id="lead-modal-title" class="text-xl font-semibold text-white">
+          Cuéntanos qué quieres automatizar
+        </h2>
+        <p class="mt-2 text-sm text-white/50">
+          Diseñamos un sistema de automatización adaptado a tu negocio.
         </p>
       </div>
+
+      <form id="lead-capture-form" class="px-6 py-6 md:px-8" novalidate>
+
+        <input type="hidden" id="lead-submitted-at" name="submittedAt" />
+
+        <!-- NAME -->
+        <div class="mb-4">
+          <label class="text-sm text-white/70">Nombre completo</label>
+          <input name="fullName" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white" />
+          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="fullName"></p>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="mb-4">
+          <label class="text-sm text-white/70">Email</label>
+          <input name="email" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white" />
+          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="email"></p>
+        </div>
+
+        <!-- COMPANY -->
+        <div class="mb-4">
+          <label class="text-sm text-white/70">Empresa</label>
+          <input name="companyName" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white" />
+          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="companyName"></p>
+        </div>
+
+        <!-- MESSAGE -->
+        <div class="mb-4">
+          <label class="text-sm text-white/70">Qué necesitas automatizar</label>
+          <textarea name="message" rows="4" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white"></textarea>
+          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="message"></p>
+        </div>
+
+        <!-- ERROR -->
+        <div id="lead-error-banner" class="hidden mb-3 rounded-xl bg-red-500/10 p-3 text-red-300">
+          <p id="lead-error-message"></p>
+        </div>
+
+        <!-- BUTTON -->
+        <button
+          id="lead-submit-btn"
+          type="submit"
+          class="w-full rounded-xl bg-white px-6 py-3 font-semibold text-black"
+        >
+          <span id="lead-submit-label">Solicitar llamada</span>
+          <span id="lead-submit-spinner" class="hidden">⏳</span>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="lead-modal-success-state" class="hidden p-10 text-center text-white">
+      <h3 class="text-xl font-semibold">Solicitud enviada</h3>
+      <p class="mt-2 text-white/60">
+        Te contactaremos en menos de 24 horas.
+      </p>
+
       <button
         type="button"
         data-close-lead-modal
-        class="rounded-lg border border-border-subtle px-3 py-2 text-sm text-text-muted transition hover:border-border-strong hover:text-white"
-        aria-label="Close lead form"
+        class="mt-6 rounded-xl border border-white/10 px-5 py-2"
       >
-        Close
+        Cerrar
       </button>
     </div>
 
-    <form id="lead-capture-form" class="mt-7 grid gap-4">
-      <input type="hidden" name="submittedAt" />
-      <input type="text" name="companyWebsite" autocomplete="off" tabindex="-1" class="hidden" />
-
-      <label class="grid gap-2">
-        <span class="text-sm font-medium text-white">Full name</span>
-        <input
-          required
-          type="text"
-          name="fullName"
-          autocomplete="name"
-          class="form-input"
-          placeholder="Jane Smith"
-        />
-        <p class="hidden text-xs text-rose-300" data-error-for="fullName"></p>
-      </label>
-
-      <label class="grid gap-2">
-        <span class="text-sm font-medium text-white">Email</span>
-        <input
-          required
-          type="email"
-          name="email"
-          autocomplete="email"
-          class="form-input"
-          placeholder="jane@company.com"
-        />
-        <p class="hidden text-xs text-rose-300" data-error-for="email"></p>
-      </label>
-
-      <label class="grid gap-2">
-        <span class="text-sm font-medium text-white">Company name</span>
-        <input
-          required
-          type="text"
-          name="companyName"
-          autocomplete="organization"
-          class="form-input"
-          placeholder="Acme Inc."
-        />
-        <p class="hidden text-xs text-rose-300" data-error-for="companyName"></p>
-      </label>
-
-      <label class="grid gap-2">
-        <span class="text-sm font-medium text-white">Message / AI need description</span>
-        <textarea
-          required
-          name="message"
-          rows="4"
-          class="form-input"
-          placeholder="We want to automate invoice processing and customer support workflows."
-        ></textarea>
-        <p class="hidden text-xs text-rose-300" data-error-for="message"></p>
-      </label>
-
-      <p id="lead-form-feedback" class="hidden text-sm"></p>
-
-      <div class="mt-2 flex flex-wrap items-center gap-3">
-        <button id="lead-form-submit" type="submit" class="btn-primary">Submit request</button>
-        <p class="text-xs text-text-muted">We typically respond within one business day.</p>
-      </div>
-    </form>
   </div>
 </div>
 
-<script>
+<script is:inline>
+(function () {
+
+  if (window.__leadModalInitialized) return;
+  window.__leadModalInitialized = true;
+
   const modal = document.getElementById("lead-capture-modal");
   const form = document.getElementById("lead-capture-form");
-  const submitButton = document.getElementById("lead-form-submit");
-  const feedback = document.getElementById("lead-form-feedback");
-  const openButtons = document.querySelectorAll("[data-open-lead-modal]");
-  const closeButtons = document.querySelectorAll("[data-close-lead-modal]");
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const panel = document.getElementById("lead-modal-panel");
+  const backdrop = document.getElementById("lead-modal-backdrop");
 
-  const fieldErrors = {
-    fullName: "Full name is required.",
-    email: "Enter a valid email address.",
-    companyName: "Company name is required.",
-    message: "Message must be at least 20 characters."
-  };
+  const submitBtn = document.getElementById("lead-submit-btn");
+  const submitLabel = document.getElementById("lead-submit-label");
+  const submitSpinner = document.getElementById("lead-submit-spinner");
 
-  const getField = (name) => form?.querySelector(`[name="${name}"]`);
-  const getErrorNode = (name) => form?.querySelector(`[data-error-for="${name}"]`);
+  const formState = document.getElementById("lead-modal-form-state");
+  const successState = document.getElementById("lead-modal-success-state");
 
-  const setFieldError = (name, message) => {
-    const input = getField(name);
-    const errorNode = getErrorNode(name);
-    if (!input || !errorNode) return;
-    if (!message) {
-      input.classList.remove("form-input-error");
-      errorNode.classList.add("hidden");
-      errorNode.textContent = "";
-      return;
-    }
-    input.classList.add("form-input-error");
-    errorNode.classList.remove("hidden");
-    errorNode.textContent = message;
-  };
+  const errorBanner = document.getElementById("lead-error-banner");
+  const errorMessage = document.getElementById("lead-error-message");
 
-  const validatePayload = (payload) => {
-    const errors = {};
-    if (!payload.fullName) errors.fullName = fieldErrors.fullName;
-    if (!payload.companyName) errors.companyName = fieldErrors.companyName;
-    if (!emailRegex.test(payload.email)) errors.email = fieldErrors.email;
-    if (payload.message.length < 20) errors.message = fieldErrors.message;
-    return errors;
-  };
+  const submittedAtInput = document.getElementById("lead-submitted-at");
 
-  const openModal = () => {
-    if (!modal) return;
-    const submittedAt = form?.querySelector('[name="submittedAt"]');
-    if (submittedAt) submittedAt.value = String(Date.now());
+  if (!modal || !form) return;
+
+  let isLoading = false;
+
+  // OPEN MODAL
+  function showModal() {
+    submittedAtInput.value = Date.now();
+
+    formState.classList.remove("hidden");
+    successState.classList.add("hidden");
+
     modal.classList.remove("hidden");
     modal.classList.add("flex");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-  };
 
-  const closeModal = () => {
-    if (!modal) return;
+    document.body.style.overflow = "hidden";
+
+    requestAnimationFrame(() => {
+      panel.style.opacity = "1";
+      panel.style.transform = "translateY(0)";
+    });
+  }
+
+  // CLOSE MODAL
+  function hideModal() {
     modal.classList.add("hidden");
     modal.classList.remove("flex");
-    modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
-  };
+  }
 
-  openButtons.forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.preventDefault();
-      openModal();
+  function setLoading(state) {
+    isLoading = state;
+    submitBtn.disabled = state;
+    submitLabel.textContent = state ? "Enviando..." : "Solicitar llamada";
+    submitSpinner.classList.toggle("hidden", !state);
+  }
+
+  function showError(msg) {
+    errorMessage.textContent = msg;
+    errorBanner.classList.remove("hidden");
+  }
+
+  function hideError() {
+    errorBanner.classList.add("hidden");
+  }
+
+  function clearErrors() {
+    document.querySelectorAll(".lead-field-error").forEach(e => {
+      e.classList.add("hidden");
     });
-  });
+  }
 
-  closeButtons.forEach((button) => {
-    button.addEventListener("click", closeModal);
-  });
+  // CLICK HANDLER
+  document.addEventListener("click", (e) => {
+    const open = e.target.closest("[data-open-lead-modal]");
+    const close = e.target.closest("[data-close-lead-modal]");
 
-  modal?.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      closeModal();
+    if (open) {
+      e.preventDefault();
+      e.stopPropagation();
+      showModal();
+    }
+
+    if (close) {
+      hideModal();
     }
   });
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && modal?.getAttribute("aria-hidden") === "false") {
-      closeModal();
-    }
+  backdrop.addEventListener("click", hideModal);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideModal();
   });
 
-  form?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!form || !submitButton || !feedback) return;
+  // SUBMIT
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (isLoading) return;
 
-    const formData = new FormData(form);
-    const payload = {
-      fullName: String(formData.get("fullName") || "").trim(),
-      email: String(formData.get("email") || "").trim(),
-      companyName: String(formData.get("companyName") || "").trim(),
-      message: String(formData.get("message") || "").trim(),
-      companyWebsite: String(formData.get("companyWebsite") || "").trim(),
-      submittedAt: String(formData.get("submittedAt") || "")
-    };
+    clearErrors();
+    hideError();
 
-    const errors = validatePayload(payload);
-    setFieldError("fullName", errors.fullName);
-    setFieldError("email", errors.email);
-    setFieldError("companyName", errors.companyName);
-    setFieldError("message", errors.message);
-    if (Object.keys(errors).length > 0) return;
+    const fd = new FormData(form);
 
-    submitButton.disabled = true;
-    submitButton.textContent = "Submitting request...";
-    feedback.classList.add("hidden");
+    const fullName = fd.get("fullName")?.toString().trim() || "";
+    const email = fd.get("email")?.toString().trim() || "";
+    const companyName = fd.get("companyName")?.toString().trim() || "";
+    const message = fd.get("message")?.toString().trim() || "";
+
+    if (!fullName || !email || !companyName || !message) {
+      showError("Rellena todos los campos");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const response = await fetch("/api/lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, email, companyName, message })
       });
 
-      const result = await response.json();
+      if (!res.ok) throw new Error("Error");
 
-      if (!response.ok) {
-        throw new Error(result?.message || "Submission failed.");
-      }
+      formState.classList.add("hidden");
+      successState.classList.remove("hidden");
 
-      feedback.textContent = "Thanks, your request was received. We will contact you shortly.";
-      feedback.className = "text-sm text-emerald-300";
       form.reset();
-      const submittedAt = form.querySelector('[name="submittedAt"]');
-      if (submittedAt) submittedAt.value = String(Date.now());
-    } catch (error) {
-      feedback.textContent = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-      feedback.className = "text-sm text-rose-300";
+
+      setTimeout(() => {
+        hideModal();
+      }, 1500);
+
+    } catch (err) {
+      showError("Error enviando el formulario");
     } finally {
-      feedback.classList.remove("hidden");
-      submitButton.disabled = false;
-      submitButton.textContent = "Submit request";
+      setLoading(false);
     }
   });
 
-  ["fullName", "email", "companyName", "message"].forEach((name) => {
-    const field = getField(name);
-    field?.addEventListener("input", () => {
-      const payload = {
-        fullName: String(getField("fullName")?.value || "").trim(),
-        email: String(getField("email")?.value || "").trim(),
-        companyName: String(getField("companyName")?.value || "").trim(),
-        message: String(getField("message")?.value || "").trim()
-      };
-      const errors = validatePayload(payload);
-      setFieldError(name, errors[name]);
-    });
-  });
+})();
 </script>

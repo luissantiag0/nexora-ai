@@ -8,7 +8,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,7 +21,80 @@ const {
     <meta name="twitter:card" content="summary_large_image" />
   </head>
 
-  <body class="bg-surface text-white antialiased">
+  <body class="min-h-screen bg-[#07070A] text-white antialiased selection:bg-cyan-300/20 selection:text-cyan-100">
     <slot />
+
+    <script is:inline>
+      if (window.__modalInit) return;
+      window.__modalInit = true;
+
+      console.log("GLOBAL MODAL SCRIPT LOADED");
+
+      function getModal() {
+        return document.getElementById("lead-capture-modal");
+      }
+
+      function getPanel() {
+        return document.getElementById("lead-modal-panel");
+      }
+
+      function showModal() {
+        const modal = getModal();
+        const panel = getPanel();
+
+        if (!modal || !panel) return;
+
+        // reset estado SIEMPRE al abrir
+        panel.style.transition = "none";
+        panel.style.opacity = "0";
+        panel.style.transform = "translateY(16px)";
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        modal.setAttribute("aria-hidden", "false");
+
+        document.body.style.overflow = "hidden";
+
+        requestAnimationFrame(() => {
+          panel.style.transition = "transform 280ms ease, opacity 280ms ease";
+          panel.style.opacity = "1";
+          panel.style.transform = "translateY(0)";
+        });
+      }
+
+      function hideModal() {
+        const modal = getModal();
+        const panel = getPanel();
+
+        if (!modal || !panel) return;
+
+        panel.style.transition = "transform 200ms ease, opacity 200ms ease";
+        panel.style.opacity = "0";
+        panel.style.transform = "translateY(16px)";
+
+        setTimeout(() => {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+          modal.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+        }, 200);
+      }
+
+      document.addEventListener("click", (e) => {
+        const openTrigger = e.target.closest("[data-open-lead-modal]");
+        const closeTrigger = e.target.closest("[data-close-lead-modal]");
+
+        if (openTrigger) {
+          e.preventDefault();
+          showModal();
+          return;
+        }
+
+        if (closeTrigger) {
+          hideModal();
+          return;
+        }
+      });
+    </script>
   </body>
 </html>

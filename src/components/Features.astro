@@ -1,47 +1,71 @@
 ---
 const features = [
   {
-    title: "OpenAI / LLM integration",
+    title: "Integración con OpenAI / modelos LLM",
     description:
-      "Deploy AI capabilities your team can trust, with dependable outputs that support day-to-day business decisions."
+      "Implementamos capacidades de IA fiables para tu negocio, con respuestas consistentes que apoyan la toma de decisiones diarias."
   },
   {
-    title: "RAG pipelines",
+    title: "Pipelines RAG",
     description:
-      "Turn scattered documents into a reliable answer layer so teams spend less time searching and more time executing."
+      "Transforma documentos dispersos en una capa de conocimiento centralizada para que los equipos encuentren respuestas más rápido y ejecuten mejor."
   },
   {
-    title: "Automation workflows",
+    title: "Flujos de automatización",
     description:
-      "Automate repetitive process steps across your stack to reduce delays, eliminate manual follow-up, and keep work moving."
+      "Automatiza procesos repetitivos en tu stack para reducir tiempos, eliminar tareas manuales y mantener el trabajo en movimiento."
   },
   {
-    title: "SaaS architecture",
+    title: "Arquitectura SaaS escalable",
     description:
-      "Launch systems built to scale with your company, so performance and reliability hold as demand grows."
+      "Construimos sistemas preparados para crecer con tu empresa sin perder rendimiento ni estabilidad."
   }
 ];
 ---
 
-<section id="technology" class="section-spacing border-t border-border-subtle/80">
-  <div class="container-shell">
+<section id="technology" class="border-t border-white/10 bg-[#07070A] py-24 md:py-28">
+  <div class="mx-auto max-w-7xl px-6 md:px-10">
+
+    <!-- HEADER -->
     <div class="max-w-3xl">
-      <span class="section-eyebrow">Technology</span>
-      <h2 class="section-heading">Built with modern AI infrastructure</h2>
-      <p class="section-copy">
-        Our technology stack is designed to convert AI into dependable business execution, not one-off technical experiments.
+      <span class="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-white/60">
+        Tecnología
+      </span>
+
+      <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+        Construido con infraestructura moderna de IA
+      </h2>
+
+      <p class="mt-5 text-base leading-relaxed text-white/60 md:text-lg">
+        Nuestra tecnología está diseñada para convertir la IA en ejecución real de negocio, no en experimentos aislados.
       </p>
     </div>
 
-    <div class="mt-14 grid gap-6 md:grid-cols-2">
+    <!-- GRID -->
+    <div class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+
       {
         features.map((feature) => (
-          <article class="card-surface p-7">
-            <h3 class="text-xl font-semibold leading-snug text-white">{feature.title}</h3>
-            <p class="mt-3 text-sm leading-relaxed text-text-muted md:text-[0.95rem]">{feature.description}</p>
+          <article class="group relative rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10">
+
+            <!-- glow subtle effect -->
+            <div class="pointer-events-none absolute inset-0 opacity-0 transition group-hover:opacity-100">
+              <div class="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/10 to-transparent" />
+            </div>
+
+            <h3 class="text-lg font-semibold text-white">
+              {feature.title}
+            </h3>
+
+            <p class="mt-3 text-sm leading-relaxed text-white/60">
+              {feature.description}
+            </p>
+
           </article>
         ))
       }
+
     </div>
+
   </div>
 </section>
