@@ -2,33 +2,31 @@
 ---
 
 <footer class="border-t border-white/10 bg-[#07070A] py-12">
-  <div class="mx-auto flex max-w-7xl flex-col gap-6 px-6 md:flex-row md:items-center md:justify-between md:px-10">
-
-    <!-- LEFT -->
+  <div class="container flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
     <p class="text-sm text-white/40">
       © {new Date().getFullYear()} NexoraAI. Todos los derechos reservados.
     </p>
 
-    <!-- RIGHT LINKS -->
     <div class="flex flex-wrap items-center gap-6 text-sm">
-
-      <a href="#services" class="text-white/50 transition hover:text-white">
+      <a href="#services" class="text-white/50 transition hover:text-cyan-100">
         Servicios
       </a>
 
-      <a href="#use-cases" class="text-white/50 transition hover:text-white">
+      <a href="#use-cases" class="text-white/50 transition hover:text-cyan-100">
         Casos de uso
       </a>
 
-      <a href="#technology" class="text-white/50 transition hover:text-white">
+      <a href="#technology" class="text-white/50 transition hover:text-cyan-100">
         Tecnología
       </a>
 
-      <a href="#contact" class="rounded-full border border-white/10 px-3 py-1 text-white/50 transition hover:bg-white/5 hover:text-white">
+      <button
+        type="button"
+        data-open-lead-modal
+        class="rounded-full border border-white/10 px-3 py-1 text-white/50 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100"
+      >
         Contacto
-      </a>
-
+      </button>
     </div>
-
   </div>
 </footer>

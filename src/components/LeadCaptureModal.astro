@@ -1,7 +1,6 @@
 ---
 ---
 
-<!-- LEAD MODAL -->
 <div
   id="lead-capture-modal"
   role="dialog"
@@ -10,103 +9,154 @@
   aria-hidden="true"
   class="fixed inset-0 z-50 hidden items-center justify-center p-4"
 >
-  <!-- Backdrop -->
   <div
     id="lead-modal-backdrop"
-    class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+    class="absolute inset-0 bg-black/70 opacity-0 backdrop-blur-xl transition-opacity duration-300"
   ></div>
 
-  <!-- Panel -->
   <div
     id="lead-modal-panel"
-    class="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#0D1117] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.8)] transition-all duration-300"
-    style="transform: translateY(16px); opacity: 0;"
+    class="relative w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#090C12]/95 shadow-[0_30px_90px_-35px_rgba(34,211,238,0.7)] ring-1 ring-white/[0.04] transition duration-300"
+    style="transform: translateY(18px) scale(0.98); opacity: 0;"
   >
-
-    <!-- FORM -->
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent"></div>
     <div id="lead-modal-form-state">
+      <div class="border-b border-white/[0.08] px-6 py-5 md:px-8">
+        <div class="flex items-start justify-between gap-5">
+          <div>
+            <p class="text-xs font-medium uppercase tracking-[0.18em] text-cyan-200/80">
+              Análisis gratuito
+            </p>
 
-      <div class="border-b border-white/[0.07] px-6 py-5 md:px-8">
-        <h2 id="lead-modal-title" class="text-xl font-semibold text-white">
-          Cuéntanos qué quieres automatizar
-        </h2>
-        <p class="mt-2 text-sm text-white/50">
-          Diseñamos un sistema de automatización adaptado a tu negocio.
-        </p>
+            <h2 id="lead-modal-title" class="mt-3 text-2xl font-semibold tracking-tight text-white">
+              Cuéntanos qué quieres automatizar
+            </h2>
+
+            <p class="mt-2 text-sm leading-relaxed text-white/55">
+              Revisamos tu flujo actual y te respondemos con oportunidades claras de automatización.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            data-close-lead-modal
+            aria-label="Cerrar formulario"
+            class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-xl leading-none text-white/60 transition hover:border-white/25 hover:bg-white/10 hover:text-white"
+          >
+            ×
+          </button>
+        </div>
       </div>
 
-      <form id="lead-capture-form" class="px-6 py-6 md:px-8" novalidate>
-
+      <form id="lead-capture-form" class="space-y-4 px-6 py-6 md:px-8" novalidate>
         <input type="hidden" id="lead-submitted-at" name="submittedAt" />
 
-        <!-- NAME -->
-        <div class="mb-4">
-          <label class="text-sm text-white/70">Nombre completo</label>
-          <input name="fullName" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white" />
-          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="fullName"></p>
+        <div class="hidden" aria-hidden="true">
+          <label>
+            Web
+            <input tabindex="-1" autocomplete="off" name="companyWebsite" />
+          </label>
         </div>
 
-        <!-- EMAIL -->
-        <div class="mb-4">
-          <label class="text-sm text-white/70">Email</label>
-          <input name="email" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white" />
-          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="email"></p>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="space-y-2">
+            <span class="text-sm text-white/70">Nombre completo</span>
+            <input
+              name="fullName"
+              autocomplete="name"
+              class="lead-input w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+              placeholder="Tu nombre"
+            />
+            <span class="lead-field-error hidden text-xs text-red-300" data-error-for="fullName"></span>
+          </label>
+
+          <label class="space-y-2">
+            <span class="text-sm text-white/70">Email</span>
+            <input
+              type="email"
+              name="email"
+              autocomplete="email"
+              class="lead-input w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+              placeholder="tu@email.com"
+            />
+            <span class="lead-field-error hidden text-xs text-red-300" data-error-for="email"></span>
+          </label>
         </div>
 
-        <!-- COMPANY -->
-        <div class="mb-4">
-          <label class="text-sm text-white/70">Empresa</label>
-          <input name="companyName" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white" />
-          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="companyName"></p>
-        </div>
+        <label class="block space-y-2">
+          <span class="text-sm text-white/70">Empresa</span>
+          <input
+            name="companyName"
+            autocomplete="organization"
+            class="lead-input w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            placeholder="Nombre de tu empresa"
+          />
+          <span class="lead-field-error hidden text-xs text-red-300" data-error-for="companyName"></span>
+        </label>
 
-        <!-- MESSAGE -->
-        <div class="mb-4">
-          <label class="text-sm text-white/70">Qué necesitas automatizar</label>
-          <textarea name="message" rows="4" class="lead-input w-full rounded-xl bg-white/5 p-3 text-white"></textarea>
-          <p class="lead-field-error hidden text-xs text-red-400" data-error-for="message"></p>
-        </div>
+        <label class="block space-y-2">
+          <span class="text-sm text-white/70">Qué necesitas automatizar</span>
+          <textarea
+            name="message"
+            rows="4"
+            class="lead-input w-full resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            placeholder="Cuéntanos el proceso, herramienta o cuello de botella..."
+          ></textarea>
+          <span class="lead-field-error hidden text-xs text-red-300" data-error-for="message"></span>
+        </label>
 
-        <!-- ERROR -->
-        <div id="lead-error-banner" class="hidden mb-3 rounded-xl bg-red-500/10 p-3 text-red-300">
+        <div
+          id="lead-error-banner"
+          class="hidden rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+        >
           <p id="lead-error-message"></p>
         </div>
 
-        <!-- BUTTON -->
         <button
           id="lead-submit-btn"
           type="submit"
-          class="w-full rounded-xl bg-white px-6 py-3 font-semibold text-black"
+          class="group relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-white px-6 py-3.5 font-semibold text-black shadow-[0_18px_55px_-26px_rgba(255,255,255,0.9)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-24px_rgba(34,211,238,0.9)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          <span id="lead-submit-label">Solicitar llamada</span>
-          <span id="lead-submit-spinner" class="hidden">⏳</span>
+          <span class="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent transition duration-700 group-hover:translate-x-[120%]"></span>
+          <span id="lead-submit-label" class="relative">Solicitar llamada</span>
+          <span
+            id="lead-submit-spinner"
+            class="relative ml-3 hidden h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black"
+          ></span>
         </button>
 
+        <p class="text-center text-xs text-white/35">
+          Tu solicitud se enviará directamente al equipo de NexoraAI.
+        </p>
       </form>
     </div>
 
-    <!-- SUCCESS -->
-    <div id="lead-modal-success-state" class="hidden p-10 text-center text-white">
-      <h3 class="text-xl font-semibold">Solicitud enviada</h3>
-      <p class="mt-2 text-white/60">
-        Te contactaremos en menos de 24 horas.
+    <div id="lead-modal-success-state" class="hidden px-8 py-12 text-center">
+      <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-emerald-300/25 bg-emerald-300/10 text-emerald-200">
+        ✓
+      </div>
+
+      <h3 class="mt-6 text-2xl font-semibold text-white">
+        Solicitud enviada
+      </h3>
+
+      <p class="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-white/60">
+        Hemos recibido tu información. Te contactaremos en menos de 24 horas.
       </p>
 
       <button
         type="button"
         data-close-lead-modal
-        class="mt-6 rounded-xl border border-white/10 px-5 py-2"
+        class="mt-7 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white transition hover:border-white/25 hover:bg-white/10"
       >
         Cerrar
       </button>
     </div>
-
   </div>
 </div>
 
 <script is:inline>
-(function () {
-
+(() => {
   if (window.__leadModalInitialized) return;
   window.__leadModalInitialized = true;
 
@@ -114,138 +164,194 @@
   const form = document.getElementById("lead-capture-form");
   const panel = document.getElementById("lead-modal-panel");
   const backdrop = document.getElementById("lead-modal-backdrop");
-
   const submitBtn = document.getElementById("lead-submit-btn");
   const submitLabel = document.getElementById("lead-submit-label");
   const submitSpinner = document.getElementById("lead-submit-spinner");
-
   const formState = document.getElementById("lead-modal-form-state");
   const successState = document.getElementById("lead-modal-success-state");
-
   const errorBanner = document.getElementById("lead-error-banner");
   const errorMessage = document.getElementById("lead-error-message");
-
   const submittedAtInput = document.getElementById("lead-submitted-at");
 
-  if (!modal || !form) return;
+  if (!modal || !form || !panel || !backdrop) return;
 
   let isLoading = false;
+  let lastFocusedElement = null;
 
-  // OPEN MODAL
-  function showModal() {
-    submittedAtInput.value = Date.now();
+  const setSubmittedAt = () => {
+    if (submittedAtInput) submittedAtInput.value = String(Date.now());
+  };
 
+  const openModal = () => {
+    lastFocusedElement = document.activeElement;
+    setSubmittedAt();
+    hideError();
+    clearErrors();
     formState.classList.remove("hidden");
     successState.classList.add("hidden");
-
     modal.classList.remove("hidden");
     modal.classList.add("flex");
-
+    modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
 
     requestAnimationFrame(() => {
+      backdrop.style.opacity = "1";
       panel.style.opacity = "1";
-      panel.style.transform = "translateY(0)";
+      panel.style.transform = "translateY(0) scale(1)";
+      form.querySelector("input[name='fullName']")?.focus();
     });
-  }
+  };
 
-  // CLOSE MODAL
-  function hideModal() {
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
-    document.body.style.overflow = "";
-  }
+  const closeModal = () => {
+    if (isLoading) return;
+    backdrop.style.opacity = "0";
+    panel.style.opacity = "0";
+    panel.style.transform = "translateY(18px) scale(0.98)";
 
-  function setLoading(state) {
+    window.setTimeout(() => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      lastFocusedElement?.focus?.();
+    }, 220);
+  };
+
+  const setLoading = (state) => {
     isLoading = state;
     submitBtn.disabled = state;
     submitLabel.textContent = state ? "Enviando..." : "Solicitar llamada";
     submitSpinner.classList.toggle("hidden", !state);
-  }
+  };
 
-  function showError(msg) {
-    errorMessage.textContent = msg;
+  function showError(message) {
+    errorMessage.textContent = message;
     errorBanner.classList.remove("hidden");
   }
 
   function hideError() {
     errorBanner.classList.add("hidden");
+    errorMessage.textContent = "";
   }
 
   function clearErrors() {
-    document.querySelectorAll(".lead-field-error").forEach(e => {
-      e.classList.add("hidden");
+    form.querySelectorAll(".lead-field-error").forEach((item) => {
+      item.textContent = "";
+      item.classList.add("hidden");
+    });
+
+    form.querySelectorAll(".lead-input").forEach((item) => {
+      item.classList.remove("border-red-300/60", "ring-4", "ring-red-300/10");
     });
   }
 
-  // CLICK HANDLER
-  document.addEventListener("click", (e) => {
-    const open = e.target.closest("[data-open-lead-modal]");
-    const close = e.target.closest("[data-close-lead-modal]");
+  function setFieldError(name, message) {
+    const field = form.querySelector(`[name="${name}"]`);
+    const target = form.querySelector(`[data-error-for="${name}"]`);
 
-    if (open) {
-      e.preventDefault();
-      e.stopPropagation();
-      showModal();
+    if (field) {
+      field.classList.add("border-red-300/60", "ring-4", "ring-red-300/10");
     }
 
-    if (close) {
-      hideModal();
+    if (target) {
+      target.textContent = message;
+      target.classList.remove("hidden");
+    }
+  }
+
+  const validate = (values) => {
+    const errors = {};
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!values.fullName) errors.fullName = "Indica tu nombre.";
+    if (!values.email) errors.email = "Indica tu email.";
+    if (values.email && !emailPattern.test(values.email)) errors.email = "Introduce un email válido.";
+    if (!values.companyName) errors.companyName = "Indica tu empresa.";
+    if (!values.message) errors.message = "Cuéntanos qué necesitas automatizar.";
+
+    return errors;
+  };
+
+  document.addEventListener("click", (event) => {
+    const openTrigger = event.target.closest("[data-open-lead-modal]");
+    const closeTrigger = event.target.closest("[data-close-lead-modal]");
+
+    if (openTrigger) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openModal();
+      return;
+    }
+
+    if (closeTrigger) {
+      event.preventDefault();
+      closeModal();
     }
   });
 
-  backdrop.addEventListener("click", hideModal);
+  backdrop.addEventListener("click", closeModal);
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") hideModal();
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+      closeModal();
+    }
   });
 
-  // SUBMIT
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
     if (isLoading) return;
 
     clearErrors();
     hideError();
 
-    const fd = new FormData(form);
+    const formData = new FormData(form);
+    const values = {
+      fullName: String(formData.get("fullName") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      companyName: String(formData.get("companyName") || "").trim(),
+      message: String(formData.get("message") || "").trim(),
+      companyWebsite: String(formData.get("companyWebsite") || "").trim(),
+      submittedAt: Number(formData.get("submittedAt") || Date.now()),
+    };
 
-    const fullName = fd.get("fullName")?.toString().trim() || "";
-    const email = fd.get("email")?.toString().trim() || "";
-    const companyName = fd.get("companyName")?.toString().trim() || "";
-    const message = fd.get("message")?.toString().trim() || "";
+    const errors = validate(values);
+    const errorEntries = Object.entries(errors);
 
-    if (!fullName || !email || !companyName || !message) {
-      showError("Rellena todos los campos");
+    if (errorEntries.length) {
+      errorEntries.forEach(([name, message]) => setFieldError(name, message));
+      showError("Revisa los campos marcados.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("/api/lead", {
+      const response = await fetch("/api/leads/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, companyName, message })
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify(values),
       });
 
-      if (!res.ok) throw new Error("Error");
+      const result = await response.json().catch(() => ({}));
 
+      if (!response.ok || result.success === false) {
+        throw new Error(result.message || "No se pudo enviar el formulario.");
+      }
+
+      form.reset();
       formState.classList.add("hidden");
       successState.classList.remove("hidden");
 
-      form.reset();
-
-      setTimeout(() => {
-        hideModal();
-      }, 1500);
-
-    } catch (err) {
-      showError("Error enviando el formulario");
+      window.setTimeout(closeModal, 2200);
+    } catch (error) {
+      showError(error.message || "Error enviando el formulario. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
+      setSubmittedAt();
     }
   });
-
 })();
 </script>

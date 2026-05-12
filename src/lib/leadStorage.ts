@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { randomUUID } from "node:crypto";
+import { hash } from "bcryptjs";
 
 /* =========================================
    ESTADOS
@@ -36,6 +37,60 @@ export type LeadAlmacenado = {
   }[];
 };
 
+const DEFAULT_LEAD_OWNER_EMAIL =
+  "lead-owner@nexora.local";
+
+export const obtenerUsuarioParaLeads = async (
+  preferredEmail?: string
+) => {
+  const email =
+    preferredEmail?.trim().toLowerCase();
+
+  if (email) {
+    const preferredUser =
+      await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+    if (preferredUser) {
+      return preferredUser;
+    }
+  }
+
+  const existingUser =
+    await prisma.user.findFirst({
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  const ownerEmail =
+    (
+      typeof process !== "undefined"
+        ? process.env.LEAD_OWNER_EMAIL
+        : ""
+    )?.trim().toLowerCase() ||
+    DEFAULT_LEAD_OWNER_EMAIL;
+
+  return prisma.user.upsert({
+    where: {
+      email: ownerEmail,
+    },
+    update: {},
+    create: {
+      email: ownerEmail,
+      passwordHash: await hash(randomUUID(), 10),
+      role: "system",
+    },
+  });
+};
+
 /* =========================================
    ACCIONES SUGERIDAS
 ========================================= */
@@ -68,6 +123,10 @@ export const obtenerAccionSiguiente = (
 export const guardarLead = async (
   lead: LeadAlmacenado
 ): Promise<void> => {
+  const userId =
+    lead.userId ??
+    (await obtenerUsuarioParaLeads()).id;
+
   await prisma.lead.create({
     data: {
       id: lead.id,
@@ -77,9 +136,94 @@ export const guardarLead = async (
       message: lead.mensaje,
       status: lead.estado,
       createdAt: new Date(lead.timestamp),
-      userId: lead.userId ?? "admin",
+      userId,
     },
   });
+};
+
+export const crearLeadManual = async (lead: {
+  nombre: string;
+  email: string;
+  empresa?: string | null;
+  mensaje: string;
+  estado?: EstadoLead;
+  userId: string;
+}) => {
+  const created = await prisma.lead.create({
+    data: {
+      id: randomUUID(),
+      name: lead.nombre,
+      email: lead.email,
+      company: lead.empresa || null,
+      message: lead.mensaje,
+      status: lead.estado ?? "nuevo",
+      userId: lead.userId,
+    },
+  });
+
+  return created.id;
+};
+
+export const actualizarLead = async (
+  leadId: string,
+  data: {
+    nombre: string;
+    email: string;
+    empresa?: string | null;
+    mensaje: string;
+    estado: EstadoLead;
+  }
+): Promise<boolean> => {
+  if (!ESTADOS_LEAD.includes(data.estado)) {
+    return false;
+  }
+
+  const lead = await prisma.lead.findUnique({
+    where: {
+      id: leadId,
+    },
+  });
+
+  if (!lead) {
+    return false;
+  }
+
+  await prisma.lead.update({
+    where: {
+      id: leadId,
+    },
+    data: {
+      name: data.nombre,
+      email: data.email,
+      company: data.empresa || null,
+      message: data.mensaje,
+      status: data.estado,
+    },
+  });
+
+  return true;
+};
+
+export const eliminarLead = async (
+  leadId: string
+): Promise<boolean> => {
+  const lead = await prisma.lead.findUnique({
+    where: {
+      id: leadId,
+    },
+  });
+
+  if (!lead) {
+    return false;
+  }
+
+  await prisma.lead.delete({
+    where: {
+      id: leadId,
+    },
+  });
+
+  return true;
 };
 
 /* =========================================

@@ -1,13 +1,13 @@
 import type { APIRoute } from "astro";
 import { guardarLead } from "../../../lib/leadStorage";
-import { prisma } from "../../../lib/prisma";
+import { sendNewLeadEmail } from "../../../lib/email";
 import { randomUUID } from "node:crypto";
 
 export const prerender = false;
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const jsonHeaders = { "Content-Type": "application/json" };
-const MIN_SUBMISSION_DELAY_MS = 1200;
+const MIN_SUBMISSION_DELAY_MS = 400;
 const MAX_NAME_LENGTH = 120;
 const MAX_EMAIL_LENGTH = 180;
 const MAX_COMPANY_LENGTH = 140;
@@ -32,7 +32,10 @@ const readEnv = (key: string): string => {
 };
 
 const jsonResponse = (status: number, body: Record<string, unknown>) =>
-  new Response(JSON.stringify(body), { status, headers: jsonHeaders });
+  new Response(JSON.stringify(body), {
+    status,
+    headers: jsonHeaders,
+  });
 
 const getClientIp = (request: Request): string =>
   request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -56,48 +59,6 @@ const sanitizeText = (value: string): string =>
     .replace(/\s+/g, " ")
     .trim();
 
-const buildEmailHtml = (lead: LeadPayload) => `
-  <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827">
-    <h2 style="margin-bottom:12px;">Nuevo lead enviado</h2>
-    <p><strong>Nombre:</strong> ${lead.name}</p>
-    <p><strong>Email:</strong> ${lead.email}</p>
-    <p><strong>Empresa:</strong> ${lead.company}</p>
-    <p><strong>Fecha:</strong> ${lead.timestamp}</p>
-    <hr style="margin:18px 0;border:none;border-top:1px solid #e5e7eb;" />
-    <p><strong>Mensaje:</strong></p>
-    <p style="white-space:pre-wrap;">${lead.message}</p>
-  </div>
-`;
-
-const sendLeadEmail = async (lead: LeadPayload) => {
-  const resendApiKey = readEnv("RESEND_API_KEY");
-  const leadFromEmail = readEnv("LEAD_FROM_EMAIL") || "NexoraAI <noreply@local.dev>";
-  const leadToEmail = readEnv("LEAD_TO_EMAIL") || "test@local.dev";
-  const resendApiUrl = readEnv("RESEND_API_URL") || "https://api.resend.com/emails";
-
-  if (!resendApiKey) {
-    console.log("[lead-api] Email omitido (sin API key).");
-    return;
-  }
-
-  await fetch(resendApiUrl, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from: leadFromEmail,
-      to: [leadToEmail],
-      subject: `Nuevo lead: ${lead.name} (${lead.company})`,
-      reply_to: lead.email,
-      html: buildEmailHtml(lead)
-    })
-  });
-
-  console.log("[lead-api] Email enviado.");
-};
-
 const sendLeadToCrmWebhook = async (lead: LeadPayload) => {
   const crmWebhookUrl = readEnv("CRM_WEBHOOK_URL");
   if (!crmWebhookUrl) {
@@ -115,44 +76,60 @@ const sendLeadToCrmWebhook = async (lead: LeadPayload) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = randomUUID();
+
   try {
     const clientIp = getClientIp(request);
+
     if (isRateLimited(clientIp)) {
+      console.warn(`[lead-api:${requestId}] Rate limit`, { clientIp });
+
       return jsonResponse(429, {
         success: false,
-        message: "Demasiadas solicitudes. Inténtalo más tarde."
+        message: "Demasiadas solicitudes. Inténtalo más tarde.",
       });
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+
+    if (!body || typeof body !== "object") {
+      return jsonResponse(400, {
+        success: false,
+        message: "Solicitud no válida.",
+      });
+    }
+
     const fullName = sanitizeText(String(body?.fullName ?? ""));
     const email = sanitizeText(String(body?.email ?? "")).toLowerCase();
     const companyName = sanitizeText(String(body?.companyName ?? ""));
     const message = sanitizeText(String(body?.message ?? ""));
     const companyWebsite = String(body?.companyWebsite ?? "").trim();
     const submittedAt = Number(body?.submittedAt ?? 0);
-    const submittedDelay = Date.now() - submittedAt;
+    const submittedDelay = submittedAt ? Date.now() - submittedAt : MIN_SUBMISSION_DELAY_MS;
 
-    if (companyWebsite) return jsonResponse(200, { success: true });
+    if (companyWebsite) {
+      console.log(`[lead-api:${requestId}] Honeypot activado.`);
+      return jsonResponse(200, { success: true });
+    }
 
-    if (!submittedAt || Number.isNaN(submittedDelay) || submittedDelay < MIN_SUBMISSION_DELAY_MS) {
+    if (Number.isNaN(submittedDelay) || submittedDelay < MIN_SUBMISSION_DELAY_MS) {
       return jsonResponse(400, {
         success: false,
-        message: "Espera un momento antes de enviar."
+        message: "Espera un momento antes de enviar.",
       });
     }
 
     if (!fullName || !email || !companyName || !message) {
       return jsonResponse(400, {
         success: false,
-        message: "Completa todos los campos."
+        message: "Completa todos los campos.",
       });
     }
 
     if (!emailPattern.test(email)) {
       return jsonResponse(400, {
         success: false,
-        message: "Introduce un email válido."
+        message: "Introduce un email válido.",
       });
     }
 
@@ -164,7 +141,7 @@ export const POST: APIRoute = async ({ request }) => {
     ) {
       return jsonResponse(400, {
         success: false,
-        message: "Uno o más campos superan la longitud permitida."
+        message: "Uno o más campos superan la longitud permitida.",
       });
     }
 
@@ -176,39 +153,7 @@ export const POST: APIRoute = async ({ request }) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log("[lead-api] Lead recibido.");
-
-    // GUARDAR EN PRISMA (nuevo)
     try {
-      const configuredAdminEmail =
-        readEnv("ADMIN_EMAIL") ||
-        readEnv("LEAD_TO_EMAIL");
-
-      const configuredUser =
-        configuredAdminEmail
-          ? await prisma.user.findUnique({
-              where: {
-                email: configuredAdminEmail,
-              },
-            })
-          : null;
-
-      const leadUser =
-        configuredUser ??
-        (await prisma.user.findFirst({
-          orderBy: {
-            createdAt: "asc",
-          },
-        }));
-
-      if (!leadUser) {
-        console.error("[lead-api] No existe usuario para asociar el lead.");
-        return jsonResponse(500, {
-          success: false,
-          message: "No se pudo guardar tu solicitud."
-        });
-      }
-
       await guardarLead({
         id: randomUUID(),
         nombre: leadPayload.name,
@@ -217,25 +162,29 @@ export const POST: APIRoute = async ({ request }) => {
         mensaje: leadPayload.message,
         timestamp: leadPayload.timestamp,
         estado: "nuevo",
-        userId: leadUser.id,
-        notas: []
+        notas: [],
       });
 
-      console.log("[lead-api] Lead guardado en Prisma.");
+      console.log(`[lead-api:${requestId}] Lead guardado en Prisma.`);
     } catch (error) {
-      console.error("[lead-api] Error guardando lead:", error);
+      console.error(`[lead-api:${requestId}] Error guardando lead:`, error);
       return jsonResponse(500, {
         success: false,
-        message: "No se pudo guardar tu solicitud."
+        message: "No se pudo guardar tu solicitud.",
       });
     }
 
-    // Integraciones externas (no bloquean UX)
-    try {
-      await sendLeadEmail(leadPayload);
-    } catch (e) {
-      console.error("[lead-api] Error enviando email:", e);
-    }
+    const emailSent =
+      await sendNewLeadEmail({
+        nombre: leadPayload.name,
+        email: leadPayload.email,
+        empresa: leadPayload.company,
+        mensaje: leadPayload.message,
+      });
+
+    console.log(
+      `[lead-api:${requestId}] Email ${emailSent ? "enviado" : "omitido o fallido"}.`
+    );
 
     try {
       await sendLeadToCrmWebhook(leadPayload);
@@ -245,10 +194,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     return jsonResponse(200, { success: true });
   } catch (error) {
-    console.error("[lead-api] Error procesando solicitud:", error);
+    console.error(`[lead-api:${requestId}] Error procesando solicitud:`, error);
     return jsonResponse(500, {
       success: false,
-      message: "No se pudo procesar tu solicitud."
+      message: "No se pudo procesar tu solicitud.",
     });
   }
 };

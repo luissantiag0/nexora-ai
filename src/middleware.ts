@@ -21,17 +21,55 @@ const isProtectedPath = (pathname: string) =>
   pathname === "/admin" ||
   pathname.startsWith("/admin/") ||
   pathname === "/dashboard" ||
-  pathname.startsWith("/dashboard/");
+  pathname.startsWith("/dashboard/") ||
+  pathname === "/api/export/leads" ||
+  (
+    pathname.startsWith("/api/leads/") &&
+    pathname !== "/api/leads/create"
+  );
+
+const addSecurityHeaders = (response: Response) => {
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  return response;
+};
+
+const isSafeMethod = (method: string) =>
+  ["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
 
 export const onRequest = defineMiddleware(
-  async ({ cookies, redirect, url }, next) => {
+  async ({ cookies, redirect, request, url }, next) => {
     const pathname = url.pathname;
 
     if (
       !isProtectedPath(pathname) ||
       isPublicPath(pathname)
     ) {
-      return next();
+      return addSecurityHeaders(await next());
+    }
+
+    if (!isSafeMethod(request.method)) {
+      const origin = request.headers.get("origin");
+
+      const originMatches =
+        !origin ||
+        (() => {
+          try {
+            return new URL(origin).origin === url.origin;
+          } catch {
+            return false;
+          }
+        })();
+
+      if (!originMatches) {
+        return addSecurityHeaders(
+          new Response("Forbidden", {
+            status: 403,
+          })
+        );
+      }
     }
 
     const token =
@@ -41,9 +79,9 @@ export const onRequest = defineMiddleware(
       await getCurrentAdmin(token);
 
     if (!admin) {
-      return redirect("/admin/login");
+      return addSecurityHeaders(redirect("/admin/login"));
     }
 
-    return next();
+    return addSecurityHeaders(await next());
   }
 );

@@ -1,71 +1,64 @@
 ---
 const features = [
   {
-    title: "Integración con OpenAI / modelos LLM",
+    title: "LLM integrados",
     description:
-      "Implementamos capacidades de IA fiables para tu negocio, con respuestas consistentes que apoyan la toma de decisiones diarias."
+      "Capacidades de IA fiables para ejecutar decisiones repetibles, no respuestas improvisadas."
   },
   {
     title: "Pipelines RAG",
     description:
-      "Transforma documentos dispersos en una capa de conocimiento centralizada para que los equipos encuentren respuestas más rápido y ejecuten mejor."
+      "Documentos, SOPs y conocimiento interno convertidos en una capa de consulta útil para equipos."
   },
   {
-    title: "Flujos de automatización",
+    title: "Flujos automatizados",
     description:
-      "Automatiza procesos repetitivos en tu stack para reducir tiempos, eliminar tareas manuales y mantener el trabajo en movimiento."
+      "Automatizaciones entre herramientas para reducir tiempos muertos y mantener el trabajo en movimiento."
   },
   {
-    title: "Arquitectura SaaS escalable",
+    title: "Arquitectura SaaS",
     description:
-      "Construimos sistemas preparados para crecer con tu empresa sin perder rendimiento ni estabilidad."
+      "Sistemas preparados para crecer con tu operación sin perder rendimiento ni estabilidad."
   }
 ];
 ---
 
 <section id="technology" class="border-t border-white/10 bg-[#07070A] py-24 md:py-28">
-  <div class="mx-auto max-w-7xl px-6 md:px-10">
-
-    <!-- HEADER -->
-    <div class="max-w-3xl">
-      <span class="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-white/60">
+  <div class="container">
+    <div class="max-w-3xl" data-reveal>
+      <span class="badge bg-purple-300/10 text-purple-100">
         Tecnología
       </span>
 
       <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-        Construido con infraestructura moderna de IA
+        Infraestructura moderna para IA aplicada
       </h2>
 
       <p class="mt-5 text-base leading-relaxed text-white/60 md:text-lg">
-        Nuestra tecnología está diseñada para convertir la IA en ejecución real de negocio, no en experimentos aislados.
+        Diseñamos sistemas que conectan modelos, datos y procesos internos para convertir la IA en ejecución diaria.
       </p>
     </div>
 
-    <!-- GRID -->
     <div class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {features.map((feature, index) => (
+        <article class="interactive-card group" data-reveal>
+          <div class="mb-6 flex items-center justify-between">
+            <span class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-sm text-cyan-100 transition group-hover:border-cyan-300/40 group-hover:bg-cyan-300/10">
+              0{index + 1}
+            </span>
 
-      {
-        features.map((feature) => (
-          <article class="group relative rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10">
+            <span class="h-px flex-1 bg-gradient-to-r from-white/15 to-transparent"></span>
+          </div>
 
-            <!-- glow subtle effect -->
-            <div class="pointer-events-none absolute inset-0 opacity-0 transition group-hover:opacity-100">
-              <div class="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/10 to-transparent" />
-            </div>
+          <h3 class="text-lg font-semibold text-white">
+            {feature.title}
+          </h3>
 
-            <h3 class="text-lg font-semibold text-white">
-              {feature.title}
-            </h3>
-
-            <p class="mt-3 text-sm leading-relaxed text-white/60">
-              {feature.description}
-            </p>
-
-          </article>
-        ))
-      }
-
+          <p class="mt-3 text-sm leading-relaxed text-white/60">
+            {feature.description}
+          </p>
+        </article>
+      ))}
     </div>
-
   </div>
 </section>

@@ -5,22 +5,28 @@ import { ui } from "../../lib/uiClasses";
 import {
   ESTADOS_LEAD,
   actualizarEstadoLead,
+  actualizarLead,
   añadirNotaLead,
+  crearLeadManual,
+  eliminarLead,
   obtenerLeads,
+  type EstadoLead,
 } from "../../lib/leadStorage";
 
-import { prisma } from "../../lib/prisma";
-import bcrypt from "bcryptjs";
+import {
+  getCurrentAdmin,
+  logoutAdmin,
+} from "../../lib/auth";
+
+import {
+  SESSION_COOKIE,
+} from "../../lib/session";
 
 export const prerender = false;
 
-/* =========================================
-   CONFIG
-========================================= */
+const LEADS_POR_PAGINA = 8;
 
-const LEADS_POR_PAGINA = 10;
-
-const statusLabels = {
+const statusLabels: Record<EstadoLead, string> = {
   nuevo: "Nuevo",
   contactado: "Contactado",
   cualificado: "Cualificado",
@@ -29,274 +35,194 @@ const statusLabels = {
   perdido: "Perdido",
 };
 
-const statusBadgeClass = {
+const statusBadgeClass: Record<EstadoLead, string> = {
   nuevo:
-    "border border-sky-400/30 bg-sky-500/10 text-sky-200",
-
+    "bg-sky-300/10 text-sky-100 ring-sky-300/25",
   contactado:
-    "border border-amber-400/30 bg-amber-500/10 text-amber-200",
-
+    "bg-amber-300/10 text-amber-100 ring-amber-300/25",
   cualificado:
-    "border border-emerald-400/30 bg-emerald-500/10 text-emerald-200",
-
+    "bg-emerald-300/10 text-emerald-100 ring-emerald-300/25",
   propuesta_enviada:
-    "border border-purple-400/30 bg-purple-500/10 text-purple-200",
-
+    "bg-purple-300/10 text-purple-100 ring-purple-300/25",
   ganado:
-    "border border-green-400/30 bg-green-500/10 text-green-200",
-
+    "bg-green-300/10 text-green-100 ring-green-300/25",
   perdido:
-    "border border-rose-400/30 bg-rose-500/10 text-rose-200",
+    "bg-rose-300/10 text-rose-100 ring-rose-300/25",
 };
 
-/* =========================================
-   AUTH
-========================================= */
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const sessionCookie = "nexora_admin_session";
+const clean = (value: FormDataEntryValue | null) =>
+  String(value || "").replace(/[<>{}`$\\]/g, "").trim();
+
+const isEstadoLead = (value: string): value is EstadoLead =>
+  ESTADOS_LEAD.includes(value as EstadoLead);
 
 const sessionToken =
-  Astro.cookies.get(sessionCookie)?.value;
+  Astro.cookies.get(SESSION_COOKIE)?.value;
 
-let currentUser = null;
+const currentUser =
+  await getCurrentAdmin(sessionToken);
 
-if (sessionToken) {
-  currentUser = await prisma.user.findFirst({
-    where: {
-      adminSessionToken: sessionToken,
-    },
-  });
+if (!currentUser) {
+  return Astro.redirect("/admin/login");
 }
 
-let isAuthed = !!currentUser;
-
-let authError = "";
 let actionMessage = "";
-
-/* =========================================
-   QUERY PARAMS
-========================================= */
-
-const url = new URL(Astro.request.url);
-
-const filtroEstado =
-  url.searchParams.get("estado") || "";
-
-const busqueda =
-  url.searchParams.get("q") || "";
-
-const paginaActual = Number(
-  url.searchParams.get("page") || "1"
-);
-
-/* =========================================
-   LOGIN
-========================================= */
+let errorMessage = "";
 
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
-
-  const intent = String(
-    formData.get("intent") || ""
-  );
-
-  /* LOGIN */
-
-  if (intent === "login") {
-    const email = String(
-      formData.get("email") || ""
-    );
-
-    const password = String(
-      formData.get("password") || ""
-    );
-
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (!user) {
-      authError = "Usuario no encontrado.";
-    } else {
-      const validPassword =
-        await bcrypt.compare(
-          password,
-          user.passwordHash
-        );
-
-      if (!validPassword) {
-        authError = "Contraseña incorrecta.";
-      } else {
-        const sessionToken =
-          crypto.randomUUID();
-
-        await prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            adminSessionToken:
-              sessionToken,
-          },
-        });
-
-        Astro.cookies.set(
-          sessionCookie,
-          sessionToken,
-          {
-            httpOnly: true,
-            secure: true,
-            sameSite: "lax",
-            path: "/",
-            maxAge: 60 * 60 * 24 * 7,
-          }
-        );
-
-        return Astro.redirect("/admin");
-      }
-    }
-  }
-
-  /* LOGOUT */
+  const intent = clean(formData.get("intent"));
 
   if (intent === "logout") {
-    if (currentUser) {
-      await prisma.user.update({
-        where: {
-          id: currentUser.id,
-        },
-        data: {
-          adminSessionToken: null,
-        },
-      });
-    }
-
-    Astro.cookies.delete(sessionCookie, {
+    await logoutAdmin(currentUser.id);
+    Astro.cookies.delete(SESSION_COOKIE, {
       path: "/",
     });
 
-    return Astro.redirect("/admin");
+    return Astro.redirect("/admin/login");
   }
 
-  /* UPDATE STATUS */
+  if (intent === "create-lead") {
+    const nombre = clean(formData.get("nombre"));
+    const email = clean(formData.get("email")).toLowerCase();
+    const empresa = clean(formData.get("empresa"));
+    const mensaje = clean(formData.get("mensaje"));
+    const estadoInput = clean(formData.get("estado"));
+    const estado = isEstadoLead(estadoInput) ? estadoInput : "nuevo";
 
-  if (
-    intent === "update-status" &&
-    isAuthed
-  ) {
-    const leadId = String(
-      formData.get("leadId") || ""
-    );
+    if (!nombre || !email || !mensaje) {
+      errorMessage = "Completa nombre, email y mensaje para crear el lead.";
+    } else if (!emailPattern.test(email)) {
+      errorMessage = "Introduce un email válido.";
+    } else {
+      await crearLeadManual({
+        nombre,
+        email,
+        empresa,
+        mensaje,
+        estado,
+        userId: currentUser.id,
+      });
 
-    const status = String(
-      formData.get("status") || ""
-    );
-
-    await actualizarEstadoLead(
-      leadId,
-      status as any
-    );
-
-    actionMessage =
-      "Estado actualizado correctamente.";
+      actionMessage = "Lead creado correctamente.";
+    }
   }
 
-  /* ADD NOTE */
+  if (intent === "edit-lead") {
+    const leadId = clean(formData.get("leadId"));
+    const nombre = clean(formData.get("nombre"));
+    const email = clean(formData.get("email")).toLowerCase();
+    const empresa = clean(formData.get("empresa"));
+    const mensaje = clean(formData.get("mensaje"));
+    const estadoInput = clean(formData.get("estado"));
 
-  if (
-    intent === "add-note" &&
-    isAuthed
-  ) {
-    const leadId = String(
-      formData.get("leadId") || ""
-    );
+    if (!leadId || !nombre || !email || !mensaje || !isEstadoLead(estadoInput)) {
+      errorMessage = "No se pudo actualizar el lead. Revisa los campos.";
+    } else if (!emailPattern.test(email)) {
+      errorMessage = "Introduce un email válido.";
+    } else {
+      const ok = await actualizarLead(leadId, {
+        nombre,
+        email,
+        empresa,
+        mensaje,
+        estado: estadoInput,
+      });
 
-    const note = String(
-      formData.get("note") || ""
-    );
+      actionMessage = ok
+        ? "Lead actualizado correctamente."
+        : "Lead no encontrado.";
+    }
+  }
 
-    await añadirNotaLead(
-      leadId,
-      note
-    );
+  if (intent === "delete-lead") {
+    const leadId = clean(formData.get("leadId"));
+    const ok = leadId ? await eliminarLead(leadId) : false;
 
-    actionMessage =
-      "Nota añadida correctamente.";
+    actionMessage = ok
+      ? "Lead eliminado correctamente."
+      : "No se pudo eliminar el lead.";
+  }
+
+  if (intent === "update-status") {
+    const leadId = clean(formData.get("leadId"));
+    const status = clean(formData.get("status"));
+
+    if (leadId && isEstadoLead(status)) {
+      const ok = await actualizarEstadoLead(leadId, status);
+      actionMessage = ok
+        ? "Estado actualizado correctamente."
+        : "Lead no encontrado.";
+    } else {
+      errorMessage = "Estado no válido.";
+    }
+  }
+
+  if (intent === "add-note") {
+    const leadId = clean(formData.get("leadId"));
+    const note = clean(formData.get("note"));
+    const ok = leadId && note ? await añadirNotaLead(leadId, note) : false;
+
+    actionMessage = ok
+      ? "Nota añadida correctamente."
+      : "No se pudo añadir la nota.";
   }
 }
 
-/* =========================================
-   OBTENER LEADS
-========================================= */
+const url = new URL(Astro.request.url);
+const filtroEstado = url.searchParams.get("estado") || "";
+const busqueda = url.searchParams.get("q") || "";
+const paginaActual = Math.max(1, Number(url.searchParams.get("page") || "1"));
 
-let leads = isAuthed
-  ? await obtenerLeads()
-  : [];
+let leads = await obtenerLeads();
+const totalLeadsSinFiltro = leads.length;
 
-/* =========================================
-   FILTRO ESTADO
-========================================= */
+const counters = ESTADOS_LEAD.reduce(
+  (acc, estado) => ({
+    ...acc,
+    [estado]: leads.filter((lead) => lead.estado === estado).length,
+  }),
+  {} as Record<EstadoLead, number>
+);
 
-if (filtroEstado) {
-  leads = leads.filter(
-    (lead) =>
-      lead.estado === filtroEstado
-  );
+if (filtroEstado && isEstadoLead(filtroEstado)) {
+  leads = leads.filter((lead) => lead.estado === filtroEstado);
 }
-
-/* =========================================
-   BUSCADOR SSR
-========================================= */
 
 if (busqueda) {
   const query = busqueda.toLowerCase();
 
-  leads = leads.filter(
-    (lead) =>
-      lead.nombre
-        .toLowerCase()
-        .includes(query) ||
-      lead.email
-        .toLowerCase()
-        .includes(query)
+  leads = leads.filter((lead) =>
+    [
+      lead.nombre,
+      lead.email,
+      lead.empresa || "",
+      lead.mensaje,
+      lead.estado,
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(query)
   );
 }
 
-/* =========================================
-   PAGINACIÓN
-========================================= */
-
 const totalLeads = leads.length;
-
-const totalPaginas = Math.ceil(
-  totalLeads / LEADS_POR_PAGINA
-);
-
-const offset =
-  (paginaActual - 1) *
-  LEADS_POR_PAGINA;
-
-const leadsPaginados = leads.slice(
-  offset,
-  offset + LEADS_POR_PAGINA
-);
+const totalPaginas = Math.max(1, Math.ceil(totalLeads / LEADS_POR_PAGINA));
+const safePage = Math.min(paginaActual, totalPaginas);
+const offset = (safePage - 1) * LEADS_POR_PAGINA;
+const leadsPaginados = leads.slice(offset, offset + LEADS_POR_PAGINA);
+const abiertos = counters.nuevo + counters.contactado + counters.cualificado + counters.propuesta_enviada;
+const conversion = totalLeadsSinFiltro
+  ? Math.round((counters.ganado / totalLeadsSinFiltro) * 100)
+  : 0;
 
 const buildPageUrl = (page: number) => {
   const params = new URLSearchParams();
 
-  if (filtroEstado) {
-    params.set(
-      "estado",
-      filtroEstado
-    );
-  }
-
-  if (busqueda) {
-    params.set("q", busqueda);
-  }
-
+  if (filtroEstado) params.set("estado", filtroEstado);
+  if (busqueda) params.set("q", busqueda);
   params.set("page", String(page));
 
   return `/admin?${params.toString()}`;
@@ -304,370 +230,420 @@ const buildPageUrl = (page: number) => {
 ---
 
 <BaseLayout
-  title="Panel Admin"
-  description="CRM NexoraAI"
+  title="Panel Admin | NexoraAI"
+  description="CRM interno NexoraAI"
 >
-  <main class={ui.section}>
+  <main class={`${ui.section} min-h-screen bg-[#07070A]`}>
     <div class={ui.pageShell}>
-
-      {/* LOGIN */}
-
-      {!isAuthed ? (
-
-        <div class="mx-auto max-w-md">
-
-          <h1 class="text-3xl font-semibold text-white">
-            Login Admin
-          </h1>
-
-          {authError && (
-            <p class="mt-4 text-red-400">
-              {authError}
+      <section class="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(34,211,238,0.09),rgba(255,255,255,0.035)_42%,rgba(16,185,129,0.08))] p-6 shadow-[0_24px_90px_-52px_rgba(34,211,238,0.85)] md:p-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.18em] text-cyan-200/80">
+              CRM operativo
             </p>
-          )}
 
-          <form
-            method="POST"
-            class="mt-8 space-y-4"
-          >
-            <input
-              type="hidden"
-              name="intent"
-              value="login"
-            />
+            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+              Panel de Leads
+            </h1>
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              class="w-full rounded-xl bg-white/5 p-4 text-white"
-            />
-
-            <input
-              type="password"
-              name="password"
-              placeholder="Contraseña"
-              class="w-full rounded-xl bg-white/5 p-4 text-white"
-            />
-
-            <button
-              class="w-full rounded-xl bg-white py-4 text-black"
-            >
-              Entrar
-            </button>
-
-          </form>
-
-        </div>
-
-      ) : (
-
-        <div>
-
-          {/* HEADER */}
-
-          <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-
-            <div>
-
-              <h1 class="text-3xl font-semibold text-white">
-                Panel de Leads
-              </h1>
-
-              <p class="mt-2 text-white/60">
-                CRM interno NexoraAI
-              </p>
-
-            </div>
-
-            <div class="flex gap-3">
-
-              <a
-                href="/api/export/leads"
-                class="rounded-xl bg-emerald-400 px-5 py-3 text-black"
-              >
-                Exportar CSV
-              </a>
-
-              <form method="POST">
-
-                <input
-                  type="hidden"
-                  name="intent"
-                  value="logout"
-                />
-
-                <button
-                  class="rounded-xl bg-white px-5 py-3 text-black"
-                >
-                  Cerrar sesión
-                </button>
-
-              </form>
-
-            </div>
-
+            <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/58 md:text-base">
+              Gestiona captación, seguimiento y acciones comerciales desde una vista SSR conectada a Prisma.
+            </p>
           </div>
 
-          {/* FILTROS */}
-
-          <div class="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5">
-
-            <form
-              method="GET"
-              class="grid gap-4 lg:grid-cols-[1fr_220px_auto]"
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="/dashboard/pipeline"
+              class="btn-secondary px-4 py-2.5 text-sm"
             >
+              Pipeline
+            </a>
 
-              <input
-                type="text"
-                name="q"
-                value={busqueda}
-                placeholder="Buscar por nombre o email..."
-                class="rounded-xl bg-black/30 p-4 text-white"
-              />
+            <a
+              href="/api/export/leads"
+              class="btn-secondary px-4 py-2.5 text-sm"
+            >
+              Exportar CSV
+            </a>
 
-              <select
-                name="estado"
-                class="rounded-xl bg-black/30 p-4 text-white"
-              >
-
-                <option value="">
-                  Todos los estados
-                </option>
-
-                {ESTADOS_LEAD.map(
-                  (estado) => (
-
-                    <option
-                      value={estado}
-                      selected={
-                        filtroEstado ===
-                        estado
-                      }
-                    >
-                      {
-                        statusLabels[
-                          estado
-                        ]
-                      }
-                    </option>
-
-                  )
-                )}
-
-              </select>
-
-              <button
-                class="rounded-xl bg-white px-5 text-black"
-              >
-                Filtrar
+            <form method="POST" data-admin-form>
+              <input type="hidden" name="intent" value="logout" />
+              <button class="btn-primary px-4 py-2.5 text-sm">
+                Cerrar sesión
               </button>
-
             </form>
-
           </div>
-
-          {/* MENSAJES */}
-
-          {actionMessage && (
-            <p class="mt-6 text-green-300">
-              {actionMessage}
-            </p>
-          )}
-
-          {/* LEADS */}
-
-          <div class="mt-10 space-y-6">
-
-            {leadsPaginados.map((lead) => (
-
-              <article
-                class="rounded-2xl border border-white/10 bg-white/5 p-6"
-              >
-
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-
-                  <div>
-
-                    <a
-                      href={`/dashboard/leads/${lead.id}`}
-                      class="text-xl font-semibold text-white hover:underline"
-                    >
-                      {lead.nombre}
-                    </a>
-
-                    <p class="mt-1 text-white/60">
-                      {lead.email}
-                    </p>
-
-                    {lead.empresa && (
-                      <p class="mt-1 text-white/40">
-                        {lead.empresa}
-                      </p>
-                    )}
-
-                  </div>
-
-                  <span
-                    class={`rounded-full px-3 py-1 text-xs ${statusBadgeClass[lead.estado]}`}
-                  >
-                    {
-                      statusLabels[
-                        lead.estado
-                      ]
-                    }
-                  </span>
-
-                </div>
-
-                <p class="mt-5 text-white/80">
-                  {lead.mensaje}
-                </p>
-
-                <p class="mt-4 text-xs text-white/40">
-                  {new Date(
-                    lead.timestamp
-                  ).toLocaleString(
-                    "es-ES"
-                  )}
-                </p>
-
-                {/* UPDATE STATUS */}
-
-                <form
-                  method="POST"
-                  class="mt-6 flex flex-col gap-3 lg:flex-row"
-                >
-
-                  <input
-                    type="hidden"
-                    name="intent"
-                    value="update-status"
-                  />
-
-                  <input
-                    type="hidden"
-                    name="leadId"
-                    value={lead.id}
-                  />
-
-                  <select
-                    name="status"
-                    class="rounded-xl bg-black/30 p-3 text-white"
-                  >
-
-                    {ESTADOS_LEAD.map(
-                      (estado) => (
-
-                        <option
-                          value={estado}
-                          selected={
-                            lead.estado ===
-                            estado
-                          }
-                        >
-                          {
-                            statusLabels[
-                              estado
-                            ]
-                          }
-                        </option>
-
-                      )
-                    )}
-
-                  </select>
-
-                  <button
-                    class="rounded-xl bg-white px-4 text-black"
-                  >
-                    Actualizar
-                  </button>
-
-                </form>
-
-                {/* ADD NOTE */}
-
-                <form
-                  method="POST"
-                  class="mt-4 flex flex-col gap-3 lg:flex-row"
-                >
-
-                  <input
-                    type="hidden"
-                    name="intent"
-                    value="add-note"
-                  />
-
-                  <input
-                    type="hidden"
-                    name="leadId"
-                    value={lead.id}
-                  />
-
-                  <input
-                    type="text"
-                    name="note"
-                    placeholder="Añadir nota..."
-                    class="w-full rounded-xl bg-black/30 p-3 text-white"
-                  />
-
-                  <button
-                    class="rounded-xl bg-white px-4 text-black"
-                  >
-                    Añadir
-                  </button>
-
-                </form>
-
-              </article>
-
-            ))}
-
-          </div>
-
-          {/* PAGINACIÓN */}
-
-          <div class="mt-10 flex items-center justify-between">
-
-            <div class="text-sm text-white/50">
-              Página {paginaActual} de{" "}
-              {totalPaginas || 1}
-            </div>
-
-            <div class="flex gap-3">
-
-              {paginaActual > 1 && (
-                <a
-                  href={buildPageUrl(
-                    paginaActual - 1
-                  )}
-                  class="rounded-xl border border-white/10 px-4 py-2 text-white"
-                >
-                  ← Anterior
-                </a>
-              )}
-
-              {paginaActual <
-                totalPaginas && (
-                <a
-                  href={buildPageUrl(
-                    paginaActual + 1
-                  )}
-                  class="rounded-xl border border-white/10 px-4 py-2 text-white"
-                >
-                  Siguiente →
-                </a>
-              )}
-
-            </div>
-
-          </div>
-
         </div>
+      </section>
 
+      {(actionMessage || errorMessage) && (
+        <div
+          id="admin-toast"
+          class={`mt-6 rounded-xl border px-4 py-3 text-sm shadow-[0_18px_50px_-35px_rgba(34,211,238,0.8)] ${
+            errorMessage
+              ? "border-red-300/20 bg-red-500/10 text-red-100"
+              : "border-emerald-300/20 bg-emerald-500/10 text-emerald-100"
+          }`}
+        >
+          {errorMessage || actionMessage}
+        </div>
       )}
 
+      <section class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div class="premium-panel p-5">
+          <p class="text-sm text-white/45">Leads totales</p>
+          <p class="mt-3 text-3xl font-semibold text-white">{totalLeadsSinFiltro}</p>
+        </div>
+
+        <div class="premium-panel p-5">
+          <p class="text-sm text-white/45">Abiertos</p>
+          <p class="mt-3 text-3xl font-semibold text-cyan-100">{abiertos}</p>
+        </div>
+
+        <div class="premium-panel p-5">
+          <p class="text-sm text-white/45">Ganados</p>
+          <p class="mt-3 text-3xl font-semibold text-emerald-100">{counters.ganado}</p>
+        </div>
+
+        <div class="premium-panel p-5">
+          <p class="text-sm text-white/45">Conversión</p>
+          <p class="mt-3 text-3xl font-semibold text-purple-100">{conversion}%</p>
+        </div>
+      </section>
+
+      <section class="mt-8 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+        <div class="premium-panel p-5 md:p-6">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-semibold text-white">
+                Crear lead manual
+              </h2>
+              <p class="mt-1 text-sm text-white/45">
+                Alta rápida desde llamada, email o referencia.
+              </p>
+            </div>
+          </div>
+
+          <form method="POST" class="mt-5 grid gap-3" data-admin-form>
+            <input type="hidden" name="intent" value="create-lead" />
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input name="nombre" class="input-premium" placeholder="Nombre" required data-create-lead-input />
+              <input name="email" type="email" class="input-premium" placeholder="Email" required />
+            </div>
+
+            <input name="empresa" class="input-premium" placeholder="Empresa" />
+
+            <div class="grid gap-3 sm:grid-cols-[1fr_auto]">
+              <select name="estado" class="input-premium">
+                {ESTADOS_LEAD.map((estado) => (
+                  <option value={estado}>{statusLabels[estado]}</option>
+                ))}
+              </select>
+
+              <button class="btn-primary px-5 py-3 text-sm">
+                Crear lead
+              </button>
+            </div>
+
+            <textarea
+              name="mensaje"
+              rows="4"
+              class="input-premium resize-none"
+              placeholder="Mensaje o contexto comercial"
+              required
+            ></textarea>
+          </form>
+        </div>
+
+        <div class="premium-panel p-5 md:p-6">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-white">
+                Filtros y búsqueda
+              </h2>
+              <p class="mt-1 text-sm text-white/45">
+                Busca por nombre, email, empresa, mensaje o estado.
+              </p>
+            </div>
+
+            <a href="/admin" class="text-sm text-cyan-100 transition hover:text-white">
+              Limpiar filtros
+            </a>
+          </div>
+
+          <form method="GET" class="mt-5 grid gap-3 lg:grid-cols-[1fr_220px_auto]">
+            <input
+              type="search"
+              name="q"
+              value={busqueda}
+              placeholder="Buscar leads..."
+              class="input-premium"
+              data-search-input
+            />
+
+            <select name="estado" class="input-premium">
+              <option value="">Todos los estados</option>
+              {ESTADOS_LEAD.map((estado) => (
+                <option value={estado} selected={filtroEstado === estado}>
+                  {statusLabels[estado]} ({counters[estado]})
+                </option>
+              ))}
+            </select>
+
+            <button class="btn-primary px-5 py-3 text-sm">
+              Filtrar
+            </button>
+          </form>
+
+          <div class="mt-5 flex flex-wrap gap-2">
+            <a
+              href="/admin"
+              class={`rounded-full border px-3 py-1.5 text-xs transition ${
+                !filtroEstado
+                  ? "border-cyan-300/30 bg-cyan-300/10 text-cyan-100"
+                  : "border-white/10 text-white/50 hover:border-white/25 hover:text-white"
+              }`}
+            >
+              Todos {totalLeadsSinFiltro}
+            </a>
+
+            {ESTADOS_LEAD.map((estado) => (
+              <a
+                href={`/admin?estado=${estado}`}
+                class={`rounded-full border px-3 py-1.5 text-xs transition ${
+                  filtroEstado === estado
+                    ? "border-cyan-300/30 bg-cyan-300/10 text-cyan-100"
+                    : "border-white/10 text-white/50 hover:border-white/25 hover:text-white"
+                }`}
+              >
+                {statusLabels[estado]} {counters[estado]}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        {leadsPaginados.length === 0 ? (
+          <div class="premium-panel p-10 text-center">
+            <h2 class="text-xl font-semibold text-white">
+              No hay leads para esta vista
+            </h2>
+
+            <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/50">
+              Ajusta los filtros o crea un lead manual para empezar el seguimiento comercial.
+            </p>
+          </div>
+        ) : (
+          <div class="grid gap-5">
+            {leadsPaginados.map((lead) => (
+              <article class="premium-panel p-5 md:p-6">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-3">
+                      <a
+                        href={`/dashboard/leads/${lead.id}`}
+                        class="text-xl font-semibold text-white transition hover:text-cyan-100"
+                      >
+                        {lead.nombre}
+                      </a>
+
+                      <span class={`status-pill ${statusBadgeClass[lead.estado]}`}>
+                        {statusLabels[lead.estado]}
+                      </span>
+                    </div>
+
+                    <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/50">
+                      <span>{lead.email}</span>
+                      {lead.empresa && <span>{lead.empresa}</span>}
+                      <span>{new Date(lead.timestamp).toLocaleString("es-ES")}</span>
+                    </div>
+
+                    <p class="mt-4 line-clamp-2 max-w-4xl text-sm leading-relaxed text-white/68">
+                      {lead.mensaje}
+                    </p>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <a
+                      href={`/dashboard/leads/${lead.id}`}
+                      class="btn-secondary px-4 py-2 text-xs"
+                    >
+                      Abrir
+                    </a>
+
+                    <button
+                      type="button"
+                      data-toggle-edit={`edit-${lead.id}`}
+                      class="btn-secondary px-4 py-2 text-xs"
+                    >
+                      Editar
+                    </button>
+                  </div>
+                </div>
+
+                <div class="mt-5 grid gap-3 lg:grid-cols-[260px_1fr_auto]">
+                  <form method="POST" class="flex gap-2" data-admin-form>
+                    <input type="hidden" name="intent" value="update-status" />
+                    <input type="hidden" name="leadId" value={lead.id} />
+
+                    <select name="status" class="input-premium w-full py-2.5">
+                      {ESTADOS_LEAD.map((estado) => (
+                        <option value={estado} selected={lead.estado === estado}>
+                          {statusLabels[estado]}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button class="btn-primary px-4 py-2.5 text-xs">
+                      Cambiar
+                    </button>
+                  </form>
+
+                  <form method="POST" class="flex gap-2" data-admin-form>
+                    <input type="hidden" name="intent" value="add-note" />
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <input
+                      type="text"
+                      name="note"
+                      placeholder="Nota rápida..."
+                      class="input-premium w-full py-2.5"
+                    />
+                    <button class="btn-secondary px-4 py-2.5 text-xs">
+                      Añadir nota
+                    </button>
+                  </form>
+
+                  <form method="POST" data-admin-form data-confirm="Eliminar este lead de forma permanente?">
+                    <input type="hidden" name="intent" value="delete-lead" />
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <button class="rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-100 transition hover:-translate-y-0.5 hover:border-red-300/40 hover:bg-red-500/20">
+                      Eliminar
+                    </button>
+                  </form>
+                </div>
+
+                <details id={`edit-${lead.id}`} class="mt-4 rounded-2xl border border-white/10 bg-black/20">
+                  <summary class="cursor-pointer list-none px-4 py-3 text-sm font-medium text-white/75 transition hover:text-white">
+                    Editar información completa
+                  </summary>
+
+                  <form method="POST" class="grid gap-3 border-t border-white/10 p-4" data-admin-form>
+                    <input type="hidden" name="intent" value="edit-lead" />
+                    <input type="hidden" name="leadId" value={lead.id} />
+
+                    <div class="grid gap-3 md:grid-cols-2">
+                      <input name="nombre" value={lead.nombre} class="input-premium" placeholder="Nombre" required />
+                      <input name="email" type="email" value={lead.email} class="input-premium" placeholder="Email" required />
+                    </div>
+
+                    <div class="grid gap-3 md:grid-cols-[1fr_220px]">
+                      <input name="empresa" value={lead.empresa || ""} class="input-premium" placeholder="Empresa" />
+                      <select name="estado" class="input-premium">
+                        {ESTADOS_LEAD.map((estado) => (
+                          <option value={estado} selected={lead.estado === estado}>
+                            {statusLabels[estado]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <textarea name="mensaje" rows="4" class="input-premium resize-none" required>{lead.mensaje}</textarea>
+
+                    <div class="flex justify-end">
+                      <button class="btn-primary px-5 py-2.5 text-sm">
+                        Guardar cambios
+                      </button>
+                    </div>
+                  </form>
+                </details>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm text-white/45">
+          Página {safePage} de {totalPaginas} · {totalLeads} resultados
+        </p>
+
+        <div class="flex gap-3">
+          {safePage > 1 && (
+            <a href={buildPageUrl(safePage - 1)} class="btn-secondary px-4 py-2 text-sm">
+              Anterior
+            </a>
+          )}
+
+          {safePage < totalPaginas && (
+            <a href={buildPageUrl(safePage + 1)} class="btn-secondary px-4 py-2 text-sm">
+              Siguiente
+            </a>
+          )}
+        </div>
+      </div>
     </div>
   </main>
+
+  <script is:inline>
+    (() => {
+      const toast = document.getElementById("admin-toast");
+
+      if (toast) {
+        window.setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translateY(-6px)";
+        }, 4200);
+      }
+
+      document.querySelectorAll("[data-admin-form]").forEach((form) => {
+        form.addEventListener("submit", (event) => {
+          const message = form.getAttribute("data-confirm");
+
+          if (message && !window.confirm(message)) {
+            event.preventDefault();
+            return;
+          }
+
+          const button = form.querySelector("button[type='submit'], button:not([type])");
+
+          if (button) {
+            button.disabled = true;
+            button.dataset.originalText = button.textContent;
+            button.textContent = "Procesando...";
+            button.classList.add("opacity-70");
+          }
+        });
+      });
+
+      document.querySelectorAll("[data-toggle-edit]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = document.getElementById(button.getAttribute("data-toggle-edit"));
+
+          if (target) {
+            target.open = true;
+            target.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        });
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const active = document.activeElement;
+        const isTyping =
+          active?.matches?.("input, textarea, select, [contenteditable='true']");
+
+        if (isTyping) return;
+
+        if (event.key === "/") {
+          event.preventDefault();
+          document.querySelector("[data-search-input]")?.focus();
+        }
+
+        if (event.key.toLowerCase() === "n") {
+          document.querySelector("[data-create-lead-input]")?.focus();
+        }
+      });
+    })();
+  </script>
 </BaseLayout>

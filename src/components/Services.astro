@@ -3,47 +3,46 @@ const services = [
   {
     title: "Sistemas de facturación con IA",
     description:
-      "Reduce retrasos en pagos y carga administrativa automatizando la creación de facturas, recordatorios y conciliación de principio a fin."
+      "Reduce retrasos en pagos y carga administrativa automatizando facturas, recordatorios y conciliación de principio a fin."
   },
   {
-    title: "Sistemas de conocimiento con RAG (chat con tus datos)",
+    title: "Sistemas de conocimiento con RAG",
     description:
-      "Permite que los equipos obtengan respuestas instantáneas desde la información de la empresa, reduciendo cuellos de botella internos y acelerando la resolución de tareas."
+      "Permite que los equipos obtengan respuestas instantáneas desde la información de la empresa y resuelvan tareas más rápido."
   },
   {
     title: "Generación de ebooks con IA",
     description:
-      "Convierte el conocimiento interno en sistemas de contenido escalables que aceleran la generación de leads y reducen los ciclos de producción."
+      "Convierte conocimiento interno en sistemas de contenido escalables para captar leads sin ciclos de producción pesados."
   },
   {
-    title: "Sistemas de automatización empresarial",
+    title: "Automatización empresarial",
     description:
-      "Automatiza flujos de trabajo entre equipos para eliminar tareas manuales, acelerar la ejecución y reducir costes operativos."
+      "Conecta herramientas, equipos y decisiones para eliminar tareas manuales y mantener el trabajo avanzando."
   }
 ];
 ---
 
 <section id="services" class="border-t border-white/10 bg-[#07070A]">
-  <div class="mx-auto max-w-7xl px-6 md:px-10 py-24 md:py-32">
-
-    <div class="max-w-3xl">
-      <span class="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-white/60">
+  <div class="container py-24 md:py-32">
+    <div class="max-w-3xl" data-reveal>
+      <span class="badge bg-cyan-300/10 text-cyan-100">
         Servicios
       </span>
 
       <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-        Sistemas de IA diseñados para la ejecución empresarial
+        Sistemas de IA diseñados para ejecución empresarial
       </h2>
 
       <p class="mt-5 text-base leading-relaxed text-white/60 md:text-lg">
-        Construimos e implementamos sistemas de automatización enfocados en resultados reales: reducir costes, acelerar procesos y aumentar la productividad del equipo.
+        Implementamos automatizaciones enfocadas en resultados reales: reducir costes, acelerar procesos y aumentar la productividad del equipo.
       </p>
     </div>
 
     <div class="mt-14 grid gap-6 md:grid-cols-2">
-
       {services.map((service) => (
-        <article class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10">
+        <article class="interactive-card group" data-reveal>
+          <div class="mb-5 h-1.5 w-16 rounded-full bg-gradient-to-r from-cyan-300 via-emerald-300 to-purple-300 opacity-70 transition duration-300 group-hover:w-24 group-hover:opacity-100"></div>
 
           <h3 class="text-xl font-semibold text-white">
             {service.title}
@@ -52,11 +51,8 @@ const services = [
           <p class="mt-3 text-sm leading-relaxed text-white/60">
             {service.description}
           </p>
-
         </article>
       ))}
-
     </div>
-
   </div>
 </section>
