@@ -118,6 +118,41 @@
     @apply rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset;
   }
 
+  .site-header {
+    box-shadow: none;
+  }
+
+  .site-header.is-scrolled {
+    background: rgba(7, 7, 10, 0.88);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 18px 55px -38px rgba(34, 211, 238, 0.85);
+  }
+
+  .site-header.is-scrolled .site-header-inner {
+    min-height: 3.5rem;
+  }
+
+  .legal-content {
+    @apply space-y-7 text-base leading-relaxed text-white/62;
+  }
+
+  .legal-content h2 {
+    @apply pt-4 text-2xl font-semibold tracking-tight text-white;
+  }
+
+  .legal-content p {
+    @apply leading-relaxed;
+  }
+
+  .legal-content ul {
+    @apply grid gap-3 pl-5;
+    list-style: disc;
+  }
+
+  .legal-content a {
+    @apply text-cyan-100 underline decoration-cyan-300/35 underline-offset-4 transition hover:text-white;
+  }
+
   .ripple-dot {
     position: absolute;
     width: 10px;

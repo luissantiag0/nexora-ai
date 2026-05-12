@@ -51,7 +51,8 @@ const {
         items.forEach((item) => observer.observe(item));
 
         document.addEventListener("pointermove", (event) => {
-          const target = event.target.closest(".interactive-card, .premium-panel");
+          const source = event.target instanceof Element ? event.target : null;
+          const target = source?.closest(".interactive-card, .premium-panel");
 
           if (!target) return;
 
@@ -64,7 +65,8 @@ const {
         }, { passive: true });
 
         document.addEventListener("click", (event) => {
-          const button = event.target.closest(".btn-primary, .btn-secondary, button");
+          const source = event.target instanceof Element ? event.target : null;
+          const button = source?.closest(".btn-primary, .btn-secondary, button");
 
           if (!button || button.disabled) return;
 

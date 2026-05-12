@@ -1,9 +1,11 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { ui } from "../../lib/uiClasses";
+import BrandLogo from "../../components/BrandLogo.astro";
 
 import {
+  getCurrentAdmin,
   loginAdmin,
+  userIsAdmin,
 } from "../../lib/auth";
 
 import {
@@ -14,28 +16,32 @@ import {
 export const prerender = false;
 
 let error = "";
+const expiredSession =
+  Astro.url.searchParams.get("expired") === "1";
+
+const existingSession =
+  Astro.cookies.get(SESSION_COOKIE)?.value;
+
+if (Astro.request.method === "GET") {
+  const existingUser = await getCurrentAdmin(existingSession);
+
+  if (existingUser) {
+    if (userIsAdmin(existingUser)) {
+      return Astro.redirect("/admin");
+    }
+
+    return Astro.redirect("/dashboard");
+  }
+}
 
 if (Astro.request.method === "POST") {
-  const formData =
-    await Astro.request.formData();
-
-  const email = String(
-    formData.get("email") || ""
-  );
-
-  const password = String(
-    formData.get("password") || ""
-  );
-
-  const result =
-    await loginAdmin(
-      email,
-      password
-    );
+  const formData = await Astro.request.formData();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const result = await loginAdmin(email, password);
 
   if (!result) {
-    error =
-      "Credenciales incorrectas.";
+    error = "Credenciales incorrectas.";
   } else {
     Astro.cookies.set(
       SESSION_COOKIE,
@@ -49,53 +55,86 @@ if (Astro.request.method === "POST") {
 ---
 
 <BaseLayout
-  title="Login Admin"
-  description="Acceso CRM"
+  title="Login Admin | NexoraAI"
+  description="Acceso interno CRM NexoraAI"
 >
-  <main class={ui.section}>
-    <div class="mx-auto max-w-md">
+  <main class="grid min-h-screen place-items-center bg-[#07070A] px-6 py-16">
+    <section class="w-full max-w-md">
+      <div class="premium-panel animated-border p-7 md:p-8">
+        <BrandLogo label="NexoraAI CRM" markClass="h-8 w-8" textClass="text-sm text-white/70" />
 
-      <h1 class="text-3xl font-semibold text-white">
-        Login Admin
-      </h1>
+        <div class="mt-10">
+          <p class="text-xs uppercase tracking-[0.18em] text-cyan-200/75">
+            Acceso seguro
+          </p>
 
-      <p class="mt-2 text-white/60">
-        Acceso interno NexoraAI
-      </p>
+          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+            Login Admin
+          </h1>
 
-      {error && (
-        <p class="mt-5 text-red-400">
-          {error}
-        </p>
-      )}
+          <p class="mt-3 text-sm leading-relaxed text-white/50">
+            Entra para gestionar leads, pipeline, notas y seguimiento comercial.
+          </p>
+        </div>
 
-      <form
-        method="POST"
-        class="mt-8 space-y-4"
-      >
+        {error && (
+          <div class="mt-6 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+            {error}
+          </div>
+        )}
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          class="w-full rounded-xl bg-white/5 p-4 text-white"
-        />
+        {!error && expiredSession && (
+          <div class="mt-6 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            Tu sesión de prueba ha caducado después de 30 minutos. Inicia sesión de nuevo para continuar.
+          </div>
+        )}
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          class="w-full rounded-xl bg-white/5 p-4 text-white"
-        />
+        <form method="POST" class="mt-7 space-y-4" data-login-form>
+          <label class="block space-y-2">
+            <span class="text-sm text-white/65">Email</span>
+            <input
+              type="email"
+              name="email"
+              autocomplete="email"
+              required
+              placeholder="admin@nexora.ai"
+              class="input-premium w-full"
+            />
+          </label>
 
-        <button
-          class="w-full rounded-xl bg-white py-4 text-black"
-        >
-          Entrar
-        </button>
+          <label class="block space-y-2">
+            <span class="text-sm text-white/65">Contraseña</span>
+            <input
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              required
+              placeholder="••••••••"
+              class="input-premium w-full"
+            />
+          </label>
 
-      </form>
-
-    </div>
+          <button class="btn-primary w-full py-3.5">
+            Entrar al panel
+          </button>
+        </form>
+      </div>
+    </section>
   </main>
+
+  <script is:inline>
+    (() => {
+      const form = document.querySelector("[data-login-form]");
+
+      form?.addEventListener("submit", () => {
+        const button = form.querySelector("button");
+
+        if (button) {
+          button.disabled = true;
+          button.textContent = "Entrando...";
+          button.classList.add("opacity-75");
+        }
+      });
+    })();
+  </script>
 </BaseLayout>

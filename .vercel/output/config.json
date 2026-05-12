@@ -28,7 +28,35 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/api/analytics/admin/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/crm/leads/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/crm/leads/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/ebooks/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/ebooks/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/api/export/leads/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/invoices/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/invoices/?$",
 			"dest": "_render"
 		},
 		{
@@ -52,11 +80,151 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/api/pitchdecks/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/pitchdecks/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/reports/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/stripe/create-checkout/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/stripe/customer-portal/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/stripe/webhook/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/dashboard/leads/new/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/dashboard/leads/([^/]+?)/?$",
 			"dest": "_render"
 		},
 		{
+			"src": "^/dashboard/leads/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/dashboard/pipeline/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/dashboard/reports/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/dashboard/settings/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/dashboard/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/legal/cookies/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/legal/legal-notice/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/legal/privacy-policy/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/legal/terms/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/login/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/logout/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/dashboard/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/ebooks/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/ebooks/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/invoices/new/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/invoices/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/invoices/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/leads/new/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/leads/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/leads/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/pitchdecks/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/pitchdecks/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/reports/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/seo/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/settings/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/premium/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/pricing/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/register/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/upgrade/?$",
 			"dest": "_render"
 		},
 		{

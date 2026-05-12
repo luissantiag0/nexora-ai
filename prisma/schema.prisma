@@ -7,19 +7,37 @@ datasource db {
 }
 
 model User {
-  id                 String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  email              String   @unique
+  email String @unique
 
-  passwordHash       String
+  name String?
 
-  adminSessionToken  String?  @unique
+  passwordHash String
 
-  role               String   @default("client")
+  adminSessionToken     String?   @unique
+  adminSessionStartedAt DateTime?
 
-  createdAt          DateTime @default(now())
+  isPremium                  Boolean   @default(false)
+  premiumSince               DateTime?
 
-  leads              Lead[]
+  trialStartedAt             DateTime?
+  trialEndsAt                DateTime?
+
+  stripeCustomerId           String?   @unique
+  stripeSubscriptionId       String?   @unique
+  stripePriceId              String?
+  subscriptionStatus         String?
+  subscriptionCurrentPeriodEnd DateTime?
+
+  role String @default("client")
+
+  createdAt DateTime @default(now())
+
+  leads     Lead[]
+  invoices  Invoice[]
+  pitchDecks PitchDeck[]
+  ebooks    Ebook[]
 }
 
 model Lead {
@@ -27,14 +45,20 @@ model Lead {
   name      String
   email     String
   company   String?
+  phone     String?
   message   String
   status    String   @default("nuevo")
+  source    String?
+  tags      String?
+  priority  String?
+  aiSummary String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  notes     LeadNote[]
+  notes LeadNote[]
 }
 
 model LeadNote {
@@ -42,6 +66,65 @@ model LeadNote {
   text      String
   createdAt DateTime @default(now())
 
-  leadId    String
-  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  clientName  String
+  clientEmail String
+  company     String?
+  status      String   @default("borrador")
+  dueDate     DateTime?
+  subtotal    Float    @default(0)
+  tax         Float    @default(0)
+  total       Float    @default(0)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String @id @default(cuid())
+  description String
+  quantity    Int    @default(1)
+  price       Float  @default(0)
+  total       Float  @default(0)
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model PitchDeck {
+  id          String   @id @default(cuid())
+  title       String
+  clientType  String?
+  objective   String?
+  sections    String?
+  status      String   @default("borrador")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Ebook {
+  id          String   @id @default(cuid())
+  title       String
+  topic       String?
+  audience    String?
+  structure   String?
+  content     String?
+  status      String   @default("borrador")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

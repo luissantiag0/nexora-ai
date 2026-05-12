@@ -1,0 +1,133 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BrandLogo from "../components/BrandLogo.astro";
+
+import {
+  getCurrentUser,
+  loginUser,
+} from "../lib/auth";
+
+import {
+  SESSION_COOKIE,
+  sessionCookieConfig,
+} from "../lib/session";
+
+export const prerender = false;
+
+let error = "";
+
+const existingSession =
+  Astro.cookies.get(SESSION_COOKIE)?.value;
+
+if (
+  Astro.request.method === "GET" &&
+  (await getCurrentUser(existingSession))
+) {
+  return Astro.redirect("/dashboard");
+}
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const result = await loginUser(email, password);
+
+  if (!result) {
+    error = "Credenciales incorrectas.";
+  } else {
+    Astro.cookies.set(
+      SESSION_COOKIE,
+      result.token,
+      sessionCookieConfig
+    );
+
+    return Astro.redirect("/dashboard");
+  }
+}
+---
+
+<BaseLayout
+  title="Iniciar sesión | NexoraAI"
+  description="Accede a tu panel NexoraAI"
+>
+  <main class="grid min-h-screen place-items-center bg-[#07070A] px-6 py-16">
+    <section class="w-full max-w-md">
+      <div class="premium-panel animated-border p-7 md:p-8">
+        <BrandLogo label="NexoraAI" markClass="h-8 w-8" textClass="text-sm text-white/70" />
+
+        <div class="mt-10">
+          <p class="text-xs uppercase tracking-[0.18em] text-cyan-200/75">
+            Acceso usuarios
+          </p>
+
+          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white">
+            Iniciar sesión
+          </h1>
+
+          <p class="mt-3 text-sm leading-relaxed text-white/50">
+            Entra a tu panel para gestionar leads, informes y automatizaciones.
+          </p>
+        </div>
+
+        {error && (
+          <div class="mt-6 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+            {error}
+          </div>
+        )}
+
+        <form method="POST" class="mt-7 space-y-4" data-login-form>
+          <label class="block space-y-2">
+            <span class="text-sm text-white/65">Email</span>
+            <input
+              type="email"
+              name="email"
+              autocomplete="email"
+              required
+              placeholder="tu@email.com"
+              class="input-premium w-full"
+            />
+          </label>
+
+          <label class="block space-y-2">
+            <span class="text-sm text-white/65">Contraseña</span>
+            <input
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              required
+              placeholder="••••••••"
+              class="input-premium w-full"
+            />
+          </label>
+
+          <button class="btn-primary w-full py-3.5">
+            Entrar al panel
+          </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-white/40">
+          ¿No tienes cuenta?{" "}
+          <a href="/register" class="text-cyan-200 underline decoration-cyan-300/35 underline-offset-4 transition hover:text-white">
+            Crear cuenta gratis
+          </a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script is:inline>
+    (() => {
+      const form = document.querySelector("[data-login-form]");
+
+      form?.addEventListener("submit", () => {
+        const button = form.querySelector("button");
+
+        if (button) {
+          button.disabled = true;
+          button.textContent = "Entrando...";
+          button.classList.add("opacity-75");
+        }
+      });
+    })();
+  </script>
+</BaseLayout>

@@ -1,377 +1,277 @@
 ---
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { ui } from "../../../lib/uiClasses";
-
-import {
-  ESTADOS_LEAD,
-  actualizarEstadoLead,
-  actualizarLead,
-  añadirNotaLead,
-  eliminarLead,
-  getSuggestedNextAction,
-  obtenerAccionSiguiente,
-  obtenerLeads,
-  type EstadoLead,
-} from "../../../lib/leadStorage";
-
-import { getCurrentAdmin } from "../../../lib/auth";
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import { getUserLead, LEAD_STATUSES, type LeadStatus } from "../../../lib/crm";
+import { getCurrentUser } from "../../../lib/auth";
 import { SESSION_COOKIE } from "../../../lib/session";
 
 export const prerender = false;
 
-const { id } = Astro.params;
+const user = Astro.locals.user;
+const leadId = Astro.params.id!;
+const lead = user ? await getUserLead(leadId, user.id) : null;
 
-if (!id) {
-  return Astro.redirect("/admin");
+if (!lead) {
+  return Astro.redirect("/dashboard/leads");
 }
 
-const sessionToken =
-  Astro.cookies.get(SESSION_COOKIE)?.value;
-
-const currentUser =
-  await getCurrentAdmin(sessionToken);
-
-if (!currentUser) {
-  return Astro.redirect("/admin/login");
-}
-
-const statusLabels: Record<EstadoLead, string> = {
-  nuevo: "Nuevo",
-  contactado: "Contactado",
-  cualificado: "Cualificado",
-  propuesta_enviada: "Propuesta enviada",
-  ganado: "Ganado",
-  perdido: "Perdido",
+const statusLabels: Record<string, string> = {
+  nuevo: "Nuevo", contactado: "Contactado", cualificado: "Cualificado",
+  propuesta_enviada: "Propuesta enviada", ganado: "Ganado", perdido: "Perdido",
 };
 
-const statusBadgeClass: Record<EstadoLead, string> = {
-  nuevo: "bg-sky-300/10 text-sky-100 ring-sky-300/25",
-  contactado: "bg-amber-300/10 text-amber-100 ring-amber-300/25",
-  cualificado: "bg-emerald-300/10 text-emerald-100 ring-emerald-300/25",
-  propuesta_enviada: "bg-purple-300/10 text-purple-100 ring-purple-300/25",
-  ganado: "bg-green-300/10 text-green-100 ring-green-300/25",
-  perdido: "bg-rose-300/10 text-rose-100 ring-rose-300/25",
+const statusColors: Record<string, string> = {
+  nuevo: "bg-sky-300/10 text-sky-100 border-sky-300/20",
+  contactado: "bg-amber-300/10 text-amber-100 border-amber-300/20",
+  cualificado: "bg-emerald-300/10 text-emerald-100 border-emerald-300/20",
+  propuesta_enviada: "bg-purple-300/10 text-purple-100 border-purple-300/20",
+  ganado: "bg-green-300/10 text-green-100 border-green-300/20",
+  perdido: "bg-rose-300/10 text-rose-100 border-rose-300/20",
 };
 
-const clean = (value: FormDataEntryValue | null) =>
-  String(value || "").replace(/[<>{}`$\\]/g, "").trim();
-
-const isEstadoLead = (value: string): value is EstadoLead =>
-  ESTADOS_LEAD.includes(value as EstadoLead);
-
-let actionMessage = "";
-let errorMessage = "";
+let actionError = "";
+let actionSuccess = "";
 
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
-  const intent = clean(formData.get("intent"));
+  const method = String(formData.get("_method") || "POST").toUpperCase();
 
-  if (intent === "delete-lead") {
-    const ok = await eliminarLead(String(id));
+  if (method === "PATCH") {
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const company = String(formData.get("company") || "").trim() || null;
+    const phone = String(formData.get("phone") || "").trim() || null;
+    const message = String(formData.get("message") || "").trim();
+    const status = String(formData.get("status") || "");
+    const tags = String(formData.get("tags") || "").trim();
 
-    if (ok) {
-      return Astro.redirect("/admin");
+    const { updateUserLead } = await import("../../../lib/crm");
+    const updated = await updateUserLead(leadId, user!.id, { name, email, company, phone, message, status: status as LeadStatus, tags });
+    if (updated) {
+      actionSuccess = "Lead actualizado correctamente.";
+      lead.name = updated.name;
+      lead.email = updated.email;
+      lead.company = updated.company;
+      lead.phone = updated.phone;
+      lead.message = updated.message;
+      lead.status = updated.status;
+      lead.tags = updated.tags;
+    } else {
+      actionError = "Error al actualizar.";
     }
-
-    errorMessage = "No se pudo eliminar el lead.";
   }
 
-  if (intent === "add-note") {
-    const note = clean(formData.get("note"));
-    const ok = note ? await añadirNotaLead(String(id), note) : false;
-
-    actionMessage = ok
-      ? "Nota añadida correctamente."
-      : "No se pudo añadir la nota.";
-  }
-
-  if (intent === "update-status") {
-    const status = clean(formData.get("status"));
-    const ok = isEstadoLead(status)
-      ? await actualizarEstadoLead(String(id), status)
-      : false;
-
-    actionMessage = ok
-      ? "Estado actualizado correctamente."
-      : "Estado no válido.";
-  }
-
-  if (intent === "edit-lead") {
-    const nombre = clean(formData.get("nombre"));
-    const email = clean(formData.get("email")).toLowerCase();
-    const empresa = clean(formData.get("empresa"));
-    const mensaje = clean(formData.get("mensaje"));
-    const estadoInput = clean(formData.get("estado"));
-
-    const ok =
-      nombre &&
-      email &&
-      mensaje &&
-      isEstadoLead(estadoInput)
-        ? await actualizarLead(String(id), {
-            nombre,
-            email,
-            empresa,
-            mensaje,
-            estado: estadoInput,
-          })
-        : false;
-
-    actionMessage = ok
-      ? "Lead actualizado correctamente."
-      : "No se pudo actualizar el lead.";
+  if (method === "DELETE") {
+    const { deleteUserLead } = await import("../../../lib/crm");
+    await deleteUserLead(leadId, user!.id);
+    return Astro.redirect("/dashboard/leads");
   }
 }
-
-const leads = await obtenerLeads();
-const lead = leads.find((item) => item.id === id);
-
-if (!lead) {
-  throw new Error("Lead no encontrado");
-}
-
-const iaSuggestion =
-  await getSuggestedNextAction(lead);
-
-const accionSugerida =
-  obtenerAccionSiguiente(lead.estado);
-
-const timeline = [
-  {
-    tipo: "estado",
-    estado: lead.estado,
-    fecha: lead.timestamp,
-  },
-  ...lead.notas.map((nota) => ({
-    tipo: "nota",
-    texto: nota.texto,
-    fecha: nota.createdAt,
-  })),
-].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 ---
 
-<BaseLayout
-  title={`Lead ${lead.nombre} | NexoraAI`}
-  description="Detalle del lead"
->
-  <main class={`${ui.section} min-h-screen bg-[#07070A]`}>
-    <div class={ui.pageShell}>
-      <a href="/admin" class="text-sm text-white/45 transition hover:text-cyan-100">
-        Volver al panel
-      </a>
+<DashboardLayout title={lead.name}>
+  <section class="rounded-2xl border border-white/10 bg-white/[0.035] p-6 md:p-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-cyan-100/70">Lead</p>
+        <h2 class="mt-1 text-3xl font-semibold tracking-tight text-white md:text-4xl">{lead.name}</h2>
+      </div>
+      <span class={`inline-block rounded-full border px-3 py-1 text-xs font-medium ${statusColors[lead.status] || ""}`}>
+        {statusLabels[lead.status] || lead.status}
+      </span>
+    </div>
+  </section>
 
-      <section class="mt-5 premium-panel p-6 md:p-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <span class={`status-pill ${statusBadgeClass[lead.estado]}`}>
-              {statusLabels[lead.estado]}
-            </span>
+  {actionError && (
+    <div class="mt-4 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">{actionError}</div>
+  )}
+  {actionSuccess && (
+    <div class="mt-4 rounded-xl border border-emerald-300/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{actionSuccess}</div>
+  )}
 
-            <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-              {lead.nombre}
-            </h1>
+  <section class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-xl font-semibold text-white">Información</h2>
+      <form method="POST" class="mt-5 grid gap-4">
+        <input type="hidden" name="_method" value="PATCH" />
 
-            <div class="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/50">
-              <span>{lead.email}</span>
-              {lead.empresa && <span>{lead.empresa}</span>}
-              <span>{new Date(lead.timestamp).toLocaleString("es-ES")}</span>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Nombre</span>
+            <input type="text" name="name" value={lead.name} required class="input-premium w-full" />
+          </label>
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Email</span>
+            <input type="email" name="email" value={lead.email} required class="input-premium w-full" />
+          </label>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Empresa</span>
+            <input type="text" name="company" value={lead.company || ""} class="input-premium w-full" />
+          </label>
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Teléfono</span>
+            <input type="tel" name="phone" value={lead.phone || ""} class="input-premium w-full" />
+          </label>
+        </div>
+
+        <label class="block space-y-1.5">
+          <span class="text-sm text-white/65">Etiquetas</span>
+          <input type="text" name="tags" value={lead.tags || ""} placeholder="interesado, pyme" class="input-premium w-full" />
+        </label>
+
+        <label class="block space-y-1.5">
+          <span class="text-sm text-white/65">Mensaje / Notas</span>
+          <textarea name="message" rows="4" class="input-premium w-full resize-y">{lead.message}</textarea>
+        </label>
+
+        <label class="block space-y-1.5">
+          <span class="text-sm text-white/65">Estado</span>
+          <select name="status" class="input-premium w-full">
+            {LEAD_STATUSES.map((s) => (
+              <option value={s} selected={lead.status === s}>{statusLabels[s]}</option>
+            ))}
+          </select>
+        </label>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button class="btn-primary px-5 py-2.5 text-sm">Guardar cambios</button>
+          <button type="button" data-analyze-btn class="btn-secondary px-5 py-2.5 text-sm">Analizar con IA</button>
+          <button type="button" data-email-btn class="btn-secondary px-5 py-2.5 text-sm">Generar email</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="grid gap-6">
+      <div class="premium-panel p-5 md:p-6">
+        <h2 class="text-xl font-semibold text-white">Resumen IA</h2>
+        {lead.aiSummary ? (
+          <div class="mt-4 space-y-3 text-sm">
+            <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <p class="text-xs uppercase tracking-[0.16em] text-white/38">Análisis</p>
+              <p class="mt-2 text-white/80">{lead.aiSummary}</p>
             </div>
+            {lead.priority && (
+              <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p class="text-xs uppercase tracking-[0.16em] text-white/38">Prioridad</p>
+                <p class="mt-2 text-white/80 capitalize">{lead.priority}</p>
+              </div>
+            )}
           </div>
+        ) : (
+          <div class="mt-4 rounded-2xl border border-dashed border-white/10 bg-black/15 p-5 text-sm text-white/45">
+            Haz clic en "Analizar con IA" para obtener un resumen automático.
+          </div>
+        )}
+      </div>
 
-          <form method="POST" data-confirm-delete>
-            <input type="hidden" name="intent" value="delete-lead" />
-            <button class="rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-100 transition hover:-translate-y-0.5 hover:border-red-300/40 hover:bg-red-500/20">
-              Eliminar lead
-            </button>
-          </form>
-        </div>
-      </section>
-
-      {(actionMessage || errorMessage) && (
-        <div class={`mt-6 rounded-xl border px-4 py-3 text-sm ${
-          errorMessage
-            ? "border-red-300/20 bg-red-500/10 text-red-100"
-            : "border-emerald-300/20 bg-emerald-500/10 text-emerald-100"
-        }`}>
-          {errorMessage || actionMessage}
-        </div>
-      )}
-
-      <div class="mt-8 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <div class="space-y-8">
-          <section class="premium-panel p-6">
-            <h2 class="text-xl font-semibold text-white">
-              Mensaje del lead
-            </h2>
-
-            <div class="mt-5 rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p class="whitespace-pre-line text-white/78">
-                {lead.mensaje}
-              </p>
-            </div>
-          </section>
-
-          <section class="premium-panel p-6">
-            <h2 class="text-xl font-semibold text-white">
-              Editar información
-            </h2>
-
-            <form method="POST" class="mt-5 grid gap-3">
-              <input type="hidden" name="intent" value="edit-lead" />
-
-              <div class="grid gap-3 md:grid-cols-2">
-                <input name="nombre" value={lead.nombre} class="input-premium" required />
-                <input name="email" type="email" value={lead.email} class="input-premium" required />
-              </div>
-
-              <div class="grid gap-3 md:grid-cols-[1fr_220px]">
-                <input name="empresa" value={lead.empresa || ""} class="input-premium" placeholder="Empresa" />
-                <select name="estado" class="input-premium">
-                  {ESTADOS_LEAD.map((estado) => (
-                    <option value={estado} selected={lead.estado === estado}>
-                      {statusLabels[estado]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <textarea name="mensaje" rows="5" class="input-premium resize-none" required>{lead.mensaje}</textarea>
-
-              <button class="btn-primary w-fit px-5 py-2.5 text-sm">
-                Guardar cambios
-              </button>
-            </form>
-          </section>
-
-          <section class="premium-panel p-6">
-            <h2 class="text-xl font-semibold text-white">
-              Añadir nota rápida
-            </h2>
-
-            <form method="POST" class="mt-5 grid gap-3">
-              <input type="hidden" name="intent" value="add-note" />
-              <textarea name="note" rows="4" placeholder="Escribe una nota interna..." class="input-premium resize-none"></textarea>
-              <button class="btn-primary w-fit px-5 py-2.5 text-sm">
-                Guardar nota
-              </button>
-            </form>
-          </section>
+      <div class="premium-panel p-5 md:p-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-white">Notas</h2>
+          <button type="button" data-add-note-btn class="btn-secondary px-3 py-1.5 text-xs">+ Añadir</button>
         </div>
 
-        <aside class="space-y-8">
-          <section class="premium-panel p-6">
-            <h2 class="text-xl font-semibold text-white">
-              Acciones rápidas
-            </h2>
-
-            <form method="POST" class="mt-5 flex gap-2">
-              <input type="hidden" name="intent" value="update-status" />
-
-              <select name="status" class="input-premium w-full">
-                {ESTADOS_LEAD.map((estado) => (
-                  <option value={estado} selected={lead.estado === estado}>
-                    {statusLabels[estado]}
-                  </option>
-                ))}
-              </select>
-
-              <button class="btn-primary px-4 py-2.5 text-sm">
-                Cambiar
-              </button>
-            </form>
-
-            <div class="mt-5 rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p class="text-xs uppercase tracking-[0.16em] text-white/38">
-                Siguiente acción
-              </p>
-              <p class="mt-2 text-sm leading-relaxed text-white/78">
-                {accionSugerida}
-              </p>
+        <div class="mt-4 grid gap-3">
+          {lead.notes.length === 0 ? (
+            <div class="rounded-2xl border border-dashed border-white/10 bg-black/15 p-5 text-sm text-white/45">
+              Sin notas aún. Añade la primera.
             </div>
-          </section>
-
-          <section class="premium-panel p-6">
-            <h2 class="text-xl font-semibold text-white">
-              Sugerencia IA
-            </h2>
-
-            <div class="mt-5 rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p class="text-xs uppercase tracking-[0.16em] text-cyan-100/70">
-                Acción
-              </p>
-              <p class="mt-2 text-white">
-                {iaSuggestion.accion}
-              </p>
-
-              <p class="mt-6 text-xs uppercase tracking-[0.16em] text-white/38">
-                Mensaje sugerido
-              </p>
-              <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/72">
-                {iaSuggestion.seguimiento}
-              </p>
-            </div>
-          </section>
-
-          <section class="premium-panel p-6">
-            <div class="flex items-center justify-between">
-              <h2 class="text-xl font-semibold text-white">
-                Timeline
-              </h2>
-              <span class="text-sm text-white/40">
-                {timeline.length}
-              </span>
-            </div>
-
-            <div class="relative mt-6">
-              <div class="absolute left-[9px] top-0 h-full w-px bg-white/10"></div>
-
-              <div class="space-y-5">
-                {timeline.map((evento) => (
-                  <div class="relative flex gap-4">
-                    <div class="relative z-10 mt-1 h-5 w-5 rounded-full border border-cyan-300/35 bg-cyan-300/10"></div>
-
-                    <div class="flex-1 rounded-2xl border border-white/10 bg-black/20 p-4">
-                      {evento.tipo === "estado" ? (
-                        <div>
-                          <p class="text-xs uppercase tracking-[0.16em] text-emerald-100/70">
-                            Estado
-                          </p>
-                          <p class="mt-1 text-sm font-medium text-white">
-                            {statusLabels[evento.estado]}
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <p class="text-xs uppercase tracking-[0.16em] text-cyan-100/70">
-                            Nota
-                          </p>
-                          <p class="mt-2 whitespace-pre-line text-sm text-white/72">
-                            {evento.texto}
-                          </p>
-                        </div>
-                      )}
-
-                      <p class="mt-3 text-xs text-white/35">
-                        {new Date(evento.fecha).toLocaleString("es-ES")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+          ) : (
+            lead.notes.map((note) => (
+              <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p class="text-sm text-white/80">{note.text}</p>
+                <p class="mt-2 text-[11px] text-white/35">
+                  {note.createdAt.toLocaleDateString("es-ES", {
+                    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+                  })}
+                </p>
               </div>
-            </div>
-          </section>
-        </aside>
+            ))
+          )}
+        </div>
       </div>
     </div>
-  </main>
+  </section>
 
-  <script is:inline>
-    (() => {
-      document.querySelector("[data-confirm-delete]")?.addEventListener("submit", (event) => {
-        if (!window.confirm("Eliminar este lead de forma permanente?")) {
-          event.preventDefault();
+  <section class="mt-6 premium-panel p-5 md:p-6" id="email-section" style="display:none">
+    <h2 class="text-xl font-semibold text-white">Email generado</h2>
+    <pre id="email-content" class="mt-4 whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-white/70 font-sans leading-relaxed"></pre>
+    <button type="button" data-copy-email class="btn-secondary mt-4 px-5 py-2.5 text-sm">Copiar email</button>
+  </section>
+</DashboardLayout>
+
+<script>
+  (() => {
+    const leadId = document.location.pathname.split("/").pop();
+
+    document.querySelector("[data-analyze-btn]")?.addEventListener("click", async () => {
+      const btn = document.querySelector("[data-analyze-btn]");
+      if (!btn) return;
+      btn.textContent = "Analizando...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/crm/leads/${leadId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "analyze" }),
+        });
+        if (res.ok) {
+          window.location.reload();
         }
+      } catch {
+        btn.textContent = "Error";
+        setTimeout(() => { btn.textContent = "Analizar con IA"; btn.disabled = false; }, 2000);
+      }
+    });
+
+    document.querySelector("[data-email-btn]")?.addEventListener("click", async () => {
+      const btn = document.querySelector("[data-email-btn]");
+      if (!btn) return;
+      btn.textContent = "Generando...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/crm/leads/${leadId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "generate-email", emailType: "comercial" }),
+        });
+        const data = await res.json();
+        if (data.email) {
+          document.getElementById("email-content").textContent = data.email;
+          document.getElementById("email-section").style.display = "block";
+        }
+      } catch {
+        alert("Error al generar email");
+      } finally {
+        btn.textContent = "Generar email";
+        btn.disabled = false;
+      }
+    });
+
+    document.querySelector("[data-copy-email]")?.addEventListener("click", () => {
+      const text = document.getElementById("email-content")?.textContent;
+      if (text) {
+        navigator.clipboard?.writeText(text).then(() => {
+          const btn = document.querySelector("[data-copy-email]");
+          if (btn) { btn.textContent = "Copiado!"; setTimeout(() => { btn.textContent = "Copiar email"; }, 2000); }
+        });
+      }
+    });
+
+    document.querySelector("[data-add-note-btn]")?.addEventListener("click", () => {
+      const text = prompt("Nueva nota:");
+      if (!text || !text.trim()) return;
+
+      fetch(`/api/crm/leads/${leadId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "note", text: text.trim() }),
+      }).then((res) => {
+        if (res.ok) window.location.reload();
       });
-    })();
-  </script>
-</BaseLayout>
+    });
+  })();
+</script>

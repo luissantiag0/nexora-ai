@@ -1,0 +1,192 @@
+---
+import PremiumLayout from "../../../layouts/PremiumLayout.astro";
+import { getUserInvoice } from "../../../lib/invoices";
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+const invoiceId = Astro.params.id!;
+const invoice = user ? await getUserInvoice(invoiceId, user.id) : null;
+
+if (!invoice) return Astro.redirect("/premium/invoices");
+
+const statusLabels: Record<string, string> = {
+  borrador: "Borrador", pendiente: "Pendiente", pagada: "Pagada", cancelada: "Cancelada",
+};
+const statusColors: Record<string, string> = {
+  borrador: "border-white/10 bg-white/[0.04] text-white/50",
+  pendiente: "border-amber-300/20 bg-amber-300/10 text-amber-100",
+  pagada: "border-emerald-300/20 bg-emerald-300/10 text-emerald-100",
+  cancelada: "border-rose-300/20 bg-rose-300/10 text-rose-100",
+};
+const nextStatus = {
+  borrador: { action: "emitir", label: "Emitir factura", status: "pendiente" },
+  pendiente: { action: "cobrar", label: "Marcar como pagada", status: "pagada" },
+};
+---
+
+<PremiumLayout title={`Factura: ${invoice.clientName}`}>
+  <a href="/premium/invoices" class="text-sm text-white/45 transition hover:text-cyan-100">← Volver a facturas</a>
+
+  <section class="mt-5 rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(34,211,238,0.1),rgba(255,255,255,0.035)_48%,rgba(16,185,129,0.09))] p-6 shadow-[0_24px_90px_-54px_rgba(34,211,238,0.85)] md:p-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-cyan-100/70">Factura #{invoice.id.slice(0, 8)}</p>
+        <h2 class="mt-2 text-3xl font-semibold tracking-tight text-white md:text-4xl">{invoice.clientName}</h2>
+      </div>
+      <span class={`inline-block rounded-full border px-3 py-1 text-xs font-medium ${statusColors[invoice.status] || ""}`}>{statusLabels[invoice.status] || invoice.status}</span>
+    </div>
+  </section>
+
+  <section class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-xl font-semibold text-white">Detalle</h2>
+      <dl class="mt-5 grid gap-4 text-sm">
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <dt class="text-white/38">Cliente</dt>
+          <dd class="mt-1 text-white">{invoice.clientName}</dd>
+          <dd class="text-white/60">{invoice.clientEmail}</dd>
+          {invoice.company && <dd class="text-white/60">{invoice.company}</dd>}
+        </div>
+        {invoice.dueDate && <div class="rounded-2xl border border-white/10 bg-black/20 p-4"><dt class="text-white/38">Vencimiento</dt><dd class="mt-1 text-white">{new Date(invoice.dueDate).toLocaleDateString("es-ES")}</dd></div>}
+        {invoice.notes && <div class="rounded-2xl border border-white/10 bg-black/20 p-4"><dt class="text-white/38">Notas</dt><dd class="mt-1 text-white/70">{invoice.notes}</dd></div>}
+      </dl>
+    </div>
+
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-xl font-semibold text-white">Resumen</h2>
+      <div class="mt-5 grid gap-4">
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-4"><p class="text-xs uppercase tracking-[0.16em] text-white/38">Subtotal</p><p class="mt-1 text-2xl font-semibold text-white">{invoice.subtotal.toFixed(2)} €</p></div>
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-4"><p class="text-xs uppercase tracking-[0.16em] text-white/38">IVA</p><p class="mt-1 text-2xl font-semibold text-white">{invoice.tax.toFixed(2)} €</p></div>
+        <div class="rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-4"><p class="text-xs uppercase tracking-[0.16em] text-cyan-100/70">Total</p><p class="mt-1 text-3xl font-semibold text-cyan-100">{invoice.total.toFixed(2)} €</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6">
+    <h2 class="text-xl font-semibold text-white">Líneas</h2>
+    <div class="mt-5 overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/38">
+          <th class="px-4 py-3 font-medium">Descripción</th><th class="px-4 py-3 font-medium">Cantidad</th><th class="px-4 py-3 font-medium">Precio</th><th class="px-4 py-3 font-medium text-right">Total</th>
+        </tr></thead>
+        <tbody class="divide-y divide-white/5">
+          {invoice.items.map((item) => (
+            <tr><td class="px-4 py-3 text-white">{item.description}</td><td class="px-4 py-3 text-white/60">{item.quantity}</td><td class="px-4 py-3 text-white/60">{item.price.toFixed(2)} €</td><td class="px-4 py-3 text-right font-medium text-white">{item.total.toFixed(2)} €</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mt-6 flex flex-wrap gap-3">
+    <a href={`/api/invoices/${invoice.id}`} target="_blank" class="btn-primary px-5 py-3 text-sm">Descargar PDF</a>
+
+    {invoice.status === "borrador" && (
+      <button type="button" data-action="emitir" data-id={invoice.id} class="btn-secondary px-5 py-3 text-sm">
+        Emitir factura
+      </button>
+    )}
+    {invoice.status === "pendiente" && (
+      <button type="button" data-action="cobrar" data-id={invoice.id} class="btn-secondary px-5 py-3 text-sm">
+        Marcar como pagada
+      </button>
+    )}
+    {(invoice.status === "borrador" || invoice.status === "pendiente") && (
+      <button type="button" data-action="cancelar" data-id={invoice.id} class="btn-secondary px-5 py-3 text-sm">
+        Cancelar factura
+      </button>
+    )}
+  </section>
+
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 grid gap-3"></div>
+</PremiumLayout>
+
+<script>
+  (() => {
+    const toastContainer = document.getElementById("toast-container");
+
+    function showToast(message, type = "success") {
+      if (!toastContainer) return;
+      const toast = document.createElement("div");
+      toast.className = `rounded-xl border px-5 py-3 text-sm shadow-[0_18px_50px_-35px_rgba(34,211,238,0.8)] transition-all duration-300 translate-y-2 opacity-0 ${
+        type === "success"
+          ? "border-emerald-300/20 bg-emerald-500/10 text-emerald-100"
+          : "border-red-300/20 bg-red-500/10 text-red-100"
+      }`;
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      });
+
+      setTimeout(() => {
+        toast.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    async function updateStatus(invoiceId, newStatus) {
+      const btn = document.querySelector(`[data-id="${invoiceId}"]`);
+      if (btn) { btn.disabled = true; btn.textContent = "Procesando..."; }
+
+      try {
+        const res = await fetch(`/api/invoices/${invoiceId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (res.ok) {
+          showToast(
+            newStatus === "pagada" ? "Pago registrado correctamente" :
+            newStatus === "pendiente" ? "Factura emitida correctamente" :
+            "Factura cancelada"
+          );
+          setTimeout(() => window.location.reload(), 800);
+        } else {
+          const data = await res.json();
+          showToast(data.error || "Error al actualizar", "error");
+          if (btn) { btn.disabled = false; btn.textContent = btn.dataset.originalText || "Reintentar"; }
+        }
+      } catch {
+        showToast("Error de conexión", "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Reintentar"; }
+      }
+    }
+
+    document.querySelectorAll("[data-action]").forEach((btn) => {
+      btn.dataset.originalText = btn.textContent;
+      btn.addEventListener("click", () => {
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (!id) return;
+
+        if (action === "emitir") {
+          if (confirm("¿Emitir esta factura? El cliente recibirá el estado pendiente.")) {
+            updateStatus(id, "pendiente");
+          }
+        } else if (action === "cobrar") {
+          if (confirm("¿Confirmar pago recibido? La factura se marcará como pagada.")) {
+            updateStatus(id, "pagada");
+          }
+        } else if (action === "cancelar") {
+          if (confirm("¿Cancelar esta factura? No se podrá revertir.")) {
+            updateStatus(id, "cancelada");
+          }
+        }
+      });
+    });
+
+    // FIX: Override the PDF download link to ensure proper download behavior
+    document.querySelectorAll("a[href*='/api/invoices/'][target='_blank']").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        const href = link.getAttribute("href");
+        if (href) {
+          window.open(href, "_blank");
+        }
+      });
+    });
+  })();
+</script>

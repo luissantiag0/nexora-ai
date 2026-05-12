@@ -1,0 +1,16 @@
+---
+import { SESSION_COOKIE } from "../lib/session";
+import { getCurrentUser, logoutUser } from "../lib/auth";
+
+export const prerender = false;
+
+const token = Astro.cookies.get(SESSION_COOKIE)?.value;
+const user = await getCurrentUser(token);
+
+if (user) {
+  await logoutUser(user.id);
+}
+
+Astro.cookies.delete(SESSION_COOKIE, { path: "/" });
+return Astro.redirect("/");
+---

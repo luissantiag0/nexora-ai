@@ -1,555 +1,277 @@
 ---
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { ui } from "../../../lib/uiClasses";
-
-import {
-  getSuggestedNextAction,
-  obtenerLeads,
-  añadirNotaLead,
-  obtenerAccionSiguiente,
-  ESTADOS_LEAD,
-} from "../../../lib/leadStorage";
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import { getUserLead, LEAD_STATUSES, type LeadStatus } from "../../../lib/crm";
+import { getCurrentUser } from "../../../lib/auth";
+import { SESSION_COOKIE } from "../../../lib/session";
 
 export const prerender = false;
 
-const iaSuggestion =
-  await getSuggestedNextAction(
-    lead
-  );
+const user = Astro.locals.user;
+const leadId = Astro.params.id!;
+const lead = user ? await getUserLead(leadId, user.id) : null;
 
-/* =========================================
-   PARAMS
-========================================= */
-
-const { id } = Astro.params;
-
-/* =========================================
-   AUTH
-========================================= */
-
-const cookieName = "nexora_admin_auth";
-
-const existingCookie =
-  Astro.cookies.get(cookieName)?.value;
-
-const isAuthed = existingCookie === "1";
-
-if (!isAuthed) {
-  return Astro.redirect("/admin");
+if (!lead) {
+  return Astro.redirect("/dashboard/leads");
 }
 
-/* =========================================
-   MENSAJES
-========================================= */
+const statusLabels: Record<string, string> = {
+  nuevo: "Nuevo", contactado: "Contactado", cualificado: "Cualificado",
+  propuesta_enviada: "Propuesta enviada", ganado: "Ganado", perdido: "Perdido",
+};
 
-let actionMessage = "";
-let errorMessage = "";
+const statusColors: Record<string, string> = {
+  nuevo: "bg-sky-300/10 text-sky-100 border-sky-300/20",
+  contactado: "bg-amber-300/10 text-amber-100 border-amber-300/20",
+  cualificado: "bg-emerald-300/10 text-emerald-100 border-emerald-300/20",
+  propuesta_enviada: "bg-purple-300/10 text-purple-100 border-purple-300/20",
+  ganado: "bg-green-300/10 text-green-100 border-green-300/20",
+  perdido: "bg-rose-300/10 text-rose-100 border-rose-300/20",
+};
 
-/* =========================================
-   AÑADIR NOTA
-========================================= */
+let actionError = "";
+let actionSuccess = "";
 
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
+  const method = String(formData.get("_method") || "POST").toUpperCase();
 
-  const intent = String(
-    formData.get("intent") || ""
-  );
+  if (method === "PATCH") {
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const company = String(formData.get("company") || "").trim() || null;
+    const phone = String(formData.get("phone") || "").trim() || null;
+    const message = String(formData.get("message") || "").trim();
+    const status = String(formData.get("status") || "");
+    const tags = String(formData.get("tags") || "").trim();
 
-  if (intent === "add-note") {
-    const note = String(
-      formData.get("note") || ""
-    );
-
-    const ok = await añadirNotaLead(
-      String(id),
-      note
-    );
-
-    if (ok) {
-      actionMessage =
-        "Nota añadida correctamente.";
+    const { updateUserLead } = await import("../../../lib/crm");
+    const updated = await updateUserLead(leadId, user!.id, { name, email, company, phone, message, status: status as LeadStatus, tags });
+    if (updated) {
+      actionSuccess = "Lead actualizado correctamente.";
+      lead.name = updated.name;
+      lead.email = updated.email;
+      lead.company = updated.company;
+      lead.phone = updated.phone;
+      lead.message = updated.message;
+      lead.status = updated.status;
+      lead.tags = updated.tags;
     } else {
-      errorMessage =
-        "No se pudo añadir la nota.";
+      actionError = "Error al actualizar.";
     }
   }
+
+  if (method === "DELETE") {
+    const { deleteUserLead } = await import("../../../lib/crm");
+    await deleteUserLead(leadId, user!.id);
+    return Astro.redirect("/dashboard/leads");
+  }
 }
-
-/* =========================================
-   OBTENER LEAD
-========================================= */
-
-const leads = await obtenerLeads();
-
-const lead = leads.find(
-  (lead) => lead.id === id
-);
-
-if (!lead) {
-  throw new Error("Lead no encontrado");
-}
-
-/* =========================================
-   LABELS
-========================================= */
-
-const statusLabels = {
-  nuevo: "Nuevo",
-  contactado: "Contactado",
-  cualificado: "Cualificado",
-  propuesta_enviada: "Propuesta enviada",
-  ganado: "Ganado",
-  perdido: "Perdido",
-};
-
-const statusBadgeClass = {
-  nuevo:
-    "border border-sky-400/30 bg-sky-500/10 text-sky-200",
-
-  contactado:
-    "border border-amber-400/30 bg-amber-500/10 text-amber-200",
-
-  cualificado:
-    "border border-emerald-400/30 bg-emerald-500/10 text-emerald-200",
-
-  propuesta_enviada:
-    "border border-purple-400/30 bg-purple-500/10 text-purple-200",
-
-  ganado:
-    "border border-green-400/30 bg-green-500/10 text-green-200",
-
-  perdido:
-    "border border-rose-400/30 bg-rose-500/10 text-rose-200",
-};
-
-/* =========================================
-   TIMELINE
-========================================= */
-
-const timeline = [
-  {
-    tipo: "estado",
-    estado: lead.estado,
-    fecha: lead.timestamp,
-  },
-
-  ...lead.notas.map((nota) => ({
-    tipo: "nota",
-    texto: nota.texto,
-    fecha: nota.createdAt,
-  })),
-].sort(
-  (a, b) =>
-    new Date(b.fecha).getTime() -
-    new Date(a.fecha).getTime()
-);
-
-/* =========================================
-   ACCIÓN SUGERIDA
-========================================= */
-
-const accionSugerida =
-  obtenerAccionSiguiente(lead.estado);
 ---
 
-<BaseLayout
-  title={`Lead ${lead.nombre}`}
-  description="Detalle del lead"
->
-  <main class={ui.section}>
-    <div class={ui.pageShell}>
-
-      {/* HEADER */}
-
-      <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-
-        <div>
-
-          <a
-            href="/admin"
-            class="text-sm text-white/50 hover:text-white"
-          >
-            ← Volver al panel
-          </a>
-
-          <h1 class="mt-3 text-3xl font-semibold text-white">
-            {lead.nombre}
-          </h1>
-
-          <p class="mt-2 text-white/60">
-            {lead.email}
-          </p>
-
-          {lead.empresa && (
-            <p class="mt-1 text-white/40">
-              Empresa: {lead.empresa}
-            </p>
-          )}
-
-        </div>
-
-        <span
-          class={`w-fit rounded-full px-4 py-2 text-sm ${statusBadgeClass[lead.estado]}`}
-        >
-          {statusLabels[lead.estado]}
-        </span>
-
+<DashboardLayout title={lead.name}>
+  <section class="rounded-2xl border border-white/10 bg-white/[0.035] p-6 md:p-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-cyan-100/70">Lead</p>
+        <h2 class="mt-1 text-3xl font-semibold tracking-tight text-white md:text-4xl">{lead.name}</h2>
       </div>
-
-      {/* ALERTAS */}
-
-      {actionMessage && (
-        <div class="mt-6 rounded-xl border border-green-400/20 bg-green-500/10 p-4 text-green-200">
-          {actionMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div class="mt-6 rounded-xl border border-red-400/20 bg-red-500/10 p-4 text-red-200">
-          {errorMessage}
-        </div>
-      )}
-
-      {/* GRID */}
-
-      <div class="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-
-        {/* COLUMNA PRINCIPAL */}
-
-        <div class="space-y-8">
-
-          {/* MENSAJE */}
-
-          <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-
-            <h2 class="text-xl font-semibold text-white">
-              Mensaje del Lead
-            </h2>
-
-            <div class="mt-5 rounded-xl border border-white/10 bg-black/20 p-5">
-
-              <p class="whitespace-pre-line text-white/80">
-                {lead.mensaje}
-              </p>
-
-            </div>
-
-            <p class="mt-4 text-xs text-white/40">
-              Creado el{" "}
-              {new Date(
-                lead.timestamp
-              ).toLocaleString("es-ES")}
-            </p>
-
-          </section>
-
-          {/* FORM NOTA */}
-
-          <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-
-            <h2 class="text-xl font-semibold text-white">
-              Añadir Nota
-            </h2>
-
-            <form
-              method="POST"
-              class="mt-5"
-            >
-              <input
-                type="hidden"
-                name="intent"
-                value="add-note"
-              />
-
-              <textarea
-                name="note"
-                rows="5"
-                placeholder="Escribe una nota interna..."
-                class="w-full rounded-xl border border-white/10 bg-black/30 p-4 text-white outline-none"
-              />
-
-              <button
-                class="mt-4 rounded-xl bg-white px-5 py-3 text-black"
-              >
-                Guardar nota
-              </button>
-            </form>
-
-          </section>
-
-          {/* NOTAS */}
-
-          <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-
-            <div class="flex items-center justify-between">
-
-              <h2 class="text-xl font-semibold text-white">
-                Notas Internas
-              </h2>
-
-              <span class="text-sm text-white/40">
-                {lead.notas.length} notas
-              </span>
-
-            </div>
-
-            <div class="mt-6 space-y-4">
-
-              {lead.notas.length === 0 ? (
-
-                <div class="rounded-xl border border-white/10 bg-black/20 p-5">
-                  <p class="text-white/50">
-                    No hay notas todavía.
-                  </p>
-                </div>
-
-              ) : (
-
-                lead.notas.map((nota) => (
-
-                  <div
-                    class="rounded-xl border border-white/10 bg-black/20 p-5"
-                  >
-
-                    <p class="whitespace-pre-line text-white/80">
-                      {nota.texto}
-                    </p>
-
-                    <p class="mt-4 text-xs text-white/40">
-                      {new Date(
-                        nota.createdAt
-                      ).toLocaleString("es-ES")}
-                    </p>
-
-                  </div>
-
-                ))
-
-              )}
-
-            </div>
-
-          </section>
-
-        </div>
-
-        {/* SIDEBAR */}
-
-        <aside class="space-y-8">
-
-          {/* ACCIÓN */}
-
-          <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-
-            <h2 class="text-xl font-semibold text-white">
-              Acción sugerida
-            </h2>
-
-            <div class="mt-5 rounded-xl border border-white/10 bg-black/20 p-5">
-
-              <p class="text-white/80">
-                {accionSugerida}
-              </p>
-
-            </div>
-
-          </section>
-
-          {/* TIMELINE */}
-
-          <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-
-            <div class="flex items-center justify-between">
-
-              <div>
-
-                <h2 class="text-xl font-semibold text-white">
-                  Timeline
-                </h2>
-
-                <p class="mt-1 text-sm text-white/50">
-                  Actividad del lead
-                </p>
-
-              </div>
-
-              <span class="text-sm text-white/40">
-                {timeline.length} eventos
-              </span>
-
-            </div>
-
-            <div class="relative mt-8">
-
-              <div class="absolute left-[11px] top-0 h-full w-px bg-white/10" />
-
-              <div class="space-y-8">
-
-                {timeline.map((evento) => (
-
-                  <div class="relative flex gap-5">
-
-                    {/* PUNTO */}
-
-                    <div
-                      class={`relative z-10 mt-1 h-6 w-6 rounded-full border ${
-                        evento.tipo === "estado"
-                          ? "border-emerald-400 bg-emerald-500/20"
-                          : "border-sky-400 bg-sky-500/20"
-                      }`}
-                    />
-
-                    {/* CONTENIDO */}
-
-                    <div class="flex-1 rounded-2xl border border-white/10 bg-black/20 p-5">
-
-                      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-
-                        <div>
-
-                          {evento.tipo === "estado" ? (
-
-                            <div>
-
-                              <p class="text-sm uppercase tracking-wide text-emerald-300">
-                                Cambio de estado
-                              </p>
-
-                              <h3 class="mt-1 text-lg font-medium text-white">
-                                {
-                                  statusLabels[
-                                    evento.estado
-                                  ]
-                                }
-                              </h3>
-
-                            </div>
-
-                          ) : (
-
-                            <div>
-
-                              <p class="text-sm uppercase tracking-wide text-sky-300">
-                                Nota interna
-                              </p>
-
-                              <h3 class="mt-1 text-lg font-medium text-white">
-                                Nueva nota añadida
-                              </h3>
-
-                            </div>
-
-                          )}
-
-                        </div>
-
-                        <p class="text-sm text-white/40">
-                          {new Date(
-                            evento.fecha
-                          ).toLocaleString("es-ES")}
-                        </p>
-
-                      </div>
-
-                      {evento.tipo === "nota" && (
-
-                        <div class="mt-4">
-
-                          <p class="whitespace-pre-line text-white/80">
-                            {evento.texto}
-                          </p>
-
-                        </div>
-
-                      )}
-
-                    </div>
-
-                  </div>
-
-                ))}
-
-              </div>
-
-            </div>
-
-          </section>
-
-          {/* INFO */}
-
-          <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-
-            <h2 class="text-xl font-semibold text-white">
-              Información técnica
-            </h2>
-
-            <div class="mt-5 space-y-5 text-sm">
-
-              <div>
-
-                <p class="text-white/40">
-                  ID del Lead
-                </p>
-
-                <p class="mt-1 break-all text-white/80">
-                  {lead.id}
-                </p>
-
-              </div>
-
-              <div>
-
-                <p class="text-white/40">
-                  User ID
-                </p>
-
-                <p class="mt-1 break-all text-white/80">
-                  {lead.userId}
-                </p>
-
-              </div>
-
-            </div>
-
-          </section>
-
-          <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-
-          <h2 class="text-xl font-semibold text-white">
-            Sugerencia IA
-          </h2>
-
-          <div class="mt-5 rounded-xl border border-white/10 bg-black/20 p-5">
-
-            <p class="text-sm uppercase tracking-wide text-white/40">
-              Siguiente acción
-            </p>
-
-            <p class="mt-2 text-white">
-              {iaSuggestion.accion}
-            </p>
-
-            <div class="mt-6">
-
-              <p class="text-sm uppercase tracking-wide text-white/40">
-                Mensaje sugerido
-              </p>
-
-              <p class="mt-2 whitespace-pre-line text-white/80">
-                {iaSuggestion.seguimiento}
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-        </aside>
-
-      </div>
-
+      <span class={`inline-block rounded-full border px-3 py-1 text-xs font-medium ${statusColors[lead.status] || ""}`}>
+        {statusLabels[lead.status] || lead.status}
+      </span>
     </div>
-  </main>
-</BaseLayout>
+  </section>
+
+  {actionError && (
+    <div class="mt-4 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">{actionError}</div>
+  )}
+  {actionSuccess && (
+    <div class="mt-4 rounded-xl border border-emerald-300/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{actionSuccess}</div>
+  )}
+
+  <section class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-xl font-semibold text-white">Información</h2>
+      <form method="POST" class="mt-5 grid gap-4">
+        <input type="hidden" name="_method" value="PATCH" />
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Nombre</span>
+            <input type="text" name="name" value={lead.name} required class="input-premium w-full" />
+          </label>
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Email</span>
+            <input type="email" name="email" value={lead.email} required class="input-premium w-full" />
+          </label>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Empresa</span>
+            <input type="text" name="company" value={lead.company || ""} class="input-premium w-full" />
+          </label>
+          <label class="block space-y-1.5">
+            <span class="text-sm text-white/65">Teléfono</span>
+            <input type="tel" name="phone" value={lead.phone || ""} class="input-premium w-full" />
+          </label>
+        </div>
+
+        <label class="block space-y-1.5">
+          <span class="text-sm text-white/65">Etiquetas</span>
+          <input type="text" name="tags" value={lead.tags || ""} placeholder="interesado, pyme" class="input-premium w-full" />
+        </label>
+
+        <label class="block space-y-1.5">
+          <span class="text-sm text-white/65">Mensaje / Notas</span>
+          <textarea name="message" rows="4" class="input-premium w-full resize-y">{lead.message}</textarea>
+        </label>
+
+        <label class="block space-y-1.5">
+          <span class="text-sm text-white/65">Estado</span>
+          <select name="status" class="input-premium w-full">
+            {LEAD_STATUSES.map((s) => (
+              <option value={s} selected={lead.status === s}>{statusLabels[s]}</option>
+            ))}
+          </select>
+        </label>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button class="btn-primary px-5 py-2.5 text-sm">Guardar cambios</button>
+          <button type="button" data-analyze-btn class="btn-secondary px-5 py-2.5 text-sm">Analizar con IA</button>
+          <button type="button" data-email-btn class="btn-secondary px-5 py-2.5 text-sm">Generar email</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="grid gap-6">
+      <div class="premium-panel p-5 md:p-6">
+        <h2 class="text-xl font-semibold text-white">Resumen IA</h2>
+        {lead.aiSummary ? (
+          <div class="mt-4 space-y-3 text-sm">
+            <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <p class="text-xs uppercase tracking-[0.16em] text-white/38">Análisis</p>
+              <p class="mt-2 text-white/80">{lead.aiSummary}</p>
+            </div>
+            {lead.priority && (
+              <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p class="text-xs uppercase tracking-[0.16em] text-white/38">Prioridad</p>
+                <p class="mt-2 text-white/80 capitalize">{lead.priority}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class="mt-4 rounded-2xl border border-dashed border-white/10 bg-black/15 p-5 text-sm text-white/45">
+            Haz clic en "Analizar con IA" para obtener un resumen automático.
+          </div>
+        )}
+      </div>
+
+      <div class="premium-panel p-5 md:p-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-white">Notas</h2>
+          <button type="button" data-add-note-btn class="btn-secondary px-3 py-1.5 text-xs">+ Añadir</button>
+        </div>
+
+        <div class="mt-4 grid gap-3">
+          {lead.notes.length === 0 ? (
+            <div class="rounded-2xl border border-dashed border-white/10 bg-black/15 p-5 text-sm text-white/45">
+              Sin notas aún. Añade la primera.
+            </div>
+          ) : (
+            lead.notes.map((note) => (
+              <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p class="text-sm text-white/80">{note.text}</p>
+                <p class="mt-2 text-[11px] text-white/35">
+                  {note.createdAt.toLocaleDateString("es-ES", {
+                    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6" id="email-section" style="display:none">
+    <h2 class="text-xl font-semibold text-white">Email generado</h2>
+    <pre id="email-content" class="mt-4 whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-white/70 font-sans leading-relaxed"></pre>
+    <button type="button" data-copy-email class="btn-secondary mt-4 px-5 py-2.5 text-sm">Copiar email</button>
+  </section>
+</DashboardLayout>
+
+<script>
+  (() => {
+    const leadId = document.location.pathname.split("/").pop();
+
+    document.querySelector("[data-analyze-btn]")?.addEventListener("click", async () => {
+      const btn = document.querySelector("[data-analyze-btn]");
+      if (!btn) return;
+      btn.textContent = "Analizando...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/crm/leads/${leadId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "analyze" }),
+        });
+        if (res.ok) {
+          window.location.reload();
+        }
+      } catch {
+        btn.textContent = "Error";
+        setTimeout(() => { btn.textContent = "Analizar con IA"; btn.disabled = false; }, 2000);
+      }
+    });
+
+    document.querySelector("[data-email-btn]")?.addEventListener("click", async () => {
+      const btn = document.querySelector("[data-email-btn]");
+      if (!btn) return;
+      btn.textContent = "Generando...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/crm/leads/${leadId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "generate-email", emailType: "comercial" }),
+        });
+        const data = await res.json();
+        if (data.email) {
+          document.getElementById("email-content").textContent = data.email;
+          document.getElementById("email-section").style.display = "block";
+        }
+      } catch {
+        alert("Error al generar email");
+      } finally {
+        btn.textContent = "Generar email";
+        btn.disabled = false;
+      }
+    });
+
+    document.querySelector("[data-copy-email]")?.addEventListener("click", () => {
+      const text = document.getElementById("email-content")?.textContent;
+      if (text) {
+        navigator.clipboard?.writeText(text).then(() => {
+          const btn = document.querySelector("[data-copy-email]");
+          if (btn) { btn.textContent = "Copiado!"; setTimeout(() => { btn.textContent = "Copiar email"; }, 2000); }
+        });
+      }
+    });
+
+    document.querySelector("[data-add-note-btn]")?.addEventListener("click", () => {
+      const text = prompt("Nueva nota:");
+      if (!text || !text.trim()) return;
+
+      fetch(`/api/crm/leads/${leadId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "note", text: text.trim() }),
+      }).then((res) => {
+        if (res.ok) window.location.reload();
+      });
+    });
+  })();
+</script>

@@ -4,6 +4,8 @@ import { defineConfig } from "prisma/config";
 export default defineConfig({
   schema: "prisma/schema.prisma",
   datasource: {
-    url: process.env.DIRECT_URL, // Conexión directa (sin PgBouncer) para migraciones
+    url:
+      process.env.DIRECT_URL ??
+      process.env.DATABASE_URL,
   },
 });

@@ -40,6 +40,13 @@ export type LeadAlmacenado = {
 const DEFAULT_LEAD_OWNER_EMAIL =
   "lead-owner@nexora.local";
 
+const leadOwnerSelect = {
+  id: true,
+  email: true,
+  role: true,
+  createdAt: true,
+};
+
 export const obtenerUsuarioParaLeads = async (
   preferredEmail?: string
 ) => {
@@ -52,6 +59,7 @@ export const obtenerUsuarioParaLeads = async (
         where: {
           email,
         },
+        select: leadOwnerSelect,
       });
 
     if (preferredUser) {
@@ -64,6 +72,7 @@ export const obtenerUsuarioParaLeads = async (
       orderBy: {
         createdAt: "asc",
       },
+      select: leadOwnerSelect,
     });
 
   if (existingUser) {
@@ -78,17 +87,34 @@ export const obtenerUsuarioParaLeads = async (
     )?.trim().toLowerCase() ||
     DEFAULT_LEAD_OWNER_EMAIL;
 
-  return prisma.user.upsert({
-    where: {
-      email: ownerEmail,
-    },
-    update: {},
-    create: {
-      email: ownerEmail,
-      passwordHash: await hash(randomUUID(), 10),
-      role: "system",
-    },
-  });
+  const passwordHash =
+    await hash(randomUUID(), 10);
+
+  const createdUser =
+    await prisma.user.create({
+      data: {
+        email: ownerEmail,
+        passwordHash,
+        role: "system",
+      },
+      select: leadOwnerSelect,
+    }).catch(async (error) => {
+      const existingAfterRace =
+        await prisma.user.findUnique({
+          where: {
+            email: ownerEmail,
+          },
+          select: leadOwnerSelect,
+        });
+
+      if (existingAfterRace) {
+        return existingAfterRace;
+      }
+
+      throw error;
+    });
+
+  return createdUser;
 };
 
 /* =========================================
@@ -331,6 +357,9 @@ export const añadirNotaLead = async (
 
   return true;
 };
+
+export const anadirNotaLead =
+  añadirNotaLead;
 
 export const getSuggestedNextAction =
   async (lead: {

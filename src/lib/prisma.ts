@@ -3,28 +3,75 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
-// Eliminamos sslmode de la URL para que no conflicte con ssl: { rejectUnauthorized: false }
-const rawUrl = process.env.DATABASE_URL ?? "";
-const connectionString = rawUrl.replace(/[?&]sslmode=[^&]*/g, "").replace(/[?&]pgbouncer=[^&]*/g, "");
+const getDatabaseUrl = () => {
+  const databaseUrl =
+    process.env.DATABASE_URL?.trim();
 
-// Reconstruimos los params que necesita Supabase
-const url = new URL(rawUrl);
-const pgbouncer = url.searchParams.get("pgbouncer") === "true";
+  if (!databaseUrl) {
+    throw new Error(
+      "DATABASE_URL no está configurada. Añádela en Vercel Project Settings > Environment Variables."
+    );
+  }
 
-const pool = new Pool({
-  connectionString,
-  ssl: { rejectUnauthorized: false },
-  ...(pgbouncer && { max: 1 }), // PgBouncer requiere max: 1 en modo transaction
-});
+  try {
+    return new URL(databaseUrl);
+  } catch {
+    throw new Error(
+      "DATABASE_URL no es una URL PostgreSQL válida. Revisa el valor configurado en Vercel."
+    );
+  }
+};
 
-const adapter = new PrismaPg(pool);
+const buildConnectionString = (url: URL) => {
+  const cleanUrl =
+    new URL(url.toString());
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  cleanUrl.searchParams.delete("sslmode");
+  cleanUrl.searchParams.delete("pgbouncer");
+
+  return cleanUrl.toString();
+};
+
+const globalForPrisma =
+  globalThis as unknown as {
+    prisma?: PrismaClient;
+    prismaPool?: Pool;
+  };
+
+const createPrismaClient = () => {
+  const databaseUrl =
+    getDatabaseUrl();
+
+  const isPgBouncer =
+    databaseUrl.searchParams.get("pgbouncer") === "true" ||
+    databaseUrl.port === "6543";
+
+  const pool =
+    globalForPrisma.prismaPool ??
+    new Pool({
+      connectionString:
+        buildConnectionString(databaseUrl),
+      ssl: {
+        rejectUnauthorized: false,
+      },
+      max: isPgBouncer ? 1 : 5,
+      idleTimeoutMillis: 10_000,
+      connectionTimeoutMillis: 10_000,
+    });
+
+  globalForPrisma.prismaPool = pool;
+
+  return new PrismaClient({
+    adapter: new PrismaPg(pool),
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["warn", "error"]
+        : ["error"],
+  });
 };
 
 export const prisma =
   globalForPrisma.prisma ??
-  new PrismaClient({ adapter });
+  createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;

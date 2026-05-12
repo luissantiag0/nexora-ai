@@ -1,0 +1,37 @@
+---
+const {
+  href = "/",
+  label = "NexoraAI",
+  showText = true,
+  markClass = "h-9 w-9",
+  textClass = "text-lg",
+  class: className = "",
+} = Astro.props;
+---
+
+<a
+  href={href}
+  class={`group inline-flex items-center gap-3 font-semibold tracking-tight text-white transition duration-300 hover:text-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070A] ${className}`}
+  aria-label={label}
+>
+  <span
+    class={`grid shrink-0 place-items-center rounded-xl border border-cyan-300/20 bg-white/[0.035] p-1.5 shadow-[0_16px_42px_-28px_rgba(34,211,238,0.95)] ring-1 ring-white/[0.03] transition duration-300 group-hover:-translate-y-0.5 group-hover:border-cyan-300/45 group-hover:bg-cyan-300/10 ${markClass}`}
+  >
+    <img
+      src="/logo-nexora.png"
+      alt={showText ? "" : label}
+      aria-hidden={showText ? "true" : "false"}
+      width="139"
+      height="120"
+      loading="eager"
+      decoding="async"
+      class="h-full w-full object-contain"
+    />
+  </span>
+
+  {showText && (
+    <span class={textClass}>
+      {label}
+    </span>
+  )}
+</a>

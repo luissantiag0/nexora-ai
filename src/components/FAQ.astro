@@ -1,0 +1,145 @@
+---
+const faqs = [
+  {
+    question: "¿Qué es NexoraAI?",
+    answer:
+      "NexoraAI es una plataforma para gestionar leads, automatizar seguimiento y usar IA en procesos comerciales sin añadir complejidad al equipo."
+  },
+  {
+    question: "¿Cómo funciona?",
+    answer:
+      "Recoge solicitudes desde tus formularios, las organiza en un CRM interno y te ayuda a priorizar cada oportunidad con estados, notas y seguimiento claro."
+  },
+  {
+    question: "¿Qué ventajas tiene frente a un CRM tradicional?",
+    answer:
+      "Está pensado para actuar, no solo para almacenar contactos: combina captación, pipeline, alertas, notas y automatización en un flujo más ágil."
+  },
+  {
+    question: "¿Qué incluye el plan gratuito?",
+    answer:
+      "Incluye un análisis inicial para detectar oportunidades de automatización y entender cómo NexoraAI puede ayudarte a gestionar mejor tus leads."
+  },
+  {
+    question: "¿Cómo se gestionan los leads?",
+    answer:
+      "Cada lead se guarda en el panel, puede cambiar de estado, recibir notas internas y avanzar por el pipeline para que no se pierda ninguna oportunidad."
+  },
+  {
+    question: "¿Necesito conocimientos técnicos?",
+    answer:
+      "No. El panel está diseñado para que cualquier persona pueda revisar leads, actualizar estados y dar seguimiento sin depender de un equipo técnico."
+  },
+  {
+    question: "¿Cómo protege NexoraAI mis datos?",
+    answer:
+      "Usa autenticación de administrador, sesiones seguras y una base de datos privada para que la información comercial quede protegida y controlada."
+  },
+  {
+    question: "¿Puedo cancelar cuando quiera?",
+    answer:
+      "Sí. La idea es que NexoraAI se adapte a tu operación, no que te ate a procesos rígidos. Puedes pausar o cancelar el servicio cuando lo necesites."
+  },
+  {
+    question: "¿Qué diferencia NexoraAI de otros CRM?",
+    answer:
+      "NexoraAI une CRM, automatización e IA en una experiencia más enfocada a velocidad comercial, seguimiento real y reducción de trabajo manual."
+  },
+  {
+    question: "¿Para qué tipo de negocios sirve?",
+    answer:
+      "Funciona especialmente bien para empresas, startups, servicios profesionales y negocios que reciben leads y necesitan responder con más rapidez."
+  }
+];
+---
+
+<section id="faq" class="relative border-t border-white/10 bg-[#07070A] py-24 md:py-32">
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent"></div>
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.11),transparent_28rem),radial-gradient(circle_at_82%_45%,rgba(16,185,129,0.08),transparent_30rem)]"></div>
+
+  <div class="container">
+    <div class="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+      <div class="lg:sticky lg:top-28" data-reveal>
+        <span class="badge bg-cyan-300/10 text-cyan-100">
+          Preguntas frecuentes
+        </span>
+
+        <h2 class="mt-5 max-w-xl text-3xl font-semibold tracking-tight text-white md:text-5xl">
+          Dudas claras antes de dar el siguiente paso
+        </h2>
+
+        <p class="mt-5 max-w-lg text-base leading-relaxed text-white/60 md:text-lg">
+          Resolvemos lo esencial sobre NexoraAI, la gestión de leads y cómo empezar sin fricción.
+        </p>
+
+        <div class="premium-panel animated-border mt-8 p-5">
+          <p class="text-sm font-medium text-white">
+            ¿Quieres verlo aplicado a tu negocio?
+          </p>
+
+          <p class="mt-2 text-sm leading-relaxed text-white/55">
+            Solicita un análisis gratuito y recibe una visión clara de qué procesos puedes automatizar primero.
+          </p>
+
+          <button
+            type="button"
+            data-open-lead-modal
+            class="btn-primary mt-5 w-full sm:w-auto"
+          >
+            Solicitar análisis gratuito
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-4">
+        {faqs.map((item, index) => (
+          <details
+            class="faq-item interactive-card group p-0"
+            data-reveal
+            open={index === 0}
+          >
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-5 px-5 py-5 text-left md:px-6">
+              <span class="text-base font-semibold leading-snug text-white md:text-lg">
+                {item.question}
+              </span>
+
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-xl leading-none text-cyan-100 transition duration-300 group-hover:border-cyan-300/40 group-hover:bg-cyan-300/10 group-open:rotate-45">
+                +
+              </span>
+            </summary>
+
+            <div class="faq-answer px-5 pb-5 md:px-6 md:pb-6">
+              <div class="h-px w-full bg-gradient-to-r from-cyan-300/30 via-white/10 to-transparent"></div>
+
+              <p class="mt-4 max-w-2xl text-sm leading-relaxed text-white/62 md:text-base">
+                {item.answer}
+              </p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-answer {
+    animation: faq-reveal 260ms ease-out;
+  }
+
+  @keyframes faq-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.99);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+</style>

@@ -1,13 +1,19 @@
 import { defineMiddleware } from "astro:middleware";
-import { getCurrentAdmin } from "./lib/auth";
 import { SESSION_COOKIE } from "./lib/session";
 
 const PUBLIC_FILE =
   /\.(?:css|js|mjs|map|png|jpg|jpeg|gif|svg|webp|avif|ico|txt|xml|json|woff|woff2|ttf|otf)$/i;
 
 const isPublicPath = (pathname: string) =>
+  pathname === "/" ||
   pathname === "/admin/login" ||
+  pathname === "/login" ||
+  pathname === "/register" ||
+  pathname === "/upgrade" ||
+  pathname === "/pricing" ||
+  pathname.startsWith("/legal/") ||
   pathname === "/api/leads/create" ||
+  pathname === "/api/stripe/webhook" ||
   pathname.startsWith("/_astro/") ||
   pathname.startsWith("/assets/") ||
   pathname.startsWith("/images/") ||
@@ -20,9 +26,13 @@ const isPublicPath = (pathname: string) =>
 const isProtectedPath = (pathname: string) =>
   pathname === "/admin" ||
   pathname.startsWith("/admin/") ||
+  pathname === "/premium" ||
+  pathname.startsWith("/premium/") ||
   pathname === "/dashboard" ||
   pathname.startsWith("/dashboard/") ||
   pathname === "/api/export/leads" ||
+  pathname.startsWith("/api/crm/") ||
+  pathname.startsWith("/api/analytics/") ||
   (
     pathname.startsWith("/api/leads/") &&
     pathname !== "/api/leads/create"
@@ -40,7 +50,7 @@ const isSafeMethod = (method: string) =>
   ["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
 
 export const onRequest = defineMiddleware(
-  async ({ cookies, redirect, request, url }, next) => {
+  async ({ cookies, locals, redirect, request, url }, next) => {
     const pathname = url.pathname;
 
     if (
@@ -72,15 +82,49 @@ export const onRequest = defineMiddleware(
       }
     }
 
-    const token =
-      cookies.get(SESSION_COOKIE)?.value;
+    const token = cookies.get(SESSION_COOKIE)?.value;
 
-    const admin =
-      await getCurrentAdmin(token);
+    const {
+      getCurrentUser,
+      userIsAdmin,
+      userHasPremiumAccess,
+    } = await import("./lib/auth");
 
-    if (!admin) {
-      return addSecurityHeaders(redirect("/admin/login"));
+    const user = await getCurrentUser(token);
+
+    if (!user) {
+      if (token) {
+        cookies.delete(SESSION_COOKIE, { path: "/" });
+      }
+
+      const loginPath =
+        pathname.startsWith("/admin")
+          ? "/admin/login"
+          : "/login";
+
+      return addSecurityHeaders(redirect(loginPath));
     }
+
+    // Admin paths require admin role
+    if (
+      (pathname === "/admin" || pathname.startsWith("/admin/")) &&
+      !userIsAdmin(user)
+    ) {
+      return addSecurityHeaders(redirect("/dashboard"));
+    }
+
+    // Premium paths require premium access
+    if (
+      (
+        pathname === "/premium" ||
+        pathname.startsWith("/premium/")
+      ) &&
+      !userHasPremiumAccess(user)
+    ) {
+      return addSecurityHeaders(redirect("/upgrade"));
+    }
+
+    locals.user = user;
 
     return addSecurityHeaders(await next());
   }

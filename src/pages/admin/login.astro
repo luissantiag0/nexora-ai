@@ -1,8 +1,11 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import BrandLogo from "../../components/BrandLogo.astro";
 
 import {
+  getCurrentAdmin,
   loginAdmin,
+  userIsAdmin,
 } from "../../lib/auth";
 
 import {
@@ -13,6 +16,23 @@ import {
 export const prerender = false;
 
 let error = "";
+const expiredSession =
+  Astro.url.searchParams.get("expired") === "1";
+
+const existingSession =
+  Astro.cookies.get(SESSION_COOKIE)?.value;
+
+if (Astro.request.method === "GET") {
+  const existingUser = await getCurrentAdmin(existingSession);
+
+  if (existingUser) {
+    if (userIsAdmin(existingUser)) {
+      return Astro.redirect("/admin");
+    }
+
+    return Astro.redirect("/dashboard");
+  }
+}
 
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
@@ -41,12 +61,7 @@ if (Astro.request.method === "POST") {
   <main class="grid min-h-screen place-items-center bg-[#07070A] px-6 py-16">
     <section class="w-full max-w-md">
       <div class="premium-panel animated-border p-7 md:p-8">
-        <a href="/" class="inline-flex items-center gap-3 text-sm font-semibold text-white/70 transition hover:text-cyan-100">
-          <span class="grid h-8 w-8 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-100">
-            N
-          </span>
-          NexoraAI CRM
-        </a>
+        <BrandLogo label="NexoraAI CRM" markClass="h-8 w-8" textClass="text-sm text-white/70" />
 
         <div class="mt-10">
           <p class="text-xs uppercase tracking-[0.18em] text-cyan-200/75">
@@ -65,6 +80,12 @@ if (Astro.request.method === "POST") {
         {error && (
           <div class="mt-6 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
             {error}
+          </div>
+        )}
+
+        {!error && expiredSession && (
+          <div class="mt-6 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            Tu sesión de prueba ha caducado después de 30 minutos. Inicia sesión de nuevo para continuar.
           </div>
         )}
 

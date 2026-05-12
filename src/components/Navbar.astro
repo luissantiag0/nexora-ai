@@ -1,44 +1,100 @@
 ---
+import BrandLogo from "./BrandLogo.astro";
+import { SESSION_COOKIE } from "../lib/session";
+import { getCurrentUser } from "../lib/auth";
+
+export const prerender = false;
+
+const token = Astro.cookies.get(SESSION_COOKIE)?.value;
+const user = await getCurrentUser(token);
+const isLoggedIn = !!user;
 ---
 
-<header class="sticky top-0 z-50 border-b border-white/10 bg-[#07070A]/78 backdrop-blur-xl">
-  <div class="container flex h-16 items-center justify-between">
-    <a href="/" class="group flex items-center gap-3 text-lg font-semibold tracking-tight text-white">
-      <span class="grid h-8 w-8 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-sm text-cyan-100 shadow-[0_16px_40px_-26px_rgba(34,211,238,1)] transition group-hover:border-cyan-300/50 group-hover:bg-cyan-300/15">
-        N
-      </span>
-      NexoraAI
-    </a>
+<header class="site-header sticky top-0 z-50 border-b border-white/10 bg-[#07070A]/72 backdrop-blur-xl transition-all duration-300 ease-in-out" data-site-header>
+  <div class="site-header-inner container flex min-h-16 items-center justify-between gap-4 transition-all duration-300 ease-in-out">
+    <BrandLogo markClass="h-8 w-8" textClass="text-lg" />
 
     <nav class="hidden items-center gap-7 text-sm md:flex">
-      <a href="#services" class="text-white/55 transition hover:text-cyan-100">
-        Servicios
+      <a href="/pricing" class="text-white/55 transition hover:text-cyan-100">
+        Pricing
       </a>
 
-      <a href="#use-cases" class="text-white/55 transition hover:text-cyan-100">
-        Casos de uso
-      </a>
+      {!isLoggedIn && (
+        <>
+          <a href="#services" class="text-white/55 transition hover:text-cyan-100">
+            Servicios
+          </a>
+          <a href="#use-cases" class="text-white/55 transition hover:text-cyan-100">
+            Casos de uso
+          </a>
+          <a href="#technology" class="text-white/55 transition hover:text-cyan-100">
+            Tecnología
+          </a>
+          <button
+            type="button"
+            data-open-lead-modal
+            class="text-white/55 transition hover:text-cyan-100"
+          >
+            Contacto
+          </button>
+        </>
+      )}
 
-      <a href="#technology" class="text-white/55 transition hover:text-cyan-100">
-        Tecnología
-      </a>
-
-      <button
-        type="button"
-        data-open-lead-modal
-        class="text-white/55 transition hover:text-cyan-100"
-      >
-        Contacto
-      </button>
+      {isLoggedIn && (
+        <>
+          <a href="/dashboard" class="text-white/55 transition hover:text-cyan-100">
+            Dashboard
+          </a>
+          <a href="/dashboard/settings" class="text-white/55 transition hover:text-cyan-100">
+            Cuenta
+          </a>
+          <form method="POST" action="/logout" class="inline">
+            <button type="submit" class="text-white/55 transition hover:text-cyan-100">
+              Salir
+            </button>
+          </form>
+        </>
+      )}
     </nav>
 
-    <button
-      type="button"
-      data-open-lead-modal
-      aria-label="Abrir formulario de contacto"
-      class="btn-primary px-5 py-2.5 text-sm"
-    >
-      Solicitar demo
-    </button>
+    {!isLoggedIn && (
+      <div class="flex items-center gap-3">
+        <a
+          href="/login"
+          class="btn-secondary px-4 py-2.5 text-sm hidden sm:inline-flex"
+        >
+          Iniciar sesión
+        </a>
+        <a
+          href="/register"
+          class="btn-primary px-5 py-2.5 text-sm"
+        >
+          Probar gratis
+        </a>
+      </div>
+    )}
+
+    {isLoggedIn && (
+      <form method="POST" action="/logout" class="hidden md:block">
+        <button class="btn-secondary px-4 py-2.5 text-sm">
+          Salir
+        </button>
+      </form>
+    )}
   </div>
+
+  <script is:inline>
+    (() => {
+      const header = document.querySelector("[data-site-header]");
+
+      if (!header) return;
+
+      const updateHeader = () => {
+        header.classList.toggle("is-scrolled", window.scrollY > 8);
+      };
+
+      updateHeader();
+      window.addEventListener("scroll", updateHeader, { passive: true });
+    })();
+  </script>
 </header>
