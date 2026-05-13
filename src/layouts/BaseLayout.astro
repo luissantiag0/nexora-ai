@@ -33,7 +33,27 @@ const {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`https://averionai.co.in${ogImage}`} />
 
-    <!-- Schema.org -->
+    <!-- Preload + Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://averionai.co.in" />
+    <link rel="preload" as="image" href="/logo-averion.png" />
+
+    <!-- Schema.org: Organization -->
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "AverionAI",
+        "description": description,
+        "url": "https://averionai.co.in",
+        "logo": "https://averionai.co.in/logo-averion.png",
+        "foundingDate": "2025",
+        "contactPoint": { "@type": "ContactPoint", "email": "contacto@averion.ai", "contactType": "customer service" },
+        "sameAs": ["https://averionai.co.in"]
+      })}
+    </script>
+
+    <!-- Schema.org: SoftwareApplication -->
     <script type="application/ld+json">
       {JSON.stringify({
         "@context": "https://schema.org",
@@ -43,11 +63,20 @@ const {
         "url": "https://averionai.co.in",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
-        "offers": {
-          "@type": "Offer",
-          "price": "29",
-          "priceCurrency": "EUR"
-        }
+        "offers": { "@type": "Offer", "price": "29", "priceCurrency": "EUR" },
+        "featureList": "CRM inteligente, automatización con IA, generación de documentos, facturación electrónica"
+      })}
+    </script>
+
+    <!-- Schema.org: BreadcrumbList -->
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://averionai.co.in" },
+          { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://averionai.co.in/pricing" }
+        ]
       })}
     </script>
   </head>

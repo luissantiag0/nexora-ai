@@ -121,4 +121,17 @@ const counts = user ? await getUserLeadCounts(user.id) : null;
       </div>
     </div>
   </section>
+
+  {counts && counts.total > 0 && (
+    <section class="mt-8 premium-panel p-5 md:p-6">
+      <h2 class="text-xl font-semibold text-white">Logros</h2>
+      <div class="mt-5 flex flex-wrap gap-4">
+        {counts.total >= 1 && <span class="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-xs text-cyan-200 icon-pulse-soft">🔰 Primer lead</span>}
+        {counts.ganados >= 1 && <span class="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs text-emerald-200 icon-pulse-soft" style="animation-delay:0.5s">🏆 Primer cliente</span>}
+        {counts.total >= 10 && <span class="rounded-full border border-purple-300/20 bg-purple-300/10 px-4 py-2 text-xs text-purple-200">💎 10 leads</span>}
+        {counts.ganados >= 5 && <span class="rounded-full border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-xs text-amber-200">⭐ 5 ventas</span>}
+        {counts.total === 0 && <span class="text-sm text-white/40">Crea tu primer lead para desbloquear logros →</span>}
+      </div>
+    </section>
+  )}
 </DashboardLayout>
