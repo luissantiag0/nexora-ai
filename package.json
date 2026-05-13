@@ -3,11 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": "20.x"
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "prisma generate && astro build",
+    "build": "prisma generate && astro build && node -e \"require('fs').rmSync('.vercel/output/_functions',{recursive:true,force:true});console.log('Cleaned legacy _functions/ output')\"",
     "postinstall": "prisma generate",
     "preview": "astro preview",
     "astro": "astro"
