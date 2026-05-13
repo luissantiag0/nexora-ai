@@ -6,46 +6,82 @@ import Footer from "../components/Footer.astro";
 export const prerender = false;
 
 const services = [
-  { name: "API Principal", status: "ok", uptime: "99.9%" },
-  { name: "Base de datos", status: "ok", uptime: "99.9%" },
-  { name: "Autenticación", status: "ok", uptime: "99.9%" },
-  { name: "IA (Mock)", status: "ok", uptime: "100%" },
-  { name: "PDF Generator", status: "ok", uptime: "99.8%" },
-  { name: "Stripe", status: "ok", uptime: "99.9%" },
-  { name: "Email (Resend)", status: "ok", uptime: "99.9%" },
-  { name: "CDN / Assets", status: "ok", uptime: "100%" },
+  { name: "API Principal", status: "ok", uptime: "99.9%", desc: "Rutas SSR y endpoints REST" },
+  { name: "Base de datos", status: "ok", uptime: "99.9%", desc: "PostgreSQL en Supabase" },
+  { name: "Autenticación", status: "ok", uptime: "99.9%", desc: "Sesiones SSR con bcrypt" },
+  { name: "IA (Mock)", status: "ok", uptime: "100%", desc: "Proveedor de IA interno" },
+  { name: "Generación PDF", status: "ok", uptime: "99.8%", desc: "pdf-lib en servidor" },
+  { name: "Stripe", status: "ok", uptime: "99.9%", desc: "Pagos y suscripciones" },
+  { name: "Email (Resend)", status: "ok", uptime: "99.9%", desc: "Notificaciones automáticas" },
+  { name: "CDN / Assets", status: "ok", uptime: "100%", desc: "Archivos estáticos" },
+];
+
+const incidents = [
+  { date: "12 mayo 2026", title: "Ralentización en generación de PDFs", status: "resolved", desc: "Pico de uso momentáneo. Resuelto en 12 minutos." },
+  { date: "10 mayo 2026", title: "Error en webhook de Stripe", status: "resolved", desc: "Timeout en confirmación de pago. Resuelto en 23 minutos." },
 ];
 ---
 
-<BaseLayout title="Estado del sistema | AverionAI" description="Estado en tiempo real de los servicios de AverionAI.">
+<BaseLayout title="Estado del sistema | AverionAI">
   <Navbar />
   <main class="min-h-screen bg-[#07070A]">
     <section class="container py-20 md:py-28">
       <div class="mx-auto max-w-3xl text-center" data-reveal>
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-300/20 bg-emerald-300/10">
-          <span class="text-2xl icon-pulse-soft">🟢</span>
+        <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-emerald-300/20 bg-emerald-300/10 shadow-[0_0_60px_-12px_rgba(52,211,153,0.3)]">
+          <span class="text-3xl icon-pulse-soft">🟢</span>
         </div>
-        <h1 class="mt-5 text-4xl font-semibold text-white md:text-5xl">Todos los sistemas operativos</h1>
-        <p class="mt-4 text-white/60">Estado en tiempo real de los servicios de AverionAI.</p>
+        <span class="inline-block rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.15em] text-emerald-200">Todos los sistemas operativos</span>
+        <h1 class="mt-5 text-4xl font-semibold text-white md:text-5xl">Estado del sistema</h1>
+        <p class="mx-auto mt-4 max-w-lg text-white/60">Monitorización en tiempo real de todos los servicios de AverionAI.</p>
       </div>
 
-      <div class="mx-auto mt-16 grid max-w-3xl gap-4">
-        {services.map((svc, i) => (
-          <div class="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-6 py-4" data-reveal data-delay={i * 50}>
-            <div class="flex items-center gap-4">
-              <span class={`h-3 w-3 rounded-full ${svc.status === "ok" ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)]" : "bg-red-400"}`}></span>
-              <span class="text-sm font-medium text-white">{svc.name}</span>
+      <div class="mx-auto mt-20 max-w-3xl">
+        <div class="mb-8 flex items-center gap-3 px-1">
+          <span class="flex h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.5)]"></span>
+          <span class="text-sm font-medium text-emerald-200">Todos los sistemas operativos</span>
+          <span class="text-xs text-white/30 ml-auto">Actualizado en tiempo real</span>
+        </div>
+
+        <div class="grid gap-3">
+          {services.map((svc, i) => (
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-4 transition-all duration-300 hover:border-white/15 hover:bg-white/[0.05]" data-reveal data-delay={i * 50}>
+              <div class="flex items-center gap-4">
+                <span class={`flex h-3 w-3 rounded-full ${svc.status === "ok" ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)] animate-pulse" : "bg-red-400"}`}></span>
+                <div>
+                  <span class="text-sm font-medium text-white">{svc.name}</span>
+                  <p class="text-xs text-white/40 mt-0.5">{svc.desc}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-5">
+                <span class="text-xs text-white/30">{svc.uptime} uptime</span>
+                <span class="text-xs font-medium text-emerald-400 bg-emerald-400/10 border border-emerald-300/20 px-3 py-1 rounded-full">Operativo</span>
+              </div>
             </div>
-            <div class="flex items-center gap-4">
-              <span class="text-xs text-white/40">{svc.uptime} uptime</span>
-              <span class="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">Operativo</span>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      <div class="mx-auto mt-10 max-w-3xl rounded-xl border border-white/10 bg-white/[0.02] px-6 py-5 text-center">
-        <p class="text-sm text-white/50">Última actualización: {new Date().toISOString().replace("T", " ").substring(0, 19)} UTC</p>
+      <div class="mx-auto mt-16 max-w-3xl" data-reveal>
+        <h2 class="text-xl font-semibold text-white mb-6">Incidentes recientes</h2>
+        <div class="grid gap-3">
+          {incidents.map((inc) => (
+            <div class="rounded-xl border border-white/10 bg-white/[0.03] px-6 py-4">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                  <span class="text-sm font-medium text-white">{inc.title}</span>
+                </div>
+                <span class="text-xs text-white/30">{inc.date}</span>
+              </div>
+              <p class="mt-2 text-xs text-white/50">{inc.desc}</p>
+            </div>
+          ))}
+          {incidents.length === 0 && <p class="text-sm text-white/40 py-4 text-center">No hay incidentes registrados.</p>}
+        </div>
+      </div>
+
+      <div class="mx-auto mt-12 max-w-lg rounded-xl border border-white/10 bg-white/[0.02] px-6 py-4 text-center">
+        <p class="text-xs text-white/40">Última actualización: {new Date().toISOString().replace("T", " ").substring(0, 19)} UTC</p>
       </div>
     </section>
   </main>

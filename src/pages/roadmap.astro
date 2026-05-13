@@ -4,54 +4,62 @@ import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 
 export const prerender = false;
+
+const sections = [
+  { phase: "Completado", color: "emerald", icon: "✅", dot: "bg-emerald-400", bg: "border-emerald-300/20 bg-emerald-300/5", text: "text-emerald-200", items: [
+    "Autenticación y sesiones SSR seguras", "CRM completo con leads y notas", "Pipeline kanban con cambio de estado",
+    "Facturación con PDF profesional", "Pitch decks con IA", "Ebooks con IA", "Informes ejecutivos con métricas reales",
+    "Dashboard premium con trial automático", "Integración Stripe completa", "Exportación CSV segura",
+    "Panel admin con analítica global", "Timeline de actividad por lead", "Notificaciones por email automáticas",
+    "Rate limiting y protección CSRF", "Landing page premium con animaciones", "Blog SEO con artículos",
+    "Página de referidos", "Healthcheck endpoint", "Sistema de logs y auditoría",
+  ]},
+  { phase: "Ahora", color: "cyan", icon: "🔨", dot: "bg-cyan-400", bg: "border-cyan-300/20 bg-cyan-300/5", text: "text-cyan-200", items: [
+    "Optimización de velocidad y LCP", "Nuevas landings para campañas", "Mejora continua de IA mock → real",
+    "Sistema de badges y logros", "Email automation conectado a eventos", "Dashboard de actividad del usuario",
+  ]},
+  { phase: "Próximo", color: "purple", icon: "🔮", dot: "bg-purple-400", bg: "border-purple-300/20 bg-purple-300/5", text: "text-purple-200", items: [
+    "IA real con OpenAI/Claude (scoring, predicción)", "Workflows automáticos arrastrables", "Vista kanban drag & drop",
+    "Recordatorios inteligentes", "Panel de analítica avanzada", "Notificaciones push en dashboard",
+    "Webhooks salientes para integraciones", "API pública para desarrolladores",
+  ]},
+  { phase: "Futuro", color: "amber", icon: "🔭", dot: "bg-amber-400", bg: "border-amber-300/20 bg-amber-300/5", text: "text-amber-200", items: [
+    "Plan Business multiusuario con roles", "Integración con Google Calendar y Outlook", "App móvil",
+    "Mercado de plantillas y automatizaciones", "Asistente IA conversacional", "Importación desde otros CRM",
+    "Sistema de plugins y extensiones", "Modo offline y PWA",
+  ]},
+];
 ---
 
-<BaseLayout title="Roadmap | AverionAI" description="Conoce el plan de evolución de AverionAI: funcionalidades actuales, próximas y futuras.">
+<BaseLayout title="Roadmap | AverionAI">
   <Navbar />
   <main class="min-h-screen bg-[#07070A]">
     <section class="container py-20 md:py-28">
       <div class="mx-auto max-w-3xl text-center" data-reveal>
         <span class="badge bg-cyan-300/10 text-cyan-100">Roadmap</span>
         <h1 class="mt-5 text-4xl font-semibold text-white md:text-5xl">Nuestro plan de evolución</h1>
-        <p class="mt-4 text-white/60">Esto es lo que hemos construido, lo que estamos haciendo y lo que viene para AverionAI.</p>
+        <p class="mx-auto mt-4 max-w-xl text-white/60">Esto es lo que hemos construido, lo que estamos haciendo y lo que viene para AverionAI.</p>
       </div>
 
-      <div class="mx-auto mt-16 grid max-w-4xl gap-10">
-        {[
-          { phase: "Completado", color: "emerald", items: [
-            "Autenticación y sesiones SSR seguras", "CRM completo con leads y notas", "Pipeline kanban con cambio de estado",
-            "Facturación con PDF profesional", "Pitch decks con IA", "Ebooks con IA", "Informes ejecutivos con métricas reales",
-            "Dashboard premium con trial automático", "Integración Stripe completa", "Exportación CSV segura",
-            "Panel admin con analítica global", "Timeline de actividad por lead", "Notificaciones por email automáticas",
-            "Rate limiting y protección CSRF", "Landing page premium con animaciones", "Blog SEO con artículos",
-            "Página de referidos", "Healthcheck endpoint", "Sistema de logs y auditoría",
-          ]},
-          { phase: "Ahora", color: "cyan", items: [
-            "Optimización de velocidad y LCP", "Nuevas landings para campañas", "Mejora continua de IA mock → real",
-            "Sistema de badges y logros", "Email automation conectado a eventos", "Dashboard de actividad del usuario",
-          ]},
-          { phase: "Próximo", color: "purple", items: [
-            "IA real con OpenAI/Claude (scoring, predicción)", "Workflows automáticos arrastrables", "Vista kanban drag & drop",
-            "Recordatorios inteligentes", "Panel de analítica avanzada", "Notificaciones push en dashboard",
-            "Webhooks salientes para integraciones", "API pública para desarrolladores",
-          ]},
-          { phase: "Futuro", color: "amber", items: [
-            "Plan Business multiusuario con roles", "Integración con Google Calendar y Outlook", "App móvil",
-            "Mercado de plantillas y automatizaciones", "Asistente IA conversacional", "Importación desde otros CRM",
-            "Sistema de plugins y extensiones", "Modo offline y PWA",
-          ]},
-        ].map((section, si) => (
-          <div data-reveal data-delay={si * 100}>
-            <div class="flex items-center gap-4 mb-6">
-              <span class={`inline-block rounded-full border border-${section.color}-300/20 bg-${section.color}-300/10 px-4 py-1.5 text-sm font-medium text-${section.color}-200`}>
-                {section.phase}
-              </span>
+      <div class="relative mx-auto mt-20 max-w-4xl">
+        <div class="pointer-events-none absolute left-8 top-0 h-full w-px bg-gradient-to-b from-cyan-300/40 via-emerald-300/30 to-transparent hidden md:block"></div>
+
+        {sections.map((sec, si) => (
+          <div class="relative mb-16 last:mb-0" data-reveal data-delay={si * 100}>
+            <div class="flex items-center gap-4 mb-8">
+              <div class="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-[#07070A] shadow-[0_0_30px_-8px_rgba(34,211,238,0.2)]">
+                <span class="text-2xl">{sec.icon}</span>
+              </div>
+              <div>
+                <span class={`inline-block rounded-full border ${sec.bg} ${sec.text} px-4 py-1 text-sm font-medium`}>{sec.phase}</span>
+                <p class="mt-1 text-xs text-white/40">{sec.items.length} funcionalidades</p>
+              </div>
             </div>
-            <div class="grid gap-3 md:grid-cols-2">
-              {section.items.map((item) => (
-                <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
-                  <span class={`h-2 w-2 rounded-full bg-${section.color}-400`}></span>
-                  <span class="text-sm text-white/70">{item}</span>
+            <div class="grid gap-3 pl-0 md:grid-cols-2 md:pl-20">
+              {sec.items.map((item, ii) => (
+                <div class="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.06] hover:-translate-y-0.5" data-reveal data-delay={(si * 100) + (ii * 40)}>
+                  <span class={`h-2 w-2 shrink-0 rounded-full ${sec.dot} shadow-[0_0_8px_currentColor]`} style={{ color: `var(--${sec.color}-400)` }}></span>
+                  <span class="text-sm text-white/70 group-hover:text-white/90 transition-colors">{item}</span>
                 </div>
               ))}
             </div>

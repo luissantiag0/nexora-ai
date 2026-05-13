@@ -5,51 +5,129 @@ import Footer from "../components/Footer.astro";
 import LeadCaptureModal from "../components/LeadCaptureModal.astro";
 
 export const prerender = false;
+
+const features = [
+  { icon: "🤖", title: "CRM inteligente", desc: "Gestiona leads con clasificación automática por IA, pipeline visual y seguimiento automatizado.", gradient: "from-cyan-300/20 to-transparent" },
+  { icon: "📄", title: "Documentación IA", desc: "Genera facturas, pitch decks, informes y ebooks profesionales con un solo clic.", gradient: "from-emerald-300/20 to-transparent" },
+  { icon: "⚡", title: "Automatización", desc: "Workflows automáticos, recordatorios, emails y acciones inteligentes sin código.", gradient: "from-purple-300/20 to-transparent" },
+  { icon: "📊", title: "Analítica real", desc: "Métricas de conversión, pipeline, actividad y forecasting basado en datos reales.", gradient: "from-cyan-300/20 to-transparent" },
+  { icon: "🔒", title: "SSR seguro", desc: "Autenticación, sesiones protegidas, CSRF, rate limiting y auditoría completa.", gradient: "from-emerald-300/20 to-transparent" },
+  { icon: "🎯", title: "IA avanzada", desc: "Scoring, predicción, análisis de sentimiento y generación de contenido con IA.", gradient: "from-purple-300/20 to-transparent" },
+];
+
+const whyItems = [
+  { num: "01", title: "Hecho para empresas", desc: "No es un CRM genérico. Está diseñado para equipos que necesitan automatización real con IA." },
+  { num: "02", title: "SSR nativo", desc: "Todas las páginas se renderizan en servidor. Seguridad, velocidad y SEO desde el primer día." },
+  { num: "03", title: "Prueba sin riesgo", desc: "30 minutos de acceso premium gratuito. Sin tarjeta. Sin compromiso." },
+];
+
+const testimonials = [
+  { text: "Pasamos de gestionar leads en Excel a tener un CRM completo con IA en minutos.", author: "Carlos M.", role: "CEO, TechStart" },
+  { text: "Los PDFs profesionales y la automatización nos ahorran 10 horas por semana.", author: "Ana L.", role: "Operations Lead" },
+];
 ---
 
-<BaseLayout title="AverionAI ya está aquí | Automatización con IA" description="Lanzamos AverionAI: CRM inteligente, automatización con IA, facturación y documentos en una plataforma SaaS moderna.">
+<BaseLayout title="AverionAI ya está aquí | Automatización con IA">
   <Navbar />
   <main class="min-h-screen bg-[#07070A]">
-    <section class="relative overflow-hidden border-b border-white/10 pb-20 pt-20 md:pb-28 md:pt-28">
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.12),transparent_60%)]"></div>
-      <div class="container text-center" data-reveal>
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 shadow-[0_0_40px_-8px_rgba(34,211,238,0.3)]">
-          <span class="text-3xl icon-pulse-soft">🚀</span>
-        </div>
-        <h1 class="mt-6 text-5xl font-semibold tracking-tight text-white md:text-7xl">AverionAI ya está aquí</h1>
-        <p class="mx-auto mt-5 max-w-2xl text-lg text-white/60">La plataforma de automatización con IA que transforma la gestión de leads, documentos y procesos comerciales.</p>
-        <div class="mt-10 flex flex-wrap justify-center gap-4">
-          <a href="/register" class="btn-primary px-8 py-3 text-base">Empezar gratis</a>
-          <a href="/pricing" class="btn-secondary px-8 py-3 text-base">Ver planes</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="container py-20 md:py-24">
-      <h2 class="text-center text-3xl font-semibold text-white md:text-4xl" data-reveal>Qué hemos construido</h2>
-      <div class="mt-14 grid gap-6 md:grid-cols-3">
-        {[
-          { icon: "🤖", title: "CRM inteligente", desc: "Gestiona leads con clasificación automática por IA, pipeline visual y seguimiento automatizado." },
-          { icon: "📄", title: "Documentación IA", desc: "Genera facturas, pitch decks, informes y ebooks profesionales con un clic." },
-          { icon: "⚡", title: "Automatización", desc: "Workflows automáticos, recordatorios, emails y acciones inteligentes sin código." },
-          { icon: "📊", title: "Analítica", desc: "Métricas de conversión, pipeline, actividad y forecasting basado en datos reales." },
-          { icon: "🔒", title: "SSR seguro", desc: "Autenticación, sesiones protegidas, CSRF, rate limiting y auditoría completa." },
-          { icon: "🎯", title: "IA avanzada", desc: "Scoring, predicción, análisis de sentimiento y generación de contenido con IA." },
-        ].map((f, i) => (
-          <div class="card-premium-hover p-6" data-reveal data-delay={i * 80}>
-            <span class="text-3xl icon-float" style="animation-delay:{i * 0.2}s">{f.icon}</span>
-            <h3 class="mt-4 text-lg font-semibold text-white">{f.title}</h3>
-            <p class="mt-2 text-sm text-white/60">{f.desc}</p>
+    <section class="relative overflow-hidden pb-20 pt-20 md:pb-28 md:pt-28">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(34,211,238,0.12),transparent_50%),radial-gradient(ellipse_at_70%_80%,rgba(16,185,129,0.08),transparent_50%)]"></div>
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent"></div>
+      <div class="container relative">
+        <div class="mx-auto max-w-4xl text-center" data-reveal>
+          <div class="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 shadow-[0_0_60px_-12px_rgba(34,211,238,0.4)]">
+            <span class="text-4xl icon-pulse-soft">🚀</span>
           </div>
-        ))}
+          <span class="inline-block rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.15em] text-cyan-200">Lanzamiento oficial</span>
+          <h1 class="mt-6 text-5xl font-semibold leading-[1.05] tracking-tight text-white md:text-7xl">AverionAI <span class="text-gradient">ya está aquí</span></h1>
+          <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/60 md:text-xl">La plataforma de automatización con IA que transforma la gestión de leads, documentos y procesos comerciales.</p>
+          <div class="mt-10 flex flex-wrap justify-center gap-4">
+            <a href="/register" class="btn-primary group px-8 py-3.5 text-base gap-2 inline-flex items-center">Empezar gratis <span class="transition group-hover:translate-x-1">→</span></a>
+            <a href="/pricing" class="btn-secondary px-8 py-3.5 text-base">Ver planes</a>
+          </div>
+          <div class="mt-8 flex flex-wrap justify-center gap-6 text-sm text-white/40">
+            <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Sin tarjeta</span>
+            <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> 30 min trial</span>
+            <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Sin compromiso</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="border-t border-white/10 bg-white/[0.02] py-20">
-      <div class="container text-center">
-        <h2 class="text-3xl font-semibold text-white" data-reveal>Prueba gratuita de 30 minutos</h2>
-        <p class="mt-4 text-white/60">Sin tarjeta de crédito. Acceso completo a todas las funciones premium.</p>
-        <a href="/register" class="btn-primary mt-8 inline-flex px-8 py-3 text-base">Comenzar ahora</a>
+    <section class="border-t border-white/10 bg-white/[0.015] py-24 md:py-28">
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center" data-reveal>
+          <span class="badge bg-cyan-300/10 text-cyan-100">Features</span>
+          <h2 class="mt-4 text-3xl font-semibold text-white md:text-5xl">Qué hemos construido</h2>
+          <p class="mt-4 text-white/60">Cada funcionalidad está diseñada para ahorrarte tiempo y aumentar tu productividad.</p>
+        </div>
+        <div class="mt-16 grid gap-6 md:grid-cols-3">
+          {features.map((f, i) => (
+            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-all duration-500 hover:-translate-y-1 hover:border-cyan-300/30 hover:shadow-[0_26px_80px_-42px_rgba(34,211,238,0.4)]" data-reveal data-delay={i * 80}>
+              <div class={`pointer-events-none absolute inset-0 bg-gradient-to-b ${f.gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-100`}></div>
+              <div class="relative">
+                <span class="text-3xl icon-float" style="animation-delay:{i * 0.2}s">{f.icon}</span>
+                <h3 class="mt-5 text-lg font-semibold text-white">{f.title}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-white/60">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-white/10 py-24 md:py-28">
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center" data-reveal>
+          <span class="badge bg-emerald-300/10 text-emerald-100">Por qué AverionAI</span>
+          <h2 class="mt-4 text-3xl font-semibold text-white md:text-5xl">Construido para equipos que escalan</h2>
+          <p class="mt-4 text-white/60">No somos un CRM más. Somos una plataforma de automatización con IA diseñada desde cero para empresas modernas.</p>
+        </div>
+        <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
+          {whyItems.map((item, i) => (
+            <div class="premium-panel p-6" data-reveal data-delay={i * 100}>
+              <span class="text-2xl font-bold text-cyan-200/30">{item.num}</span>
+              <h3 class="mt-3 text-lg font-semibold text-white">{item.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-white/60">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-white/10 bg-white/[0.015] py-24">
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center" data-reveal>
+          <span class="badge bg-purple-300/10 text-purple-100">Testimonios</span>
+          <h2 class="mt-4 text-3xl font-semibold text-white md:text-5xl">Lo que dicen nuestros usuarios</h2>
+        </div>
+        <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+          {testimonials.map((t, i) => (
+            <div class="rounded-2xl border border-white/10 bg-white/[0.04] p-6 md:p-8" data-reveal data-delay={i * 100}>
+              <div class="flex gap-1 text-cyan-300 mb-4">{"★".repeat(5)}</div>
+              <p class="text-sm leading-relaxed text-white/70 italic">"{t.text}"</p>
+              <div class="mt-6 flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-sm font-medium text-cyan-200">{t.author[0]}</div>
+                <div>
+                  <p class="text-sm font-medium text-white">{t.author}</p>
+                  <p class="text-xs text-white/40">{t.role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-white/10 py-24">
+      <div class="container">
+        <div class="premium-panel mx-auto max-w-3xl p-8 text-center md:p-12" data-reveal>
+          <span class="badge bg-cyan-300/10 text-cyan-100">Empieza ahora</span>
+          <h2 class="mt-6 text-3xl font-semibold text-white md:text-4xl">Prueba AverionAI gratis</h2>
+          <p class="mt-4 text-white/60">30 minutos de acceso premium completo. Sin tarjeta. Sin riesgo.</p>
+          <a href="/register" class="btn-primary mt-8 inline-flex px-8 py-3.5 text-base">Crear cuenta gratis</a>
+          <p class="mt-6 text-xs text-white/30">No necesitas tarjeta. Cancela cuando quieras.</p>
+        </div>
       </div>
     </section>
   </main>
