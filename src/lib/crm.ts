@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { randomUUID } from "node:crypto";
+import { onLeadCreated, onLeadStatusChanged, onLeadEdited } from "./timeline";
 
 export const LEAD_STATUSES = [
   "nuevo",
@@ -160,6 +161,7 @@ export async function createUserLead(
     },
   });
 
+  onLeadCreated(lead.id, userId).catch(() => {});
   return lead;
 }
 
@@ -191,6 +193,12 @@ export async function updateUserLead(
     where: { id: leadId },
     data,
   });
+
+  if (input.status && existing.status !== input.status) {
+    onLeadStatusChanged(leadId, userId, existing.status, input.status).catch(() => {});
+  } else if (Object.keys(data).length > 0) {
+    onLeadEdited(leadId, userId).catch(() => {});
+  }
 
   return updated;
 }
