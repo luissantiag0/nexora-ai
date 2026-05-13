@@ -1,14 +1,14 @@
 import type { APIRoute } from "astro";
 import { SESSION_COOKIE } from "../../../lib/session";
-import { getCurrentAdmin } from "../../../lib/auth";
-import { createCheckoutSession } from "../../../lib/stripe";
+import { getCurrentUser } from "../../../lib/auth";
+import { createCheckoutSession, PREMIUM_PRICE_ID, BUSINESS_PRICE_ID } from "../../../lib/stripe";
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ cookies, request, url }) => {
   try {
     const token = cookies.get(SESSION_COOKIE)?.value;
-    const user = await getCurrentAdmin(token);
+    const user = await getCurrentUser(token);
 
     if (!user) {
       return new Response(
@@ -24,10 +24,24 @@ export const POST: APIRoute = async ({ cookies, request, url }) => {
       );
     }
 
+    let plan: "premium" | "business" = "premium";
+    try {
+      const body = await request.json();
+      if (body.plan === "business") plan = "business";
+    } catch {}
+
+    if (plan === "business" && !BUSINESS_PRICE_ID) {
+      return new Response(
+        JSON.stringify({ error: "Plan Business no disponible aún. Configura STRIPE_PRICE_ID_BUSINESS" }),
+        { status: 501, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const session = await createCheckoutSession(
       user.id,
       user.email,
-      `${url.protocol}//${url.host}`
+      `${url.protocol}//${url.host}`,
+      plan
     );
 
     return new Response(

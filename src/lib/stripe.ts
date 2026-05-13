@@ -6,6 +6,9 @@ import { logger } from "./logger";
 export const PREMIUM_PRICE_ID =
   process.env.STRIPE_PRICE_ID_PREMIUM?.trim() ?? "";
 
+export const BUSINESS_PRICE_ID =
+  process.env.STRIPE_PRICE_ID_BUSINESS?.trim() ?? "";
+
 export const WEBHOOK_SECRET =
   process.env.STRIPE_WEBHOOK_SECRET?.trim() ?? "";
 
@@ -49,18 +52,20 @@ export async function getOrCreateStripeCustomer(
 export async function createCheckoutSession(
   userId: string,
   email: string,
-  origin: string
+  origin: string,
+  plan: "premium" | "business" = "premium"
 ) {
+  const priceId = plan === "business" ? BUSINESS_PRICE_ID : PREMIUM_PRICE_ID;
   const customerId = await getOrCreateStripeCustomer(userId, email);
 
   const session = await stripe().checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
-    line_items: [{ price: PREMIUM_PRICE_ID, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${origin}/premium/dashboard?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/pricing`,
-    metadata: { userId },
-    subscription_data: { metadata: { userId } },
+    metadata: { userId, plan },
+    subscription_data: { metadata: { userId, plan } },
   });
 
   return session;
