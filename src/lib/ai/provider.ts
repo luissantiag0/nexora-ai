@@ -1,8 +1,5 @@
-const getOpenAIKey = () =>
-  process.env.OPENAI_API_KEY?.trim() || "";
-
-const getAnthropicKey = () =>
-  process.env.ANTHROPIC_API_KEY?.trim() || "";
+const getOpenAIKey = () => process.env.OPENAI_API_KEY?.trim() || "";
+const getAnthropicKey = () => process.env.ANTHROPIC_API_KEY?.trim() || "";
 
 export type AIProvider = "openai" | "anthropic" | "mock";
 
@@ -12,132 +9,68 @@ export function getActiveProvider(): AIProvider {
   return "mock";
 }
 
-export async function askAI(
-  prompt: string,
-  systemPrompt?: string
-): Promise<string> {
+export async function askAI(prompt: string, systemPrompt?: string): Promise<string> {
   const provider = getActiveProvider();
-
-  if (provider === "openai") {
-    return askOpenAI(prompt, systemPrompt);
-  }
-
-  if (provider === "anthropic") {
-    return askAnthropic(prompt, systemPrompt);
-  }
-
+  if (provider === "openai") return askOpenAI(prompt, systemPrompt);
+  if (provider === "anthropic") return askAnthropic(prompt, systemPrompt);
   return askMock(prompt, systemPrompt);
 }
 
-async function askOpenAI(
-  prompt: string,
-  systemPrompt?: string
-): Promise<string> {
-  const key = getOpenAIKey();
-  const res = await fetch(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          ...(systemPrompt
-            ? [{ role: "system" as const, content: systemPrompt }]
-            : []),
-          { role: "user", content: prompt },
-        ],
-        max_tokens: 1024,
-        temperature: 0.7,
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenAI error: ${res.status} ${err}`);
-  }
-
+async function askOpenAI(prompt: string, systemPrompt?: string): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getOpenAIKey()}` },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [
+        ...(systemPrompt ? [{ role: "system" as const, content: systemPrompt }] : []),
+        { role: "user", content: prompt },
+      ],
+      max_tokens: 1024,
+      temperature: 0.7,
+    }),
+  });
+  if (!res.ok) throw new Error(`OpenAI error: ${res.status} ${await res.text()}`);
   const data = await res.json();
   return data.choices?.[0]?.message?.content?.trim() ?? "";
 }
 
-async function askAnthropic(
-  prompt: string,
-  systemPrompt?: string
-): Promise<string> {
-  const key = getAnthropicKey();
-  const res = await fetch(
-    "https://api.anthropic.com/v1/messages",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-3-haiku-20240307",
-        max_tokens: 1024,
-        system: systemPrompt ?? "",
-        messages: [{ role: "user", content: prompt }],
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Anthropic error: ${res.status} ${err}`);
-  }
-
+async function askAnthropic(prompt: string, systemPrompt?: string): Promise<string> {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": getAnthropicKey(), "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({ model: "claude-3-haiku-20240307", max_tokens: 1024, system: systemPrompt ?? "", messages: [{ role: "user", content: prompt }] }),
+  });
+  if (!res.ok) throw new Error(`Anthropic error: ${res.status} ${await res.text()}`);
   const data = await res.json();
   return data.content?.[0]?.text?.trim() ?? "";
 }
 
-async function askMock(
-  prompt: string,
-  _systemPrompt?: string
-): Promise<string> {
+async function askMock(prompt: string, _systemPrompt?: string): Promise<string> {
   const lower = prompt.toLowerCase();
 
-  if (lower.includes("resum") || lower.includes("summar")) {
+  if (lower.includes("resum") || lower.includes("lead")) {
+    const name = extractName(prompt);
+    const msg = extractMessage(prompt);
+    const priority = msg.includes("urgente") || msg.includes("presupuesto") ? "alta" : msg.includes("automatiz") ? "media" : "baja";
     return JSON.stringify({
-      summary:
-        "Lead interesado en servicios de automatización con IA. Potencial cliente para soluciones CRM y RAG.",
-      priority:
-        lower.includes("urge") || lower.includes("urgente")
-          ? "alta"
-          : lower.includes("presup") || lower.includes("presupuesto")
-            ? "media"
-            : "baja",
-      opportunity:
-        lower.includes("empresa") || lower.includes("gran")
-          ? "Expansión a plataforma completa"
-          : lower.includes("soporte") || lower.includes("automat")
-            ? "Automatización de procesos"
-            : "Consulta inicial",
-      tags: lower.includes("email")
-        ? ["email-automation", "crm"]
-        : lower.includes("soporte") || lower.includes("support")
-          ? ["soporte", "ia"]
-          : lower.includes("venta") || lower.includes("lead")
-            ? ["ventas", "crm"]
-            : ["consulta", "ia"],
+      summary: `Cliente potencial${name ? `: ${name}` : ""} interesado en servicios de automatización. ${msg ? `Mensaje: ${msg.substring(0, 100)}` : ""}`,
+      priority,
+      opportunity: priority === "alta" ? "Oportunidad de venta inmediata. Requiere seguimiento urgente." : "Posible oportunidad de automatización de procesos.",
+      tags: msg.includes("email") ? ["email-marketing", "automatizacion"] : msg.includes("soporte") ? ["soporte", "ia"] : msg.includes("venta") ? ["ventas", "crm"] : ["consulta", "ia"],
     });
   }
 
   if (lower.includes("email") || lower.includes("comercial")) {
+    const name = extractName(prompt) || "cliente";
     return [
-      `Hola,`,
+      `Hola ${name},`,
       ``,
-      `Soy el equipo de NexoraAI. Hemos visto tu interés en nuestras soluciones de automatización con IA y queremos ayudarte a dar el siguiente paso.`,
+      `Gracias por tu interés en NexoraAI. Hemos analizado tu consulta y creemos que podemos ayudarte a optimizar tus procesos con automatización inteligente.`,
       ``,
-      `En NexoraAI construimos sistemas a medida que transforman procesos manuales en flujos automatizados, reduciendo costes operativos y acelerando resultados.`,
+      `En NexoraAI desarrollamos soluciones a medida que reducen costes operativos y aceleran resultados: desde CRM con IA hasta sistemas RAG y automatización comercial completa.`,
       ``,
-      `¿Te gustaría agendar una llamada de 20 minutos para explorar cómo podemos ayudarte?`,
+      `¿Te gustaría agendar una llamada de 15 minutos para explorar cómo podemos ayudarte?`,
       ``,
       `Quedo atento a tu respuesta.`,
       ``,
@@ -146,5 +79,31 @@ async function askMock(
     ].join("\n");
   }
 
-  return "Análisis completado. No se detectaron patrones específicos.";
+  if (lower.includes("clasif")) {
+    return JSON.stringify({
+      category: extractMessage(prompt).includes("urgente") ? "alta-prioridad" : "cualificado",
+      confidence: 0.75,
+      tags: ["automatizacion", "ia", "crm"],
+    });
+  }
+
+  if (lower.includes("insight") || lower.includes("venta")) {
+    return JSON.stringify({
+      summary: "Oportunidades identificadas en el pipeline actual. Se recomienda priorizar leads en fase de negociación.",
+      opportunities: ["Automatización de procesos comerciales", "Implementación de CRM con IA", "Sistema RAG para soporte"],
+      risks: ["Baja tasa de conversión en leads fríos", "Seguimiento insuficiente en fase de propuesta"],
+    });
+  }
+
+  return JSON.stringify({ summary: "Análisis completado.", priority: "media", tags: ["pendiente"] });
+}
+
+function extractName(prompt: string): string {
+  const match = prompt.match(/nombre[:\s]+([^\n,]+)/i) || prompt.match(/(?:para|de)\s+([A-Z][a-záéíóú]+(?:\s[A-Z][a-záéíóú]+)?)/);
+  return match?.[1]?.trim() || "";
+}
+
+function extractMessage(prompt: string): string {
+  const match = prompt.match(/mensaje[:\s]+([^\n]+)/i) || prompt.match(/mensaje original[:\s]+([^\n]+)/i);
+  return match?.[1]?.trim() || prompt.substring(0, 200);
 }

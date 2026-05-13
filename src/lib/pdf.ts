@@ -2,6 +2,8 @@ import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from "pdf
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+// ─── CONSTANTS ──────────────────────────────────────────────────
+
 const PAGE_W = 595.28;
 const PAGE_H = 841.89;
 const MARGIN = 45;
@@ -14,161 +16,101 @@ const GRAY = rgb(0.4, 0.4, 0.42);
 const MID_GRAY = rgb(0.55, 0.55, 0.57);
 const LIGHT_GRAY = rgb(0.88, 0.88, 0.9);
 const DARK_BG = rgb(0.06, 0.06, 0.08);
+const GREEN = rgb(0.1, 0.75, 0.35);
+const AMBER = rgb(0.9, 0.65, 0.1);
 
-let bannerImage: Uint8Array | null = null;
+// ─── BANNER ──────────────────────────────────────────────────────
+
+let bannerCache: Uint8Array | null = null;
 
 function loadBanner(): Uint8Array | null {
-  if (bannerImage) return bannerImage;
-  try {
-    const paths = [
-      join(process.cwd(), "banner-nexora.png"),
-      join(process.cwd(), "public", "banner-nexora.png"),
-      join(process.cwd(), "..", "banner-nexora.png"),
-    ];
-    for (const p of paths) {
-      try {
-        bannerImage = readFileSync(p);
-        console.log("[pdf] Banner cargado desde", p);
-        return bannerImage;
-      } catch {}
-    }
-    console.warn("[pdf] No se encontró banner-nexora.png en ninguna ruta");
-  } catch (error) {
-    console.error("[pdf] Error cargando banner:", error);
+  if (bannerCache) return bannerCache;
+  const paths = [
+    join(process.cwd(), "banner-nexora.png"),
+    join(process.cwd(), "public", "banner-nexora.png"),
+  ];
+  for (const p of paths) {
+    try { bannerCache = readFileSync(p); return bannerCache; } catch { }
   }
+  console.warn("[pdf] banner-nexora.png no encontrado");
   return null;
 }
 
+// ─── FONTS ──────────────────────────────────────────────────────
+
 async function getFonts(doc: PDFDocument) {
-  const regular = await doc.embedFont(StandardFonts.Helvetica);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
-  const mono = await doc.embedFont(StandardFonts.Courier);
-  return { regular, bold, mono };
+  return {
+    regular: await doc.embedFont(StandardFonts.Helvetica),
+    bold: await doc.embedFont(StandardFonts.HelveticaBold),
+    mono: await doc.embedFont(StandardFonts.Courier),
+  };
 }
 
-function drawPageFrame(
-  page: PDFPage,
-  fonts: { regular: PDFFont; bold: PDFFont },
-  pageNum: number,
-  totalPages: number,
-  doc: PDFDocument
-) {
-  const totalLabel = totalPages > 0 ? ` de ${totalPages}` : "";
-  const { width, height } = page.getSize();
-
-  // Top accent line
-  page.drawRectangle({
-    x: 0, y: height - 3, width, height: 3,
-    color: CYAN,
-  });
-
-  // Header bar
-  page.drawRectangle({
-    x: 0, y: height - 52, width, height: 49,
-    color: DARK_BG,
-  });
-
-  // Try to embed banner image
-  const banner = loadBanner();
-  if (banner) {
-    try {
-      const img = doc.embedPng(banner);
-      const imgAspect = img.width / img.height;
-      const imgH = 36;
-      const imgW = imgH * imgAspect;
-      page.drawImage(img, {
-        x: MARGIN, y: height - 48,
-        width: Math.min(imgW, 180), height: imgH,
-      });
-    } catch {
-      // Fallback to text if image fails
-    }
-  }
-
-  // Company name as fallback
-  page.drawText("NexoraAI", {
-    x: MARGIN, y: height - 36,
-    size: 16, font: fonts.bold, color: CYAN,
-  });
-
-  // Tagline
-  page.drawText("Automatización con IA", {
-    x: MARGIN + 115, y: height - 33,
-    size: 8, font: fonts.regular, color: MID_GRAY,
-  });
-
-  // Page number
-  page.drawText(`Página ${pageNum}${totalLabel}`, {
-    x: width - MARGIN - 90, y: height - 36,
-    size: 8, font: fonts.regular, color: GRAY,
-  });
-
-  // Bottom bar
-  page.drawRectangle({
-    x: 0, y: 0, width, height: 28,
-    color: DARK_BG,
-  });
-
-  page.drawText("NexoraAI — Automatización con IA", {
-    x: MARGIN, y: 9, size: 7, font: fonts.regular, color: GRAY,
-  });
-
-  page.drawText("contacto@nexora.ai | nexora.ai", {
-    x: width - MARGIN - 140, y: 9, size: 7, font: fonts.regular, color: GRAY,
-  });
-}
+// ─── SHARED DRAWING HELPERS ─────────────────────────────────────
 
 function wrapText(text: string, maxWidth: number, fontSize: number, font: PDFFont): string[] {
   const lines: string[] = [];
   const words = text.split(" ");
   let line = "";
-
   for (const word of words) {
-    const testLine = line ? `${line} ${word}` : word;
-    const w = font.widthOfTextAtSize(testLine, fontSize);
-    if (w > maxWidth && line) {
+    const test = line ? `${line} ${word}` : word;
+    if (font.widthOfTextAtSize(test, fontSize) > maxWidth && line) {
       lines.push(line);
       line = word;
     } else {
-      line = testLine;
+      line = test;
     }
   }
   if (line) lines.push(line);
   return lines.length ? lines : [""];
 }
 
-function drawTableHeader(
-  page: PDFPage,
-  y: number,
-  cols: { x: number; w: number; label: string }[],
-  fonts: { bold: PDFFont }
-) {
-  page.drawRectangle({
-    x: MARGIN, y: y - 22, width: CONTENT_W, height: 22,
-    color: DARK_BG,
-  });
-  for (const col of cols) {
-    page.drawText(col.label, {
-      x: col.x, y: y - 16,
-      size: 8, font: fonts.bold, color: CYAN,
-    });
-  }
+function drawBannerOnPage(page: PDFPage, doc: PDFDocument, yPos: number) {
+  const banner = loadBanner();
+  if (!banner) return false;
+  try {
+    const img = doc.embedPng(banner);
+    const aspect = img.width / img.height;
+    const h = 40;
+    const w = Math.min(h * aspect, 180);
+    page.drawImage(img, { x: MARGIN, y: yPos - h, width: w, height: h });
+    return true;
+  } catch { return false; }
 }
 
-function drawTableRow(
-  page: PDFPage,
-  y: number,
-  cols: { x: number; value: string }[],
-  fonts: { regular: PDFFont; bold: PDFFont },
-  isTotal: boolean
-) {
-  const font = isTotal ? fonts.bold : fonts.regular;
-  const size = isTotal ? 10 : 9;
+function drawHeader(page: PDFPage, fonts: { bold: PDFFont; regular: PDFFont }, doc: PDFDocument, title: string) {
+  const { width, height } = page.getSize();
+  const barY = height - 56;
+  page.drawRectangle({ x: 0, y: barY, width, height: 56, color: DARK_BG });
+  page.drawRectangle({ x: 0, y: height - 3, width, height: 3, color: CYAN });
+  if (!drawBannerOnPage(page, doc, barY + 48)) {
+    page.drawText("NexoraAI", { x: MARGIN, y: barY + 20, size: 16, font: fonts.bold, color: CYAN });
+    page.drawText("Automatización con IA", { x: MARGIN + 115, y: barY + 23, size: 8, font: fonts.regular, color: MID_GRAY });
+  }
+  page.drawText(title, { x: width - MARGIN - 120, y: barY + 22, size: 10, font: fonts.bold, color: WHITE });
+}
+
+function drawFooter(page: PDFPage, fonts: { regular: PDFFont }, pageNum: number, totalPages: number) {
+  const { width } = page.getSize();
+  page.drawRectangle({ x: 0, y: 0, width, height: 28, color: DARK_BG });
+  page.drawText("NexoraAI — Automatización con IA", { x: MARGIN, y: 9, size: 7, font: fonts.regular, color: GRAY });
+  page.drawText(`Página ${pageNum}${totalPages > 0 ? ` de ${totalPages}` : ""}`, { x: width - MARGIN - 70, y: 9, size: 7, font: fonts.regular, color: GRAY });
+}
+
+function drawDivider(page: PDFPage, y: number) {
+  page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y }, color: LIGHT_GRAY, thickness: 0.5 });
+}
+
+function drawLabeledValue(page: PDFPage, label: string, value: string, x: number, y: number, fonts: { bold: PDFFont; regular: PDFFont }) {
+  page.drawText(label, { x, y, size: 7, font: fonts.bold, color: GRAY });
+  page.drawText(value, { x, y: y - 14, size: 10, font: fonts.regular, color: DARK });
+}
+
+function drawTableRow(page: PDFPage, y: number, cols: { x: number; value: string }[], fonts: { regular: PDFFont; bold: PDFFont }, isTotal = false) {
+  const f = isTotal ? fonts.bold : fonts.regular;
+  const s = isTotal ? 10 : 9;
   for (const col of cols) {
-    page.drawText(col.value, {
-      x: col.x, y, size, font,
-      color: isTotal ? DARK : rgb(0.12, 0.12, 0.14),
-    });
+    page.drawText(col.value, { x: col.x, y, size: s, font: f, color: DARK });
   }
 }
 
@@ -192,192 +134,103 @@ export async function generateInvoicePdf(data: {
   const { regular, bold } = fonts;
 
   let page = doc.addPage([PAGE_W, PAGE_H]);
-  let currentPageNum = 1;
-  let totalPageEstimate = 5;
-  drawPageFrame(page, fonts, currentPageNum, totalPageEstimate, doc);
+  let pn = 1;
+  drawHeader(page, fonts, doc, "FACTURA");
+  drawFooter(page, fonts, pn, 0);
 
-  let y = PAGE_H - 85;
+  let y = PAGE_H - 90;
 
   // Title
-  page.drawText("FACTURA", {
-    x: MARGIN, y, size: 22, font: bold, color: DARK,
-  });
-  y -= 10;
-  page.drawText(`#${data.invoiceNumber}`, {
-    x: MARGIN + 110, y, size: 12, font: regular, color: GRAY,
-  });
-  y -= 8;
+  page.drawText("FACTURA", { x: MARGIN, y, size: 26, font: bold, color: DARK });
+  page.drawText(`#${data.invoiceNumber}`, { x: MARGIN + 120, y, size: 12, font: regular, color: GRAY });
+  y -= 12;
 
   // Status badge
-  const statusName = data.status === "pagada" ? "Pagada" : data.status === "borrador" ? "Borrador" : "Pendiente";
-  page.drawRectangle({
-    x: MARGIN, y: y - 18, width: 80, height: 18,
-    color: data.status === "pagada" ? rgb(0.1, 0.7, 0.3) : data.status === "borrador" ? GRAY : rgb(0.9, 0.6, 0.1),
-  });
-  page.drawText(statusName, {
-    x: MARGIN + 10, y: y - 14,
-    size: 9, font: bold, color: WHITE,
-  });
-  y -= 40;
+  const statusName = data.status === "pagada" ? "PAGADA" : data.status === "borrador" ? "BORRADOR" : "PENDIENTE";
+  const badgeColor = data.status === "pagada" ? GREEN : data.status === "borrador" ? GRAY : AMBER;
+  page.drawRectangle({ x: MARGIN, y: y - 18, width: 90, height: 18, color: badgeColor });
+  page.drawText(statusName, { x: MARGIN + 12, y: y - 14, size: 9, font: bold, color: WHITE });
+  y -= 42;
 
-  // Divider
-  page.drawLine({
-    start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y },
-    color: LIGHT_GRAY, thickness: 1,
-  });
-  y -= 25;
+  drawDivider(page, y);
+  y -= 28;
 
-  // Client info block
-  page.drawText("CLIENTE", {
-    x: MARGIN, y, size: 9, font: bold, color: CYAN,
-  });
-  y -= 18;
-  const clientLines = [
-    data.clientName,
-    data.clientEmail,
-    ...(data.company ? [data.company] : []),
-  ];
-  for (const line of clientLines) {
-    page.drawText(line, {
-      x: MARGIN, y, size: 10, font: regular, color: DARK,
-    });
-    y -= 15;
-  }
+  // Client info
+  page.drawText("CLIENTE", { x: MARGIN, y, size: 8, font: bold, color: CYAN });
+  y -= 16;
+  page.drawText(data.clientName, { x: MARGIN, y, size: 11, font: bold, color: DARK });
+  y -= 15;
+  page.drawText(data.clientEmail, { x: MARGIN, y, size: 10, font: regular, color: GRAY });
+  if (data.company) { y -= 15; page.drawText(data.company, { x: MARGIN, y, size: 10, font: regular, color: GRAY }); }
+  y -= 10;
 
   // Due date on right
   if (data.dueDate) {
-    page.drawText("VENCIMIENTO", {
-      x: PAGE_W - MARGIN - 100, y: y + 40, size: 9, font: bold, color: CYAN,
-    });
-    page.drawText(data.dueDate, {
-      x: PAGE_W - MARGIN - 100, y: y + 22, size: 10, font: regular, color: DARK,
-    });
+    drawLabeledValue(page, "VENCIMIENTO", data.dueDate, PAGE_W - MARGIN - 90, y + 33, fonts);
   }
+  y -= 25;
 
-  y -= 20;
-  page.drawLine({
-    start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y },
-    color: LIGHT_GRAY, thickness: 0.5,
-  });
+  drawDivider(page, y);
   y -= 30;
 
-  // Items table
-  const colDefs = [
-    { x: MARGIN, w: 240, label: "DESCRIPCIÓN" },
-    { x: MARGIN + 250, w: 60, label: "CANTIDAD" },
-    { x: MARGIN + 320, w: 80, label: "PRECIO" },
-    { x: MARGIN + 410, w: 90, label: "TOTAL" },
+  // Items table header
+  const cols = [
+    { x: MARGIN, w: 230, label: "DESCRIPCIÓN" },
+    { x: MARGIN + 240, w: 55, label: "CANT." },
+    { x: MARGIN + 305, w: 80, label: "PRECIO" },
+    { x: MARGIN + 395, w: 90, label: "TOTAL" },
   ];
-
-  drawTableHeader(page, y, colDefs, fonts);
+  page.drawRectangle({ x: MARGIN, y: y - 22, width: CONTENT_W, height: 22, color: DARK_BG });
+  for (const c of cols) page.drawText(c.label, { x: c.x, y: y - 16, size: 8, font: bold, color: CYAN });
   y -= 30;
 
+  // Items
   for (const item of data.items) {
-    const descLines = wrapText(item.description, colDefs[0].w, 9, regular);
-    const rowH = Math.max(descLines.length * 14, 18);
-
-    if (y - rowH < 60) {
-      currentPageNum++;
-      page = doc.addPage([PAGE_W, PAGE_H]);
-      drawPageFrame(page, fonts, currentPageNum, currentPageNum, doc);
-      y = PAGE_H - 85;
-      drawTableHeader(page, y, colDefs, fonts);
-      y -= 30;
-    }
-
-    for (let i = 0; i < descLines.length; i++) {
-      page.drawText(descLines[i], {
-        x: colDefs[0].x, y: y - (i * 14),
-        size: 9, font: regular, color: DARK,
-      });
-    }
-
-    page.drawText(String(item.quantity), {
-      x: colDefs[1].x, y,
-      size: 9, font: regular, color: DARK,
-    });
-    page.drawText(`${item.price.toFixed(2)} €`, {
-      x: colDefs[2].x, y,
-      size: 9, font: regular, color: DARK,
-    });
-    page.drawText(`${item.total.toFixed(2)} €`, {
-      x: colDefs[3].x, y,
-      size: 9, font: bold, color: DARK,
-    });
-
-    y -= rowH + 4;
-    page.drawLine({
-      start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y },
-      color: LIGHT_GRAY, thickness: 0.3,
-    });
+    if (y < 90) { pn++; page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, "FACTURA"); drawFooter(page, fonts, pn, 0); y = PAGE_H - 90; }
+    const descLines = wrapText(item.description, cols[0].w, 9, regular);
+    const rowH = Math.max(descLines.length * 14, 20);
+    if (y - rowH < 50) { pn++; page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, "FACTURA"); drawFooter(page, fonts, pn, 0); y = PAGE_H - 90; }
+    for (let i = 0; i < descLines.length; i++) page.drawText(descLines[i], { x: cols[0].x, y: y - (i * 14), size: 9, font: regular, color: DARK });
+    drawTableRow(page, y, [
+      { x: cols[1].x, value: String(item.quantity) },
+      { x: cols[2].x, value: `${item.price.toFixed(2)} €` },
+      { x: cols[3].x, value: `${item.total.toFixed(2)} €` },
+    ], fonts);
+    y -= rowH + 6;
+    drawDivider(page, y);
     y -= 10;
   }
 
-  // Totals section
-  if (y < 140) {
-    currentPageNum++;
-    page = doc.addPage([PAGE_W, PAGE_H]);
-    drawPageFrame(page, fonts, currentPageNum, currentPageNum, doc);
-    y = PAGE_H - 120;
-  }
-
+  // Totals
+  if (y < 160) { pn++; page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, "FACTURA"); drawFooter(page, fonts, pn, 0); y = PAGE_H - 130; }
   y += 5;
-  page.drawLine({
-    start: { x: PAGE_W - MARGIN - 200, y }, end: { x: PAGE_W - MARGIN, y },
-    color: DARK, thickness: 0.5,
-  });
+  const totalX = PAGE_W - MARGIN - 200;
+  page.drawLine({ start: { x: totalX, y }, end: { x: PAGE_W - MARGIN, y }, color: DARK, thickness: 0.5 });
   y -= 20;
-
-  const totals = [
-    { label: "Subtotal", value: `${data.subtotal.toFixed(2)} €`, bold: false },
-    { label: "IVA", value: `${data.tax.toFixed(2)} €`, bold: false },
-  ];
-  for (const t of totals) {
-    page.drawText(t.label, {
-      x: PAGE_W - MARGIN - 190, y, size: 10, font: regular, color: GRAY,
-    });
-    page.drawText(t.value, {
-      x: PAGE_W - MARGIN - 80, y, size: 10, font: regular, color: DARK,
-    });
+  [
+    { label: "Subtotal", value: `${data.subtotal.toFixed(2)} €` },
+    { label: "IVA", value: `${data.tax.toFixed(2)} €` },
+  ].forEach(t => {
+    page.drawText(t.label, { x: totalX, y, size: 10, font: regular, color: GRAY });
+    page.drawText(t.value, { x: totalX + 110, y, size: 10, font: bold, color: DARK });
     y -= 18;
-  }
-
-  page.drawLine({
-    start: { x: PAGE_W - MARGIN - 200, y }, end: { x: PAGE_W - MARGIN, y },
-    color: CYAN, thickness: 1,
   });
+  page.drawLine({ start: { x: totalX, y }, end: { x: PAGE_W - MARGIN, y }, color: CYAN, thickness: 1 });
   y -= 22;
-
-  page.drawText("TOTAL", {
-    x: PAGE_W - MARGIN - 190, y,
-    size: 14, font: bold, color: DARK,
-  });
-  page.drawText(`${data.total.toFixed(2)} €`, {
-    x: PAGE_W - MARGIN - 80, y,
-    size: 14, font: bold, color: DARK,
-  });
+  page.drawText("TOTAL", { x: totalX, y, size: 14, font: bold, color: DARK });
+  page.drawText(`${data.total.toFixed(2)} €`, { x: totalX + 110, y, size: 14, font: bold, color: DARK });
 
   // Notes
   if (data.notes) {
     y -= 40;
-    if (y < 60) {
-      currentPageNum++;
-      page = doc.addPage([PAGE_W, PAGE_H]);
-      drawPageFrame(page, fonts, currentPageNum, currentPageNum, doc);
-      y = PAGE_H - 85;
-    }
-    page.drawText("NOTAS", {
-      x: MARGIN, y, size: 9, font: bold, color: CYAN,
-    });
-    y -= 18;
-    const noteLines = wrapText(data.notes, CONTENT_W, 9, regular);
-    for (const line of noteLines) {
-      if (y < 40) break;
-      page.drawText(line, {
-        x: MARGIN, y, size: 9, font: regular, color: GRAY,
-      });
+    if (y < 60) { pn++; page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, "FACTURA"); drawFooter(page, fonts, pn, 0); y = PAGE_H - 90; }
+    page.drawText("NOTAS", { x: MARGIN, y, size: 8, font: bold, color: CYAN });
+    y -= 16;
+    wrapText(data.notes, CONTENT_W, 9, regular).forEach(line => {
+      if (y < 30) return;
+      page.drawText(line, { x: MARGIN, y, size: 9, font: regular, color: GRAY });
       y -= 14;
-    }
+    });
   }
 
   return doc.save();
@@ -394,314 +247,146 @@ export async function generatePitchDeckPdf(data: {
   const doc = await PDFDocument.create();
   const fonts = await getFonts(doc);
   const { regular, bold } = fonts;
-  const totalSections = data.sections.length;
-  const totalPages = totalSections + 1;
+  const total = data.sections.length + 1;
 
-  // Cover page
+  // Cover
   const cover = doc.addPage([PAGE_W, PAGE_H]);
-  cover.drawRectangle({
-    x: 0, y: 0, width: PAGE_W, height: PAGE_H,
-    color: DARK,
-  });
-
-  const banner = loadBanner();
-  if (banner) {
-    try {
-      const img = doc.embedPng(banner);
-      const aspect = img.width / img.height;
-      const h = 50;
-      const w = h * aspect;
-      cover.drawImage(img, {
-        x: MARGIN, y: PAGE_H - 70,
-        width: Math.min(w, 200), height: h,
-      });
-    } catch {}
-  } else {
-    cover.drawText("NexoraAI", {
-      x: MARGIN, y: PAGE_H - 55,
-      size: 22, font: bold, color: CYAN,
-    });
+  cover.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: DARK });
+  if (!drawBannerOnPage(cover, doc, PAGE_H - 60)) {
+    cover.drawText("NexoraAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
   }
+  cover.drawText(data.title, { x: MARGIN, y: PAGE_H / 2 + 40, size: 30, font: bold, color: WHITE });
+  if (data.clientType) cover.drawText(data.clientType, { x: MARGIN, y: PAGE_H / 2, size: 14, font: regular, color: MID_GRAY });
+  if (data.objective) cover.drawText(data.objective, { x: MARGIN, y: PAGE_H / 2 - 25, size: 11, font: regular, color: GRAY });
+  cover.drawText("Generado con NexoraAI — PitchDeck IA", { x: MARGIN, y: 40, size: 9, font: regular, color: GRAY });
 
-  cover.drawText(data.title, {
-    x: MARGIN, y: PAGE_H / 2 + 40,
-    size: 30, font: bold, color: WHITE,
-  });
-
-  if (data.clientType) {
-    cover.drawText(data.clientType, {
-      x: MARGIN, y: PAGE_H / 2,
-      size: 14, font: regular, color: MID_GRAY,
-    });
-  }
-
-  if (data.objective) {
-    cover.drawText(data.objective, {
-      x: MARGIN, y: PAGE_H / 2 - 25,
-      size: 11, font: regular, color: GRAY,
-    });
-  }
-
-  cover.drawText("Generado con NexoraAI — PitchDeck IA", {
-    x: MARGIN, y: 40,
-    size: 9, font: regular, color: GRAY,
-  });
-
-  // Section slides
+  // Slides
   for (let i = 0; i < data.sections.length; i++) {
-    const section = data.sections[i];
+    const sec = data.sections[i];
     const page = doc.addPage([PAGE_W, PAGE_H]);
-    drawPageFrame(page, fonts, i + 2, totalPages, doc);
+    drawHeader(page, fonts, doc, `SECCIÓN ${i + 1}`);
+    drawFooter(page, fonts, i + 2, total);
 
-    let y = PAGE_H - 90;
-
-    // Section number
-    page.drawText(`${String(i + 1).padStart(2, "0")}`, {
-      x: MARGIN, y, size: 40, font: bold, color: LIGHT_GRAY,
-    });
+    let y = PAGE_H - 95;
+    page.drawText(`${String(i + 1).padStart(2, "0")}`, { x: MARGIN, y, size: 40, font: bold, color: LIGHT_GRAY });
     y -= 5;
-
-    // Section title
-    page.drawText(section.title.toUpperCase(), {
-      x: MARGIN + 50, y, size: 18, font: bold, color: DARK,
-    });
-    y -= 10;
-
-    page.drawLine({
-      start: { x: MARGIN, y }, end: { x: MARGIN + 100, y },
-      color: CYAN, thickness: 2,
-    });
+    page.drawText(sec.title.toUpperCase(), { x: MARGIN + 55, y, size: 18, font: bold, color: DARK });
+    y -= 8;
+    page.drawLine({ start: { x: MARGIN, y }, end: { x: MARGIN + 80, y }, color: CYAN, thickness: 2 });
     y -= 30;
 
-    // Content
-    const contentLines = wrapText(section.content, CONTENT_W - 20, 11, regular);
-    for (const line of contentLines) {
-      if (y < 60) {
-        // New page
-        break;
-      }
-      page.drawText(line, {
-        x: MARGIN, y, size: 11, font: regular, color: rgb(0.15, 0.15, 0.17),
-      });
+    const lines = wrapText(sec.content, CONTENT_W - 10, 11, regular);
+    for (const line of lines) {
+      if (y < 60) break;
+      page.drawText(line, { x: MARGIN, y, size: 11, font: regular, color: rgb(0.15, 0.15, 0.17) });
       y -= 18;
     }
   }
-
   return doc.save();
 }
 
-// ─── EBOOK PDF ────────────────────────────────────────────────────
+// ─── EBOOK PDF ───────────────────────────────────────────────────
 
-export async function generateEbookPdf(data: {
-  title: string;
-  content: string;
-}): Promise<Uint8Array> {
+export async function generateEbookPdf(data: { title: string; content: string }): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const fonts = await getFonts(doc);
   const { regular, bold } = fonts;
 
-  // Cover
   const cover = doc.addPage([PAGE_W, PAGE_H]);
-  cover.drawRectangle({
-    x: 0, y: 0, width: PAGE_W, height: PAGE_H,
-    color: DARK,
-  });
-
-  const banner = loadBanner();
-  if (banner) {
-    try {
-      const img = doc.embedPng(banner);
-      const aspect = img.width / img.height;
-      const h = 50;
-      const w = h * aspect;
-      cover.drawImage(img, {
-        x: MARGIN, y: PAGE_H - 70,
-        width: Math.min(w, 200), height: h,
-      });
-    } catch {}
-  } else {
-    cover.drawText("NexoraAI", {
-      x: MARGIN, y: PAGE_H - 55,
-      size: 22, font: bold, color: CYAN,
-    });
+  cover.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: DARK });
+  if (!drawBannerOnPage(cover, doc, PAGE_H - 60)) {
+    cover.drawText("NexoraAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
   }
+  cover.drawText(data.title, { x: MARGIN, y: PAGE_H / 2 + 20, size: 28, font: bold, color: WHITE });
+  cover.drawText("Generado con NexoraAI — Ebook IA", { x: MARGIN, y: 40, size: 9, font: regular, color: GRAY });
 
-  cover.drawText(data.title, {
-    x: MARGIN, y: PAGE_H / 2 + 20,
-    size: 28, font: bold, color: WHITE,
-  });
-
-  cover.drawText("Generado con NexoraAI — Ebook IA", {
-    x: MARGIN, y: 40,
-    size: 9, font: regular, color: GRAY,
-  });
-
-  // Content
   const paragraphs = data.content.split("\n").filter(Boolean);
   let page = doc.addPage([PAGE_W, PAGE_H]);
-  let pageNum = 2;
+  let pn = 2;
   const totalPages = Math.max(2, Math.ceil(paragraphs.length / 15) + 1);
-  drawPageFrame(page, fonts, pageNum, totalPages, doc);
-  let y = PAGE_H - 85;
+  drawHeader(page, fonts, doc, data.title);
+  drawFooter(page, fonts, pn, totalPages);
+  let y = PAGE_H - 90;
 
   for (const para of paragraphs) {
-    if (y < 70) {
-      pageNum++;
-      page = doc.addPage([PAGE_W, PAGE_H]);
-      drawPageFrame(page, fonts, pageNum, totalPages, doc);
-      y = PAGE_H - 85;
-    }
-
+    if (y < 70) { pn++; page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, data.title); drawFooter(page, fonts, pn, totalPages); y = PAGE_H - 90; }
     const isHeader = para.startsWith("#");
     const text = para.replace(/^#+\s*/, "").trim();
     if (!text) continue;
-
-    const fontSize = isHeader ? 16 : 10;
-    const font = isHeader ? bold : regular;
-    const color = isHeader ? DARK : rgb(0.15, 0.15, 0.17);
-
+    const sz = isHeader ? 16 : 10;
+    const f = isHeader ? bold : regular;
     if (isHeader) y -= 8;
-
-    const lines = wrapText(text, CONTENT_W, fontSize, font);
+    const lines = wrapText(text, CONTENT_W, sz, f);
     for (const line of lines) {
-      if (y < 70) {
-        pageNum++;
-        page = doc.addPage([PAGE_W, PAGE_H]);
-        drawPageFrame(page, fonts, pageNum, totalPages, doc);
-        y = PAGE_H - 85;
-      }
-      page.drawText(line, {
-        x: MARGIN, y, size: fontSize, font, color,
-      });
-      y -= fontSize + 6;
+      if (y < 70) { pn++; page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, data.title); drawFooter(page, fonts, pn, totalPages); y = PAGE_H - 90; }
+      page.drawText(line, { x: MARGIN, y, size: sz, font: f, color: isHeader ? DARK : rgb(0.15, 0.15, 0.17) });
+      y -= sz + 6;
     }
-
     if (isHeader) y -= 6;
   }
-
   return doc.save();
 }
 
-// ─── REPORT PDF ───────────────────────────────────────────────────
+// ─── REPORT PDF ──────────────────────────────────────────────────
 
 export async function generateReportPdf(data: {
   title: string;
-  metrics: Array<{ label: string; value: string; color?: string }>;
-  sections: Array<{ title: string; content: string; metrics?: Array<{ label: string; value: string }> }>;
+  metrics: Array<{ label: string; value: string }>;
+  sections: Array<{ title: string; content: string }>;
 }): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const fonts = await getFonts(doc);
   const { regular, bold } = fonts;
+  const total = data.sections.length + 2;
 
-  // Cover
   const cover = doc.addPage([PAGE_W, PAGE_H]);
-  cover.drawRectangle({
-    x: 0, y: 0, width: PAGE_W, height: PAGE_H,
-    color: DARK,
-  });
-
-  const banner = loadBanner();
-  if (banner) {
-    try {
-      const img = doc.embedPng(banner);
-      const aspect = img.width / img.height;
-      const h = 50;
-      const w = h * aspect;
-      cover.drawImage(img, {
-        x: MARGIN, y: PAGE_H - 70,
-        width: Math.min(w, 200), height: h,
-      });
-    } catch {}
-  } else {
-    cover.drawText("NexoraAI", {
-      x: MARGIN, y: PAGE_H - 55,
-      size: 22, font: bold, color: CYAN,
-    });
+  cover.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: DARK });
+  if (!drawBannerOnPage(cover, doc, PAGE_H - 60)) {
+    cover.drawText("NexoraAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
   }
-
-  cover.drawText(data.title, {
-    x: MARGIN, y: PAGE_H / 2 + 30,
-    size: 26, font: bold, color: WHITE,
-  });
-
-  cover.drawText("Informe ejecutivo generado por NexoraAI", {
-    x: MARGIN, y: PAGE_H / 2 - 10,
-    size: 12, font: regular, color: GRAY,
-  });
+  cover.drawText(data.title, { x: MARGIN, y: PAGE_H / 2 + 30, size: 26, font: bold, color: WHITE });
+  cover.drawText("Informe ejecutivo generado por NexoraAI", { x: MARGIN, y: PAGE_H / 2 - 10, size: 12, font: regular, color: GRAY });
 
   let page = doc.addPage([PAGE_W, PAGE_H]);
-  const totalPages = data.sections.length + 2;
-  drawPageFrame(page, fonts, 2, totalPages, doc);
-  let y = PAGE_H - 85;
+  drawHeader(page, fonts, doc, data.title);
+  drawFooter(page, fonts, 2, total);
+  let y = PAGE_H - 90;
 
-  // Metrics cards
-  page.drawText("RESUMEN", {
-    x: MARGIN, y, size: 14, font: bold, color: DARK,
-  });
+  page.drawText("RESUMEN EJECUTIVO", { x: MARGIN, y, size: 14, font: bold, color: DARK });
   y -= 30;
 
-  for (const metric of data.metrics) {
-    if (y < 80) {
-      page = doc.addPage([PAGE_W, PAGE_H]);
-      drawPageFrame(page, fonts, 3, totalPages, doc);
-      y = PAGE_H - 85;
-    }
-
-    page.drawRectangle({
-      x: MARGIN, y: y - 40, width: CONTENT_W, height: 45,
-      color: DARK_BG,
-    });
-    page.drawText(metric.label.toUpperCase(), {
-      x: MARGIN + 15, y: y - 15,
-      size: 8, font: bold, color: CYAN,
-    });
-    page.drawText(metric.value, {
-      x: MARGIN + 15, y: y - 33,
-      size: 16, font: bold, color: WHITE,
-    });
-    y -= 55;
-  }
-
-  y -= 15;
+  // Metrics cards
+  const metricsPerRow = 2;
+  const cardW = (CONTENT_W - 15) / 2;
+  data.metrics.forEach((m, i) => {
+    if (y < 100) { page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, data.title); drawFooter(page, fonts, 3, total); y = PAGE_H - 90; }
+    const col = i % metricsPerRow;
+    const row = Math.floor(i / metricsPerRow);
+    const cx = MARGIN + col * (cardW + 15);
+    const cy = y - row * 55;
+    if (cy < 80) return;
+    page.drawRectangle({ x: cx, y: cy - 45, width: cardW, height: 45, color: DARK_BG });
+    page.drawText(m.label.toUpperCase(), { x: cx + 15, y: cy - 15, size: 7, font: bold, color: CYAN });
+    page.drawText(m.value, { x: cx + 15, y: cy - 35, size: 18, font: bold, color: WHITE });
+  });
+  y -= 60;
 
   // Sections
   for (const section of data.sections) {
-    if (y < 100) {
-      page = doc.addPage([PAGE_W, PAGE_H]);
-      drawPageFrame(page, fonts, 3, totalPages, doc);
-      y = PAGE_H - 85;
-    }
-
-    page.drawLine({
-      start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y },
-      color: LIGHT_GRAY, thickness: 1,
-    });
+    if (y < 100) { page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, data.title); drawFooter(page, fonts, 3, total); y = PAGE_H - 90; }
+    drawDivider(page, y);
     y -= 22;
-
-    page.drawText(section.title.toUpperCase(), {
-      x: MARGIN, y, size: 13, font: bold, color: DARK,
-    });
-    y -= 5;
-    page.drawLine({
-      start: { x: MARGIN, y }, end: { x: MARGIN + 60, y },
-      color: CYAN, thickness: 2,
-    });
-    y -= 25;
-
+    page.drawText(section.title.toUpperCase(), { x: MARGIN, y, size: 14, font: bold, color: DARK });
+    y -= 6;
+    drawDivider(page, y);
+    y -= 28;
     const lines = wrapText(section.content, CONTENT_W, 10, regular);
     for (const line of lines) {
-      if (y < 60) {
-        page = doc.addPage([PAGE_W, PAGE_H]);
-        drawPageFrame(page, fonts, 3, totalPages, doc);
-        y = PAGE_H - 85;
-      }
-      page.drawText(line, {
-        x: MARGIN, y, size: 10, font: regular, color: rgb(0.15, 0.15, 0.17),
-      });
+      if (y < 60) { page = doc.addPage([PAGE_W, PAGE_H]); drawHeader(page, fonts, doc, data.title); drawFooter(page, fonts, 3, total); y = PAGE_H - 90; }
+      page.drawText(line, { x: MARGIN, y, size: 10, font: regular, color: rgb(0.15, 0.15, 0.17) });
       y -= 16;
     }
-    y -= 10;
+    y -= 12;
   }
-
   return doc.save();
 }

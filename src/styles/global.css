@@ -133,6 +133,42 @@
     padding: 8px 12px;
   }
 
+  .table-premium {
+    @apply w-full text-sm;
+  }
+
+  .table-premium thead {
+    @apply border-b border-white/10;
+  }
+
+  .table-premium thead th {
+    @apply px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-white/40;
+  }
+
+  .table-premium tbody tr {
+    @apply border-b border-white/[0.04] transition duration-150 hover:bg-white/[0.015];
+  }
+
+  .table-premium tbody td {
+    @apply px-4 py-3.5 text-sm;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-xl border border-red-300/20 bg-red-500/10 px-5 py-2.5 text-sm font-medium text-red-200 transition duration-300 hover:-translate-y-0.5 hover:bg-red-500/20 hover:text-red-100 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070A];
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-xl bg-white/[0.06];
+  }
+
+  .toast-success {
+    @apply rounded-xl border border-emerald-300/20 bg-emerald-500/10 px-5 py-3 text-sm text-emerald-100 shadow-[0_18px_50px_-35px_rgba(34,211,238,0.8)];
+  }
+
+  .toast-error {
+    @apply rounded-xl border border-red-300/20 bg-red-500/10 px-5 py-3 text-sm text-red-100 shadow-[0_18px_50px_-35px_rgba(34,211,238,0.8)];
+  }
+
   .status-pill {
     @apply rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset;
   }
