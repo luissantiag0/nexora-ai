@@ -287,6 +287,22 @@ export async function generatePitchDeckPdf(data: {
 
 // ─── EBOOK PDF ───────────────────────────────────────────────────
 
+function safeEbookContent(content: string): string {
+  if (!content) return "# Sin contenido\n\nEl contenido del ebook está vacío o en formato incorrecto.";
+  try {
+    const parsed = JSON.parse(content);
+    if (parsed.summary || parsed.priority) {
+      return [
+        "# Resumen",
+        parsed.summary || "Sin resumen disponible",
+        parsed.opportunity ? `# Oportunidad\n\n${parsed.opportunity}` : "",
+        parsed.tags?.length ? `# Etiquetas\n\n${parsed.tags.join(", ")}` : "",
+      ].filter(Boolean).join("\n\n");
+    }
+  } catch {}
+  return content;
+}
+
 export async function generateEbookPdf(data: { title: string; content: string }): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const fonts = await getFonts(doc);
@@ -300,7 +316,8 @@ export async function generateEbookPdf(data: { title: string; content: string })
   cover.drawText(data.title, { x: MARGIN, y: PAGE_H / 2 + 20, size: 28, font: bold, color: WHITE });
   cover.drawText("Generado con NexoraAI — Ebook IA", { x: MARGIN, y: 40, size: 9, font: regular, color: GRAY });
 
-  const paragraphs = data.content.split("\n").filter(Boolean);
+  const safeContent = safeEbookContent(data.content);
+  const paragraphs = safeContent.split("\n").filter(Boolean);
   let page = doc.addPage([PAGE_W, PAGE_H]);
   let pn = 2;
   const totalPages = Math.max(2, Math.ceil(paragraphs.length / 15) + 1);
