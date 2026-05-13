@@ -1,0 +1,60 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+export const prerender = false;
+
+const entries = [
+  { version: "1.0.0", date: "2026-05-13", type: "major", changes: ["Lanzamiento público de AverionAI", "Landing page premium con animaciones", "CRM completo con leads y pipeline", "Facturación con PDF profesional", "Pitch decks y ebooks con IA", "Integración Stripe para pagos", "Dashboard premium con trial 30min", "Panel admin con analítica global", "Blog SEO con artículos", "Página de referidos", "Healthcheck y monitorización", "SEO extremo con Schema.org completo"] },
+  { version: "0.9.0", date: "2026-05-12", type: "feature", changes: ["Sistema de logs y auditoría", "Rate limiting en login", "Protección CSRF mejorada", "Email automation conectado a eventos", "Marketing triggers automáticos", "Badges y logros en dashboard", "Landing pages para campañas"] },
+  { version: "0.8.0", date: "2026-05-11", type: "feature", changes: ["Rebrand completo a AverionAI", "Nuevo logo y banner profesional", "PDFs profesionales con branding", "Dropdowns y selects con estilo mejorado", "Sitemap XML y robots.txt", "Schema.org avanzado", "Onboarding para nuevos usuarios"] },
+  { version: "0.7.0", date: "2026-05-10", type: "feature", changes: ["CRM v2 con timeline por lead", "Paginación SSR en listas de leads", "Búsqueda con filtros y tags", "Exportación CSV segura", "Mejoras de seguridad en API", "Prisma resiliente con isDbReady"] },
+  { version: "0.6.0", date: "2026-05-09", type: "feature", changes: ["Sistema de facturación real", "Pitch decks con IA", "Ebooks con IA", "Informes ejecutivos con PDF", "Portal de Stripe para gestión"] },
+  { version: "0.5.0", date: "2026-05-08", type: "feature", changes: ["Registro y login de usuarios", "Trial automático de 30 minutos", "Dashboard de usuario con sidebar", "Middleware con rutas protegidas", "Navbar dinámico según auth"] },
+  { version: "0.4.0", date: "2026-05-07", type: "feature", changes: ["Integración Stripe completa", "Webhooks de suscripción", "Página de pricing con checkout", "Estado premium en tiempo real"] },
+  { version: "0.3.0", date: "2026-05-06", type: "feature", changes: ["Landing page inicial", "Formulario de leads público", "Email de notificación con Resend", "Admin CRM básico"] },
+  { version: "0.2.0", date: "2026-05-05", type: "feature", changes: ["Autenticación con sesiones SSR", "Middleware de seguridad", "Panel admin con login", "Conexión a Supabase/Postgres"] },
+  { version: "0.1.0", date: "2026-05-04", type: "initial", changes: ["Proyecto Astro inicial", "Configuración SSR con Vercel", "Prisma con modelo User y Lead", "Estilos Tailwind oscuros"] },
+];
+---
+
+<BaseLayout title="Changelog | AverionAI" description="Historial de versiones y cambios de AverionAI.">
+  <Navbar />
+  <main class="min-h-screen bg-[#07070A]">
+    <section class="container py-20 md:py-28">
+      <div class="mx-auto max-w-3xl text-center" data-reveal>
+        <span class="badge bg-cyan-300/10 text-cyan-100">Changelog</span>
+        <h1 class="mt-5 text-4xl font-semibold text-white md:text-5xl">Historial de versiones</h1>
+        <p class="mt-4 text-white/60">Todas las actualizaciones y mejoras de AverionAI.</p>
+      </div>
+
+      <div class="mx-auto mt-16 grid max-w-3xl gap-6">
+        {entries.map((entry, i) => (
+          <div class="premium-panel p-6" data-reveal data-delay={i * 60}>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class={`rounded-full border px-3 py-1 text-xs font-medium ${
+                entry.type === "major" ? "border-cyan-300/20 bg-cyan-300/10 text-cyan-200" :
+                entry.type === "feature" ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200" :
+                "border-white/10 bg-white/[0.04] text-white/50"
+              }`}>
+                v{entry.version}
+              </span>
+              <span class="text-xs text-white/40">{entry.date}</span>
+              <span class="text-[10px] uppercase tracking-wider text-white/30">{entry.type === "major" ? "🚀 Lanzamiento" : entry.type === "feature" ? "✨ Nueva funcionalidad" : "📦 Inicial"}</span>
+            </div>
+            <ul class="mt-5 grid gap-2">
+              {entry.changes.map((change) => (
+                <li class="flex items-start gap-3 text-sm text-white/70">
+                  <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400/50"></span>
+                  {change}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

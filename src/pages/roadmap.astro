@@ -1,0 +1,64 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+export const prerender = false;
+---
+
+<BaseLayout title="Roadmap | AverionAI" description="Conoce el plan de evolución de AverionAI: funcionalidades actuales, próximas y futuras.">
+  <Navbar />
+  <main class="min-h-screen bg-[#07070A]">
+    <section class="container py-20 md:py-28">
+      <div class="mx-auto max-w-3xl text-center" data-reveal>
+        <span class="badge bg-cyan-300/10 text-cyan-100">Roadmap</span>
+        <h1 class="mt-5 text-4xl font-semibold text-white md:text-5xl">Nuestro plan de evolución</h1>
+        <p class="mt-4 text-white/60">Esto es lo que hemos construido, lo que estamos haciendo y lo que viene para AverionAI.</p>
+      </div>
+
+      <div class="mx-auto mt-16 grid max-w-4xl gap-10">
+        {[
+          { phase: "Completado", color: "emerald", items: [
+            "Autenticación y sesiones SSR seguras", "CRM completo con leads y notas", "Pipeline kanban con cambio de estado",
+            "Facturación con PDF profesional", "Pitch decks con IA", "Ebooks con IA", "Informes ejecutivos con métricas reales",
+            "Dashboard premium con trial automático", "Integración Stripe completa", "Exportación CSV segura",
+            "Panel admin con analítica global", "Timeline de actividad por lead", "Notificaciones por email automáticas",
+            "Rate limiting y protección CSRF", "Landing page premium con animaciones", "Blog SEO con artículos",
+            "Página de referidos", "Healthcheck endpoint", "Sistema de logs y auditoría",
+          ]},
+          { phase: "Ahora", color: "cyan", items: [
+            "Optimización de velocidad y LCP", "Nuevas landings para campañas", "Mejora continua de IA mock → real",
+            "Sistema de badges y logros", "Email automation conectado a eventos", "Dashboard de actividad del usuario",
+          ]},
+          { phase: "Próximo", color: "purple", items: [
+            "IA real con OpenAI/Claude (scoring, predicción)", "Workflows automáticos arrastrables", "Vista kanban drag & drop",
+            "Recordatorios inteligentes", "Panel de analítica avanzada", "Notificaciones push en dashboard",
+            "Webhooks salientes para integraciones", "API pública para desarrolladores",
+          ]},
+          { phase: "Futuro", color: "amber", items: [
+            "Plan Business multiusuario con roles", "Integración con Google Calendar y Outlook", "App móvil",
+            "Mercado de plantillas y automatizaciones", "Asistente IA conversacional", "Importación desde otros CRM",
+            "Sistema de plugins y extensiones", "Modo offline y PWA",
+          ]},
+        ].map((section, si) => (
+          <div data-reveal data-delay={si * 100}>
+            <div class="flex items-center gap-4 mb-6">
+              <span class={`inline-block rounded-full border border-${section.color}-300/20 bg-${section.color}-300/10 px-4 py-1.5 text-sm font-medium text-${section.color}-200`}>
+                {section.phase}
+              </span>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              {section.items.map((item) => (
+                <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                  <span class={`h-2 w-2 rounded-full bg-${section.color}-400`}></span>
+                  <span class="text-sm text-white/70">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>
