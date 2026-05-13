@@ -15,6 +15,7 @@ import {
 export const prerender = false;
 
 let error = "";
+let rateLimited = false;
 
 const existingSession =
   Astro.cookies.get(SESSION_COOKIE)?.value;
@@ -27,21 +28,32 @@ if (
 }
 
 if (Astro.request.method === "POST") {
-  const formData = await Astro.request.formData();
-  const email = String(formData.get("email") || "").trim().toLowerCase();
-  const password = String(formData.get("password") || "");
-  const result = await loginUser(email, password);
+  const ip = Astro.request.headers.get("x-forwarded-for") || "unknown";
+  const rateKey = `login:${ip}`;
+  const rateLimit = 5;
+  const rateWindow = 15 * 60 * 1000;
 
-  if (!result) {
-    error = "Credenciales incorrectas.";
+  const { detectRateLimit } = await import("../lib/security");
+  if (detectRateLimit(rateKey, rateLimit, rateWindow)) {
+    rateLimited = true;
+    error = "Demasiados intentos. Intenta de nuevo en 15 minutos.";
   } else {
-    Astro.cookies.set(
-      SESSION_COOKIE,
-      result.token,
-      sessionCookieConfig
-    );
+    const formData = await Astro.request.formData();
+    const email = String(formData.get("email") || "").trim().toLowerCase();
+    const password = String(formData.get("password") || "");
+    const result = await loginUser(email, password);
 
-    return Astro.redirect("/dashboard");
+    if (!result) {
+      error = "Credenciales incorrectas.";
+    } else {
+      Astro.cookies.set(
+        SESSION_COOKIE,
+        result.token,
+        sessionCookieConfig
+      );
+
+      return Astro.redirect("/dashboard");
+    }
   }
 }
 ---

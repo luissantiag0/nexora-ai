@@ -12,8 +12,9 @@ import {
 export const prerender = false;
 
 const { id } = Astro.params;
+const currentUser = Astro.locals.user;
 
-if (!id) {
+if (!id || !currentUser) {
   return Astro.redirect("/premium/leads");
 }
 
@@ -62,8 +63,8 @@ if (Astro.request.method === "POST") {
   }
 }
 
-const leads = await obtenerLeads();
-const lead = leads.find((item) => item.id === id);
+const { getUserLead } = await import("../../../lib/crm");
+const lead = await getUserLead(id, currentUser.id);
 
 if (!lead) {
   return Astro.redirect("/premium/leads");

@@ -135,7 +135,6 @@ export const onRequest = defineMiddleware(
         new Response(
           JSON.stringify({
             error: "Internal Server Error",
-            message: error instanceof Error ? error.message : String(error),
           }),
           {
             status: 500,

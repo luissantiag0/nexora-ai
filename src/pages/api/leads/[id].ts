@@ -1,119 +1,54 @@
 import type { APIRoute } from "astro";
-import { prisma } from "../../../lib/prisma";
-import { ESTADOS_LEAD } from "../../../lib/leadStorage";
+import { SESSION_COOKIE } from "../../../lib/session";
+import { getCurrentUser } from "../../../lib/auth";
+import { getUserLead, updateUserLead, deleteUserLead } from "../../../lib/crm";
+import { sanitizeString } from "../../../lib/security";
 
 export const prerender = false;
 
-const json = (status: number, body: Record<string, unknown>) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" }
-  });
+export const GET: APIRoute = async ({ cookies, params }) => {
+  const token = cookies.get(SESSION_COOKIE)?.value;
+  const user = await getCurrentUser(token);
+  if (!user) return new Response(JSON.stringify({ error: "No autenticado" }), { status: 401, headers: { "Content-Type": "application/json" } });
 
-export const GET: APIRoute = async ({ params }) => {
-  try {
-    const id = params.id;
+  const lead = await getUserLead(params.id!, user.id);
+  if (!lead) return new Response(JSON.stringify({ error: "Lead no encontrado" }), { status: 404, headers: { "Content-Type": "application/json" } });
 
-    if (!id) {
-      return json(400, {
-        success: false,
-        message: "Falta el ID del lead."
-      });
-    }
-
-    const lead = await prisma.lead.findUnique({
-      where: { id }
-    });
-
-    if (!lead) {
-      return json(404, {
-        success: false,
-        message: "Lead no encontrado."
-      });
-    }
-
-    return json(200, {
-      success: true,
-      lead
-    });
-  } catch (error) {
-    console.error("[lead-get] Error:", error);
-    return json(500, {
-      success: false,
-      message: "No se pudo obtener el lead."
-    });
-  }
+  return new Response(JSON.stringify({ lead }), { status: 200, headers: { "Content-Type": "application/json" } });
 };
 
-export const PATCH: APIRoute = async ({ params, request }) => {
+export const PATCH: APIRoute = async ({ cookies, params, request }) => {
+  const token = cookies.get(SESSION_COOKIE)?.value;
+  const user = await getCurrentUser(token);
+  if (!user) return new Response(JSON.stringify({ error: "No autenticado" }), { status: 401, headers: { "Content-Type": "application/json" } });
+
   try {
-    const id = params.id;
-
-    if (!id) {
-      return json(400, {
-        success: false,
-        message: "Falta el ID del lead."
-      });
-    }
-
     const body = await request.json();
-    const status = String(body?.status ?? "").trim();
+    const sanitized: Record<string, unknown> = {};
+    if (body.name !== undefined) sanitized.name = sanitizeString(body.name, 100);
+    if (body.email !== undefined) sanitized.email = sanitizeString(body.email, 254).toLowerCase();
+    if (body.company !== undefined) sanitized.company = body.company ? sanitizeString(body.company, 100) : null;
+    if (body.message !== undefined) sanitized.message = sanitizeString(body.message, 2000);
+    if (body.status !== undefined) sanitized.status = sanitizeString(body.status, 20);
+    if (body.tags !== undefined) sanitized.tags = body.tags ? sanitizeString(body.tags, 200) : null;
 
-    if (status && !ESTADOS_LEAD.includes(status as any)) {
-      return json(400, {
-        success: false,
-        message: "Estado no válido."
-      });
-    }
+    const updated = await updateUserLead(params.id!, user.id, sanitized as any);
+    if (!updated) return new Response(JSON.stringify({ error: "Lead no encontrado" }), { status: 404, headers: { "Content-Type": "application/json" } });
 
-    const lead = await prisma.lead.update({
-      where: { id },
-      data: {
-        ...(body?.name !== undefined && { name: String(body.name).trim() }),
-        ...(body?.email !== undefined && { email: String(body.email).trim().toLowerCase() }),
-        ...(body?.company !== undefined && { company: String(body.company).trim() || null }),
-        ...(body?.message !== undefined && { message: String(body.message).trim() }),
-        ...(status && { status }),
-      },
-    });
-
-    return json(200, {
-      success: true,
-      lead,
-    });
-  } catch (error) {
-    console.error("[lead-patch] Error:", error);
-    return json(500, {
-      success: false,
-      message: "No se pudo actualizar el lead."
-    });
+    return new Response(JSON.stringify({ lead: updated }), { status: 200, headers: { "Content-Type": "application/json" } });
+  } catch (err) {
+    console.error("[leads] Error updating:", err);
+    return new Response(JSON.stringify({ error: "Error al actualizar" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 };
 
-export const DELETE: APIRoute = async ({ params }) => {
-  try {
-    const id = params.id;
+export const DELETE: APIRoute = async ({ cookies, params }) => {
+  const token = cookies.get(SESSION_COOKIE)?.value;
+  const user = await getCurrentUser(token);
+  if (!user) return new Response(JSON.stringify({ error: "No autenticado" }), { status: 401, headers: { "Content-Type": "application/json" } });
 
-    if (!id) {
-      return json(400, {
-        success: false,
-        message: "Falta el ID del lead."
-      });
-    }
+  const deleted = await deleteUserLead(params.id!, user.id);
+  if (!deleted) return new Response(JSON.stringify({ error: "Lead no encontrado" }), { status: 404, headers: { "Content-Type": "application/json" } });
 
-    await prisma.lead.delete({
-      where: { id },
-    });
-
-    return json(200, {
-      success: true,
-      message: "Lead eliminado correctamente."
-    });
-  } catch (error) {
-    console.error("[lead-delete] Error:", error);
-    return json(500, {
-      success: false,
-      message: "No se pudo eliminar el lead."
-    });
-  }
+  return new Response(JSON.stringify({ success: true }), { status: 200, headers: { "Content-Type": "application/json" } });
 };

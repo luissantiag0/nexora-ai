@@ -1,53 +1,31 @@
 import type { APIRoute } from "astro";
-import { actualizarEstadoLead, ESTADOS_LEAD } from "../../../lib/leadStorage";
+import { SESSION_COOKIE } from "../../../lib/session";
+import { getCurrentUser } from "../../../lib/auth";
+import { updateUserLead, LEAD_STATUSES, type LeadStatus } from "../../../lib/crm";
+import { sanitizeString } from "../../../lib/security";
 
 export const prerender = false;
 
-const json = (status: number, body: Record<string, unknown>) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" }
-  });
+export const POST: APIRoute = async ({ cookies, request }) => {
+  const token = cookies.get(SESSION_COOKIE)?.value;
+  const user = await getCurrentUser(token);
+  if (!user) return new Response(JSON.stringify({ error: "No autenticado" }), { status: 401, headers: { "Content-Type": "application/json" } });
 
-export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
+    const leadId = sanitizeString(body.leadId || "", 50);
+    const nuevoEstado = sanitizeString(body.nuevoEstado || "", 20);
 
-    const leadId = String(body?.leadId ?? "").trim();
-    const nuevoEstado = String(body?.estado ?? "").trim();
-
-    if (!leadId || !nuevoEstado) {
-      return json(400, {
-        success: false,
-        message: "Faltan parámetros obligatorios."
-      });
+    if (!leadId || !nuevoEstado || !LEAD_STATUSES.includes(nuevoEstado as LeadStatus)) {
+      return new Response(JSON.stringify({ error: "Datos inválidos" }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
 
-    if (!ESTADOS_LEAD.includes(nuevoEstado as any)) {
-      return json(400, {
-        success: false,
-        message: "Estado no válido."
-      });
-    }
+    const updated = await updateUserLead(leadId, user.id, { status: nuevoEstado as LeadStatus });
+    if (!updated) return new Response(JSON.stringify({ error: "Lead no encontrado" }), { status: 404, headers: { "Content-Type": "application/json" } });
 
-    const ok = await actualizarEstadoLead(leadId, nuevoEstado as any);
-
-    if (!ok) {
-      return json(404, {
-        success: false,
-        message: "Lead no encontrado."
-      });
-    }
-
-    return json(200, {
-      success: true,
-      message: "Estado actualizado correctamente."
-    });
-  } catch (error) {
-    console.error("[update-api] Error:", error);
-    return json(500, {
-      success: false,
-      message: "No se pudo actualizar el estado."
-    });
+    return new Response(JSON.stringify({ success: true }), { status: 200, headers: { "Content-Type": "application/json" } });
+  } catch (err) {
+    console.error("[leads] Error en update:", err);
+    return new Response(JSON.stringify({ error: "Error al actualizar" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 };

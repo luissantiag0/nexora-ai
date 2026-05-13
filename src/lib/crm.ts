@@ -33,18 +33,38 @@ export interface UpdateLeadInput {
   tags?: string;
 }
 
+export interface LeadFilters {
+  status?: string;
+  search?: string;
+  tags?: string;
+  sort?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 function isValidStatus(s: string): s is LeadStatus {
   return LEAD_STATUSES.includes(s as LeadStatus);
 }
 
+function sanitizeSearch(s: string): string {
+  return s.replace(/[<>{}`$\\]/g, "").trim();
+}
+
 export async function getUserLeads(
   userId: string,
-  options?: {
-    status?: string;
-    search?: string;
-    sort?: "asc" | "desc";
-  }
-) {
+  options?: LeadFilters
+): Promise<PaginatedResult<any>> {
+  const page = Math.max(1, options?.page ?? 1);
+  const pageSize = Math.min(100, Math.max(1, options?.pageSize ?? 50));
+
   const where: Record<string, unknown> = { userId };
 
   if (options?.status && isValidStatus(options.status)) {
@@ -52,28 +72,60 @@ export async function getUserLeads(
   }
 
   if (options?.search) {
-    const s = options.search;
-    where.OR = [
-      { name: { contains: s, mode: "insensitive" } },
-      { email: { contains: s, mode: "insensitive" } },
-      { company: { contains: s, mode: "insensitive" } },
-      { message: { contains: s, mode: "insensitive" } },
-      { tags: { contains: s, mode: "insensitive" } },
-    ];
+    const s = sanitizeSearch(options.search);
+    if (s) {
+      where.AND = [
+        { userId },
+        {
+          OR: [
+            { name: { contains: s, mode: "insensitive" } },
+            { email: { contains: s, mode: "insensitive" } },
+            { company: { contains: s, mode: "insensitive" } },
+            { message: { contains: s, mode: "insensitive" } },
+            { tags: { contains: s, mode: "insensitive" } },
+          ],
+        },
+      ];
+      delete where.userId;
+    }
   }
 
-  const leads = await prisma.lead.findMany({
-    where: where as any,
-    orderBy: { updatedAt: options?.sort === "asc" ? "asc" : "desc" },
-    include: {
-      notes: {
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      },
-    },
-  });
+  if (options?.tags) {
+    const tagList = options.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    if (tagList.length > 0) {
+      const tagFilters = tagList.map((tag) => ({
+        tags: { contains: tag, mode: "insensitive" },
+      }));
+      const baseWhere = where.AND ? (where.AND as any[]) : [];
+      baseWhere.push({ OR: tagFilters });
+      where.AND = baseWhere;
+      if (!options.search) delete where.userId;
+    }
+  }
 
-  return leads;
+  const [data, total] = await Promise.all([
+    prisma.lead.findMany({
+      where: where as any,
+      orderBy: { updatedAt: options?.sort === "asc" ? "asc" : "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        notes: {
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        },
+      },
+    }),
+    prisma.lead.count({ where: where as any }),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
 }
 
 export async function getUserLead(leadId: string, userId: string) {
@@ -96,13 +148,13 @@ export async function createUserLead(
   const lead = await prisma.lead.create({
     data: {
       id: randomUUID(),
-      name: input.name,
-      email: input.email,
-      company: input.company || null,
-      phone: input.phone || null,
-      message: input.message || "",
-      source: input.source || "manual",
-      tags: input.tags || null,
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      company: input.company?.trim() || null,
+      phone: input.phone?.trim() || null,
+      message: (input.message || "").trim(),
+      source: input.source?.trim() || "manual",
+      tags: input.tags?.trim() || null,
       status: "nuevo",
       userId,
     },
@@ -124,13 +176,13 @@ export async function updateUserLead(
 
   const data: Record<string, unknown> = {};
 
-  if (input.name !== undefined) data.name = input.name;
-  if (input.email !== undefined) data.email = input.email;
-  if (input.company !== undefined) data.company = input.company;
-  if (input.phone !== undefined) data.phone = input.phone;
-  if (input.message !== undefined) data.message = input.message;
-  if (input.source !== undefined) data.source = input.source;
-  if (input.tags !== undefined) data.tags = input.tags;
+  if (input.name !== undefined) data.name = input.name.trim();
+  if (input.email !== undefined) data.email = input.email.trim().toLowerCase();
+  if (input.company !== undefined) data.company = input.company?.trim() || null;
+  if (input.phone !== undefined) data.phone = input.phone?.trim() || null;
+  if (input.message !== undefined) data.message = input.message.trim();
+  if (input.source !== undefined) data.source = input.source.trim();
+  if (input.tags !== undefined) data.tags = input.tags.trim() || null;
   if (input.status !== undefined && isValidStatus(input.status)) {
     data.status = input.status;
   }
@@ -168,7 +220,7 @@ export async function addLeadNote(
   const note = await prisma.leadNote.create({
     data: {
       id: randomUUID(),
-      text,
+      text: text.trim(),
       leadId,
     },
   });
@@ -209,7 +261,28 @@ export async function getUserLeadCounts(userId: string) {
     },
   });
 
+  const porEstado = await Promise.all(
+    LEAD_STATUSES.map(async (s) => ({
+      estado: s,
+      count: await prisma.lead.count({ where: { userId, status: s } }),
+    }))
+  );
+
   const conversion = all > 0 ? Math.round((ganados / all) * 100) : 0;
 
-  return { total: all, thisMonth, ganados, activos, conversion };
+  return { total: all, thisMonth, ganados, activos, conversion, porEstado };
+}
+
+export async function getUserRecentActivity(userId: string, limit = 10) {
+  return prisma.lead.findMany({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+    include: {
+      notes: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+    },
+  });
 }
