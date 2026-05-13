@@ -135,6 +135,50 @@ export async function sendPaymentConfirmedEmail(
   );
 }
 
+export async function sendInvoiceEmail(
+  email: string,
+  name: string,
+  invoiceNumber: string,
+  amount: string
+) {
+  return sendEmail(
+    email,
+    `Nueva factura #${invoiceNumber} — AverionAI`,
+    `<h2>Hola ${name},</h2>
+     <p>Se ha generado una nueva factura en tu cuenta de AverionAI.</p>
+     <div style="background:#f9fafb;border-radius:8px;padding:16px;margin:16px 0">
+       <p style="margin:0"><strong>Factura:</strong> #${invoiceNumber}</p>
+       <p style="margin:8px 0 0"><strong>Total:</strong> ${amount}</p>
+     </div>
+     <p>Puedes ver y descargar la factura desde tu panel de facturación.</p>
+     <p style="margin-top:20px">
+       <a href="${readEnv("PUBLIC_APP_URL") || "http://localhost:4321"}/premium/invoices"
+          style="display:inline-block;background:#22d3ee;color:#000;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">
+         Ver facturas
+       </a>
+     </p>`
+  );
+}
+
+export async function sendReactivationEmail(
+  email: string,
+  name: string
+) {
+  return sendEmail(
+    email,
+    "Hemos mejorado AverionAI para ti",
+    `<h2>${name}, tenemos novedades</h2>
+     <p>Hemos añadido nuevas funcionalidades a AverionAI que pueden interesarte: CRM inteligente, generación de documentos con IA y automatización avanzada.</p>
+     <p>Tu cuenta sigue activa. Vuelve a entrar para descubrir todo lo nuevo.</p>
+     <p style="margin-top:20px">
+       <a href="${readEnv("PUBLIC_APP_URL") || "http://localhost:4321"}/dashboard"
+          style="display:inline-block;background:#22d3ee;color:#000;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">
+         Ir al dashboard
+       </a>
+     </p>`
+  );
+}
+
 export async function sendCancellationEmail(
   email: string,
   name: string

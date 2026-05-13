@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { randomUUID } from "node:crypto";
+import { sendInvoiceEmail } from "./emailAutomation";
 
 export type InvoiceStatus = "borrador" | "pendiente" | "pagada" | "cancelada";
 
@@ -58,6 +59,8 @@ export async function createInvoice(userId: string, input: CreateInvoiceInput) {
     },
     include: { items: true },
   });
+
+  sendInvoiceEmail(input.clientEmail, input.clientName, invoice.id.slice(0, 8), `${total.toFixed(2)} €`).catch(() => {});
 
   return invoice;
 }

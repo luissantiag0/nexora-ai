@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 import { prisma } from "./prisma";
+import { sendPaymentConfirmedEmail, sendCancellationEmail } from "./emailAutomation";
+import { logger } from "./logger";
 
 export const PREMIUM_PRICE_ID =
   process.env.STRIPE_PRICE_ID_PREMIUM?.trim() ?? "";
@@ -136,6 +138,12 @@ export async function handleStripeWebhook(
       const subscription =
         await stripe().subscriptions.retrieve(subscriptionId);
       await updateUserSubscription(userId, subscription);
+
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } });
+      if (user && subscription.status === "active") {
+        sendPaymentConfirmedEmail(user.email, user.name || "Usuario").catch(() => {});
+        logger.audit("user.upgrade", userId, { plan: "premium", source: "checkout" });
+      }
       break;
     }
 
@@ -150,6 +158,12 @@ export async function handleStripeWebhook(
       if (!userId) break;
 
       await updateUserSubscription(userId, subscription);
+
+      if (event.type === "customer.subscription.deleted" && subscription.status === "canceled") {
+        const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } });
+        if (user) sendCancellationEmail(user.email, user.name || "Usuario").catch(() => {});
+        logger.audit("user.cancel", userId, { plan: "premium", status: "canceled" });
+      }
       break;
     }
 

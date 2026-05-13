@@ -40,8 +40,8 @@ const useCases = [
     </div>
 
     <div class="mt-14 grid gap-6 md:grid-cols-2">
-      {useCases.map((item) => (
-        <article class="interactive-card group flex min-h-48 flex-col justify-between" data-reveal>
+      {useCases.map((item, i) => (
+        <article class="interactive-card group border-glow flex min-h-48 flex-col justify-between" data-reveal data-delay={i * 120}>
           <div>
             <div class="mb-5 flex items-center gap-3">
               <span class="h-px w-8 bg-emerald-300/70"></span>
