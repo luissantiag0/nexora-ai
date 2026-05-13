@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "prisma generate && astro build && node -e \"var fs=require('fs'),p='.vercel/output/functions/_render.func/.vc-config.json';var c=JSON.parse(fs.readFileSync(p,'utf8'));c.runtime='nodejs20.x';fs.writeFileSync(p,JSON.stringify(c,null,2)+'\\n');console.log('Runtime forced to nodejs20.x');fs.rmSync('.vercel/output/_functions',{recursive:true,force:true});\"",
+    "build": "prisma generate && astro build",
     "postinstall": "prisma generate",
     "preview": "astro preview",
     "astro": "astro"
