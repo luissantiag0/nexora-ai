@@ -26,13 +26,13 @@ let bannerCache: Uint8Array | null = null;
 function loadBanner(): Uint8Array | null {
   if (bannerCache) return bannerCache;
   const paths = [
-    join(process.cwd(), "banner-nexora.png"),
-    join(process.cwd(), "public", "banner-nexora.png"),
+    join(process.cwd(), "banner-averion.png"),
+    join(process.cwd(), "public", "banner-averion.png"),
   ];
   for (const p of paths) {
     try { bannerCache = readFileSync(p); return bannerCache; } catch { }
   }
-  console.warn("[pdf] banner-nexora.png no encontrado");
+  console.warn("[pdf] banner-averion.png no encontrado");
   return null;
 }
 
@@ -84,7 +84,7 @@ function drawHeader(page: PDFPage, fonts: { bold: PDFFont; regular: PDFFont }, d
   page.drawRectangle({ x: 0, y: barY, width, height: 56, color: DARK_BG });
   page.drawRectangle({ x: 0, y: height - 3, width, height: 3, color: CYAN });
   if (!drawBannerOnPage(page, doc, barY + 48)) {
-    page.drawText("NexoraAI", { x: MARGIN, y: barY + 20, size: 16, font: fonts.bold, color: CYAN });
+    page.drawText("AverionAI", { x: MARGIN, y: barY + 20, size: 16, font: fonts.bold, color: CYAN });
     page.drawText("Automatización con IA", { x: MARGIN + 115, y: barY + 23, size: 8, font: fonts.regular, color: MID_GRAY });
   }
   page.drawText(title, { x: width - MARGIN - 120, y: barY + 22, size: 10, font: fonts.bold, color: WHITE });
@@ -93,7 +93,7 @@ function drawHeader(page: PDFPage, fonts: { bold: PDFFont; regular: PDFFont }, d
 function drawFooter(page: PDFPage, fonts: { regular: PDFFont }, pageNum: number, totalPages: number) {
   const { width } = page.getSize();
   page.drawRectangle({ x: 0, y: 0, width, height: 28, color: DARK_BG });
-  page.drawText("NexoraAI — Automatización con IA", { x: MARGIN, y: 9, size: 7, font: fonts.regular, color: GRAY });
+  page.drawText("AverionAI — Automatización con IA", { x: MARGIN, y: 9, size: 7, font: fonts.regular, color: GRAY });
   page.drawText(`Página ${pageNum}${totalPages > 0 ? ` de ${totalPages}` : ""}`, { x: width - MARGIN - 70, y: 9, size: 7, font: fonts.regular, color: GRAY });
 }
 
@@ -253,12 +253,12 @@ export async function generatePitchDeckPdf(data: {
   const cover = doc.addPage([PAGE_W, PAGE_H]);
   cover.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: DARK });
   if (!drawBannerOnPage(cover, doc, PAGE_H - 60)) {
-    cover.drawText("NexoraAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
+    cover.drawText("AverionAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
   }
   cover.drawText(data.title, { x: MARGIN, y: PAGE_H / 2 + 40, size: 30, font: bold, color: WHITE });
   if (data.clientType) cover.drawText(data.clientType, { x: MARGIN, y: PAGE_H / 2, size: 14, font: regular, color: MID_GRAY });
   if (data.objective) cover.drawText(data.objective, { x: MARGIN, y: PAGE_H / 2 - 25, size: 11, font: regular, color: GRAY });
-  cover.drawText("Generado con NexoraAI — PitchDeck IA", { x: MARGIN, y: 40, size: 9, font: regular, color: GRAY });
+  cover.drawText("Generado con AverionAI — PitchDeck IA", { x: MARGIN, y: 40, size: 9, font: regular, color: GRAY });
 
   // Slides
   for (let i = 0; i < data.sections.length; i++) {
@@ -311,10 +311,10 @@ export async function generateEbookPdf(data: { title: string; content: string })
   const cover = doc.addPage([PAGE_W, PAGE_H]);
   cover.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: DARK });
   if (!drawBannerOnPage(cover, doc, PAGE_H - 60)) {
-    cover.drawText("NexoraAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
+    cover.drawText("AverionAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
   }
   cover.drawText(data.title, { x: MARGIN, y: PAGE_H / 2 + 20, size: 28, font: bold, color: WHITE });
-  cover.drawText("Generado con NexoraAI — Ebook IA", { x: MARGIN, y: 40, size: 9, font: regular, color: GRAY });
+  cover.drawText("Generado con AverionAI — Ebook IA", { x: MARGIN, y: 40, size: 9, font: regular, color: GRAY });
 
   const safeContent = safeEbookContent(data.content);
   const paragraphs = safeContent.split("\n").filter(Boolean);
@@ -359,10 +359,10 @@ export async function generateReportPdf(data: {
   const cover = doc.addPage([PAGE_W, PAGE_H]);
   cover.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color: DARK });
   if (!drawBannerOnPage(cover, doc, PAGE_H - 60)) {
-    cover.drawText("NexoraAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
+    cover.drawText("AverionAI", { x: MARGIN, y: PAGE_H - 55, size: 22, font: bold, color: CYAN });
   }
   cover.drawText(data.title, { x: MARGIN, y: PAGE_H / 2 + 30, size: 26, font: bold, color: WHITE });
-  cover.drawText("Informe ejecutivo generado por NexoraAI", { x: MARGIN, y: PAGE_H / 2 - 10, size: 12, font: regular, color: GRAY });
+  cover.drawText("Informe ejecutivo generado por AverionAI", { x: MARGIN, y: PAGE_H / 2 - 10, size: 12, font: regular, color: GRAY });
 
   let page = doc.addPage([PAGE_W, PAGE_H]);
   drawHeader(page, fonts, doc, data.title);

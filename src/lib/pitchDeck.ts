@@ -71,7 +71,7 @@ export async function generateDeckWithAI(
   userId: string,
   data: { title: string; clientType: string; objective: string }
 ) {
-  const prompt = `Genera el contenido para un pitch deck comercial de NexoraAI (agencia de automatización con IA).
+  const prompt = `Genera el contenido para un pitch deck comercial de AverionAI (agencia de automatización con IA).
 
 Título: ${data.title}
 Tipo de cliente: ${data.clientType}

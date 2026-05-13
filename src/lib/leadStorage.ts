@@ -38,7 +38,7 @@ export type LeadAlmacenado = {
 };
 
 const DEFAULT_LEAD_OWNER_EMAIL =
-  "lead-owner@nexora.local";
+  "lead-owner@averion.local";
 
 const leadOwnerSelect = {
   id: true,
@@ -376,7 +376,7 @@ export const getSuggestedNextAction =
           "Enviar email inicial y proponer llamada.",
 
         seguimiento:
-          `Hola ${lead.nombre}, gracias por contactar con NexoraAI. Hemos revisado tu solicitud y nos gustaría agendar una llamada rápida para entender mejor vuestro proyecto.`,
+          `Hola ${lead.nombre}, gracias por contactar con AverionAI. Hemos revisado tu solicitud y nos gustaría agendar una llamada rápida para entender mejor vuestro proyecto.`,
       },
 
       contactado: {

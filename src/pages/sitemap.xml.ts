@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 
 export const prerender = true;
 
-const BASE_URL = "https://nexoraai.co.in";
+const BASE_URL = "https://averionai.co.in";
 
 const routes = [
   { path: "", priority: "1.0", changefreq: "weekly" },

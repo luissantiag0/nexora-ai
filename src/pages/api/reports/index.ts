@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ cookies }) => {
   });
 
   const pdf = await generateReportPdf({
-    title: "Informe Ejecutivo NexoraAI",
+    title: "Informe Ejecutivo AverionAI",
     metrics: [
       { label: "Leads totales", value: String(total) },
       { label: "Oportunidades abiertas", value: String(open) },
@@ -58,7 +58,7 @@ export const GET: APIRoute = async ({ cookies }) => {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": 'attachment; filename="informe-ejecutivo-nexoraai.pdf"',
+      "Content-Disposition": 'attachment; filename="informe-ejecutivo-AverionAI.pdf"',
     },
   });
 };

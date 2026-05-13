@@ -271,7 +271,7 @@ const getSessionSecret = () =>
     process.env.SESSION_SECRET ||
     process.env.AUTH_SECRET ||
     process.env.DATABASE_URL ||
-    "nexora-local-session-secret"
+    "averion-local-session-secret"
   ).trim();
 
 const signSessionPayload = (payload: string) =>

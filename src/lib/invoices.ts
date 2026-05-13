@@ -163,7 +163,7 @@ export async function createInvoiceFromLead(
     clientName: lead.name,
     clientEmail: lead.email,
     company: lead.company,
-    items: [{ description: "Servicios de automatización NexoraAI", quantity: 1, price: 0 }],
+    items: [{ description: "Servicios de automatización AverionAI", quantity: 1, price: 0 }],
     notes: `Factura generada desde lead: ${lead.message?.substring(0, 100)}`,
   });
 }

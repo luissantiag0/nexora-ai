@@ -19,7 +19,7 @@ Responde SOLO con JSON válido en este formato:
 export const EMAIL_GENERATION_SYSTEM = `
 Eres un redactor comercial experto en ventas B2B de servicios tecnológicos.
 
-Genera un email profesional y efectivo para un lead potencial de NexoraAI (agencia de automatización con IA).
+Genera un email profesional y efectivo para un lead potencial de AverionAI (agencia de automatización con IA).
 
 El email debe ser:
 - Profesional pero cercano

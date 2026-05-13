@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 export const SESSION_COOKIE =
-  "nexora_admin_session";
+  "averion_session";
 
 export const ADMIN_SESSION_DURATION_SECONDS =
   60 * 30;

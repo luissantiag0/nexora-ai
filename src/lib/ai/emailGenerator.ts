@@ -28,7 +28,7 @@ function fallbackEmail(lead: {
   return [
     `Hola ${lead.name},`,
     ``,
-    `Gracias por contactar con NexoraAI. Hemos recibido tu consulta y nos gustaría ayudarte a encontrar la mejor solución de automatización con IA para tu negocio.`,
+    `Gracias por contactar con AverionAI. Hemos recibido tu consulta y nos gustaría ayudarte a encontrar la mejor solución de automatización con IA para tu negocio.`,
     ``,
     lead.company
       ? `En ${lead.company}, sabemos que cada negocio tiene necesidades únicas. Por eso ofrecemos soluciones a medida que se adaptan a tus procesos actuales.`
@@ -39,7 +39,7 @@ function fallbackEmail(lead: {
     `Quedo atento a tu respuesta.`,
     ``,
     `Saludos cordiales,`,
-    `Equipo NexoraAI`,
+    `Equipo AverionAI`,
   ]
     .filter(Boolean)
     .join("\n");

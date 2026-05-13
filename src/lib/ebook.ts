@@ -33,7 +33,7 @@ export async function generateEbookContent(
   userId: string,
   data: { title: string; topic: string; audience: string }
 ) {
-  const prompt = `Genera un ebook/briefing profesional de NexoraAI.
+  const prompt = `Genera un ebook/briefing profesional de AverionAI.
 
 Título: ${data.title}
 Tema: ${data.topic}

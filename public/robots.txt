@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://nexoraai.co.in/sitemap.xml
+Sitemap: https://averionai.co.in/sitemap.xml
 
 # Disallow admin and API paths
 Disallow: /admin/

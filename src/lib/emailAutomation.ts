@@ -22,11 +22,11 @@ function getResend() {
 function buildHtml(body: string): string {
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;padding:24px;max-width:600px;margin:0 auto">
     <div style="border-bottom:2px solid #22d3ee;padding-bottom:16px;margin-bottom:24px">
-      <h1 style="margin:0;font-size:20px;color:#07070A">NexoraAI</h1>
+      <h1 style="margin:0;font-size:20px;color:#07070A">AverionAI</h1>
     </div>
     ${body}
     <div style="border-top:1px solid #e5e7eb;margin-top:24px;padding-top:16px;font-size:12px;color:#6b7280">
-      <p>NexoraAI — Automatización con IA</p>
+      <p>AverionAI — Automatización con IA</p>
     </div>
   </body></html>`;
 }
@@ -66,8 +66,8 @@ async function sendEmail(
 export async function sendWelcomeEmail(email: string, name: string) {
   return sendEmail(
     email,
-    "Bienvenido a NexoraAI",
-    `<h2>¡Bienvenido a NexoraAI, ${name}!</h2>
+    "Bienvenido a AverionAI",
+    `<h2>¡Bienvenido a AverionAI, ${name}!</h2>
      <p>Tu cuenta ha sido creada exitosamente.</p>
      <p>Hemos activado automáticamente tu <strong>prueba gratuita de 30 minutos</strong> para que puedas explorar todas las funcionalidades premium.</p>
      <p>Durante este periodo tendrás acceso completo a:</p>
@@ -83,7 +83,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
        </a>
      </p>
      <p style="margin-top:16px;font-size:13px;color:#6b7280">
-       ¿Preguntas? Escríbenos a <a href="mailto:soporte@nexora.ai">soporte@nexora.ai</a>
+       ¿Preguntas? Escríbenos a <a href="mailto:soporte@averion.ai">soporte@averion.ai</a>
      </p>`
   );
 }
@@ -94,7 +94,7 @@ export async function sendTrialExpiredEmail(
 ) {
   return sendEmail(
     email,
-    "Tu prueba gratuita de NexoraAI ha terminado",
+    "Tu prueba gratuita de AverionAI ha terminado",
     `<h2>${name}, tu prueba gratuita ha terminado</h2>
      <p>Los 30 minutos de acceso premium han finalizado. Aún puedes acceder a tu cuenta con funcionalidades básicas.</p>
      <p>Para seguir disfrutando de todas las herramientas premium, puedes suscribirte por solo $29/mes.</p>
@@ -116,9 +116,9 @@ export async function sendPaymentConfirmedEmail(
 ) {
   return sendEmail(
     email,
-    "¡Bienvenido a NexoraAI Premium!",
+    "¡Bienvenido a AverionAI Premium!",
     `<h2>¡Gracias por suscribirte, ${name}!</h2>
-     <p>Tu pago ha sido confirmado. Ya tienes acceso completo a todas las funcionalidades premium de NexoraAI.</p>
+     <p>Tu pago ha sido confirmado. Ya tienes acceso completo a todas las funcionalidades premium de AverionAI.</p>
      <p>Ahora puedes disfrutar de:</p>
      <ul>
        <li>CRM avanzado con IA</li>
@@ -141,7 +141,7 @@ export async function sendCancellationEmail(
 ) {
   return sendEmail(
     email,
-    "Confirmación de cancelación — NexoraAI",
+    "Confirmación de cancelación — AverionAI",
     `<h2>Hola ${name}, confirmamos tu solicitud</h2>
      <p>Tu suscripción premium será cancelada y dejará de renovarse al final del periodo actual.</p>
      <p>Hasta ese momento, seguirás teniendo acceso completo a todas las funcionalidades premium.</p>

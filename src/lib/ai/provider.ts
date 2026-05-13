@@ -64,7 +64,7 @@ Las organizaciones actuales buscan optimizar sus procesos mediante tecnología i
 
 # Solución propuesta
 
-NexoraAI ofrece una plataforma integral que combina CRM inteligente, generación documental automatizada y análisis predictivo, adaptándose a las necesidades específicas de cada negocio.
+AverionAI ofrece una plataforma integral que combina CRM inteligente, generación documental automatizada y análisis predictivo, adaptándose a las necesidades específicas de cada negocio.
 
 # Beneficios clave
 
@@ -103,16 +103,16 @@ Para implementar esta solución, agenda una demo personalizada con nuestro equip
     return [
       `Hola ${name},`,
       ``,
-      `Gracias por tu interés en NexoraAI. Hemos analizado tu consulta y creemos que podemos ayudarte a optimizar tus procesos con automatización inteligente.`,
+      `Gracias por tu interés en AverionAI. Hemos analizado tu consulta y creemos que podemos ayudarte a optimizar tus procesos con automatización inteligente.`,
       ``,
-      `En NexoraAI desarrollamos soluciones a medida que reducen costes operativos y aceleran resultados: desde CRM con IA hasta sistemas RAG y automatización comercial completa.`,
+      `En AverionAI desarrollamos soluciones a medida que reducen costes operativos y aceleran resultados: desde CRM con IA hasta sistemas RAG y automatización comercial completa.`,
       ``,
       `¿Te gustaría agendar una llamada de 15 minutos para explorar cómo podemos ayudarte?`,
       ``,
       `Quedo atento a tu respuesta.`,
       ``,
       `Saludos cordiales,`,
-      `Equipo NexoraAI`,
+      `Equipo AverionAI`,
     ].join("\n");
   }
 
