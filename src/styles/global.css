@@ -258,6 +258,46 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  [data-reveal-left] {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 700ms ease, transform 700ms ease;
+  }
+
+  [data-reveal-left].is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  [data-reveal-right] {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 700ms ease, transform 700ms ease;
+  }
+
+  [data-reveal-right].is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .card-premium-hover {
+    @apply relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_60px_-44px_rgba(34,211,238,0.65)] ring-1 ring-white/[0.03] transition-all duration-500;
+  }
+
+  .card-premium-hover::after {
+    content: "";
+    @apply pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(34, 211, 238, 0.12), transparent 60%);
+  }
+
+  .card-premium-hover:hover::after {
+    @apply opacity-100;
+  }
+
+  .card-premium-hover:hover {
+    @apply -translate-y-1 border-cyan-300/30 shadow-[0_26px_80px_-42px_rgba(34,211,238,0.65)];
+  }
 }
 
 @keyframes motion-soft {

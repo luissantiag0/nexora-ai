@@ -1,0 +1,84 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import { SESSION_COOKIE } from "../lib/session";
+import { getCurrentUser, getTrialRemainingMs } from "../lib/auth";
+
+export const prerender = false;
+
+const token = Astro.cookies.get(SESSION_COOKIE)?.value;
+const user = await getCurrentUser(token);
+
+if (!user) return Astro.redirect("/register");
+
+const trialRemaining = getTrialRemainingMs(user);
+const isTrialActive = trialRemaining > 0;
+
+const steps = [
+  { num: 1, title: "Completar perfil", desc: "Añade tu nombre y empresa", href: "/dashboard/settings" },
+  { num: 2, title: "Crear tu primer lead", desc: "Añade un contacto o cliente potencial", href: "/dashboard/leads/new" },
+  { num: 3, title: "Explorar el CRM", desc: "Gestiona leads, estados y notas", href: "/dashboard/leads" },
+  { num: 4, title: "Generar documentos", desc: "Crea facturas, pitch decks y más", href: "/premium/invoices" },
+  { num: 5, title: "Ir a Premium", desc: "Desbloquea todas las funciones", href: "/upgrade" },
+];
+---
+
+<BaseLayout title="Bienvenido a NexoraAI">
+  <Navbar />
+  <main class="min-h-screen bg-[#07070A]">
+    <section class="container py-20 md:py-28">
+      <div class="mx-auto max-w-3xl text-center">
+        <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 shadow-[0_0_40px_-12px_rgba(34,211,238,0.5)]">
+          <span class="text-3xl">🚀</span>
+        </div>
+        <h1 class="mt-6 text-4xl font-semibold tracking-tight text-white md:text-5xl">
+          ¡Bienvenido{user.name ? `, ${user.name}` : ""}!
+        </h1>
+        <p class="mx-auto mt-4 max-w-lg text-base text-white/60">
+          {isTrialActive
+            ? "Tu prueba gratuita está activa. Sigue estos pasos para empezar."
+            : user.isPremium
+              ? "Tienes acceso premium completo. Explora todas las herramientas."
+              : "Completa estos pasos para aprovechar NexoraAI al máximo."}
+        </p>
+      </div>
+
+      <div class="mx-auto mt-16 grid max-w-3xl gap-6">
+        {steps.map((step, i) => (
+          <a
+            href={step.href}
+            class="card-premium-hover group flex items-center gap-5 p-5 md:p-6"
+            data-reveal
+          >
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/10 text-lg font-bold text-cyan-200">
+              {step.num}
+            </span>
+            <div class="min-w-0 flex-1">
+              <h3 class="text-lg font-semibold text-white group-hover:text-cyan-200 transition">
+                {step.title}
+              </h3>
+              <p class="mt-1 text-sm text-white/50">{step.desc}</p>
+            </div>
+            <span class="shrink-0 text-white/30 group-hover:text-cyan-200 transition">→</span>
+          </a>
+        ))}
+      </div>
+
+      {isTrialActive && (
+        <div class="mx-auto mt-12 max-w-md rounded-2xl border border-cyan-300/20 bg-cyan-300/5 px-6 py-5 text-center">
+          <p class="text-sm text-cyan-100">
+            ⏱ {Math.floor(trialRemaining / 60000)}:{String(Math.floor((trialRemaining % 60000) / 1000)).padStart(2, "0")} de prueba restantes
+          </p>
+        </div>
+      )}
+
+      <div class="mt-8 text-center">
+        <a href="/dashboard" class="btn-primary px-8 py-3 text-sm">
+          Ir al dashboard
+        </a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

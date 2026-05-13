@@ -40,8 +40,8 @@ const services = [
     </div>
 
     <div class="mt-14 grid gap-6 md:grid-cols-2">
-      {services.map((service) => (
-        <article class="interactive-card group" data-reveal>
+      {services.map((service, i) => (
+        <article class="card-premium-hover group" data-reveal-left={i % 2 === 0 ? "" : undefined} data-reveal-right={i % 2 === 1 ? "" : undefined}>
           <div class="mb-5 h-1.5 w-16 rounded-full bg-gradient-to-r from-cyan-300 via-emerald-300 to-purple-300 opacity-70 transition duration-300 group-hover:w-24 group-hover:opacity-100"></div>
 
           <h3 class="text-xl font-semibold text-white">

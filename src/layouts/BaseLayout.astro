@@ -2,8 +2,9 @@
 import "../styles/global.css";
 
 const {
-  title = "NexoraAI | AI Automation Agency",
-  description = "NexoraAI builds AI automation systems, RAG platforms, AI invoicing tools, ebook generation systems, and custom SaaS solutions for modern businesses."
+  title = "NexoraAI | Automatización con IA para empresas modernas",
+  description = "NexoraAI desarrolla sistemas de automatización con IA, plataformas RAG, CRM inteligente, generación de documentos y soluciones SaaS personalizadas para empresas.",
+  ogImage = "/logo-nexora.png",
 } = Astro.props;
 ---
 
@@ -15,10 +16,40 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#07070A" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- OpenGraph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nexoraai.co.in" />
+    <meta property="og:image" content={`https://nexoraai.co.in${ogImage}`} />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content="NexoraAI" />
+
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`https://nexoraai.co.in${ogImage}`} />
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "NexoraAI",
+        "description": description,
+        "url": "https://nexoraai.co.in",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "29",
+          "priceCurrency": "EUR"
+        }
+      })}
+    </script>
   </head>
 
   <body class="min-h-screen bg-[#07070A] text-white antialiased selection:bg-cyan-300/20 selection:text-cyan-100">
@@ -29,10 +60,10 @@ const {
         if (window.__nexoraRevealInit) return;
         window.__nexoraRevealInit = true;
 
-        const items = document.querySelectorAll("[data-reveal]");
+        const revealSelectors = ["[data-reveal]", "[data-reveal-left]", "[data-reveal-right]"];
 
         if (!("IntersectionObserver" in window)) {
-          items.forEach((item) => item.classList.add("is-visible"));
+          document.querySelectorAll(revealSelectors.join(",")).forEach((el) => el.classList.add("is-visible"));
           return;
         }
 
@@ -45,41 +76,35 @@ const {
               }
             });
           },
-          { threshold: 0.16 }
+          { threshold: 0.12 }
         );
 
-        items.forEach((item) => observer.observe(item));
+        document.querySelectorAll(revealSelectors.join(",")).forEach((el) => observer.observe(el));
 
+        // Card hover glow
         document.addEventListener("pointermove", (event) => {
-          const source = event.target instanceof Element ? event.target : null;
-          const target = source?.closest(".interactive-card, .premium-panel");
-
+          const target = (event.target instanceof Element ? event.target : null)
+            ?.closest(".interactive-card, .premium-panel, .card-premium-hover");
           if (!target) return;
-
           const rect = target.getBoundingClientRect();
-          const x = ((event.clientX - rect.left) / rect.width) * 100;
-          const y = ((event.clientY - rect.top) / rect.height) * 100;
-
-          target.style.setProperty("--mx", `${x}%`);
-          target.style.setProperty("--my", `${y}%`);
+          target.style.setProperty("--mx", `${((event.clientX - rect.left) / rect.width) * 100}%`);
+          target.style.setProperty("--my", `${((event.clientY - rect.top) / rect.height) * 100}%`);
         }, { passive: true });
 
+        // Ripple on buttons
         document.addEventListener("click", (event) => {
-          const source = event.target instanceof Element ? event.target : null;
-          const button = source?.closest(".btn-primary, .btn-secondary, button");
-
+          const button = (event.target instanceof Element ? event.target : null)
+            ?.closest(".btn-primary, .btn-secondary, button");
           if (!button || button.disabled) return;
-
           const rect = button.getBoundingClientRect();
           const ripple = document.createElement("span");
           ripple.className = "ripple-dot";
           ripple.style.left = `${event.clientX - rect.left}px`;
           ripple.style.top = `${event.clientY - rect.top}px`;
-          button.style.position = button.style.position || "relative";
-          button.style.overflow = "hidden";
+          (button as HTMLElement).style.position = (button as HTMLElement).style.position || "relative";
+          (button as HTMLElement).style.overflow = "hidden";
           button.appendChild(ripple);
-
-          window.setTimeout(() => ripple.remove(), 680);
+          setTimeout(() => ripple.remove(), 680);
         });
       })();
     </script>

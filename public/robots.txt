@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Sitemap: https://nexoraai.co.in/sitemap.xml
+
+# Disallow admin and API paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /premium/
+Disallow: /dashboard/
