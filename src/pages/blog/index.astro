@@ -1,0 +1,45 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+
+export const prerender = false;
+
+const posts = [
+  { slug: "automatizacion-con-ia", title: "Automatización con IA: Guía completa para empresas", excerpt: "Descubre cómo la inteligencia artificial está transformando la automatización empresarial y cómo tu negocio puede beneficiarse.", date: "2026-05-01", category: "Automatización" },
+  { slug: "crm-inteligente", title: "CRM Inteligente: El futuro de la gestión de leads", excerpt: "Los CRM tradicionales se quedan obsoletos. Conoce cómo la IA está revolucionando la gestión de relaciones con clientes.", date: "2026-04-15", category: "CRM" },
+  { slug: "ia-para-pymes", title: "IA para PYMES: Cómo empezar sin presupuesto millonario", excerpt: "Implementar IA en tu PYME es más accesible de lo que crees. Te mostramos los primeros pasos prácticos.", date: "2026-04-01", category: "IA" },
+];
+---
+
+<BaseLayout title="Blog | AverionAI" description="Artículos sobre automatización con IA, CRM inteligente y transformación digital para empresas.">
+  <Navbar />
+  <main class="min-h-screen bg-[#07070A]">
+    <section class="container py-20 md:py-28">
+      <div class="mx-auto max-w-3xl text-center" data-reveal>
+        <span class="badge bg-cyan-300/10 text-cyan-100">Blog</span>
+        <h1 class="mt-5 text-4xl font-semibold tracking-tight text-white md:text-5xl">Recursos y guías</h1>
+        <p class="mt-4 text-base text-white/60">Artículos sobre automatización, IA y transformación digital para empresas modernas.</p>
+      </div>
+
+      <div class="mx-auto mt-16 grid max-w-4xl gap-6">
+        {posts.map((post, i) => (
+          <a href={`/blog/posts/${post.slug}`} class="card-premium-hover group p-6 md:p-8" data-reveal data-delay={i * 100}>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-3 text-sm">
+                  <span class="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-200">{post.category}</span>
+                  <span class="text-white/40">{post.date}</span>
+                </div>
+                <h2 class="mt-3 text-xl font-semibold text-white group-hover:text-cyan-200 transition">{post.title}</h2>
+                <p class="mt-3 text-sm leading-relaxed text-white/60">{post.excerpt}</p>
+              </div>
+              <span class="shrink-0 text-white/30 group-hover:text-cyan-200 transition text-lg">→</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

@@ -41,9 +41,9 @@ const features = [
 
     <div class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {features.map((feature, index) => (
-        <article class="interactive-card group" data-reveal>
+        <article class="interactive-card group border-glow" data-reveal data-delay={index * 100}>
           <div class="mb-6 flex items-center justify-between">
-            <span class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-sm text-cyan-100 transition group-hover:border-cyan-300/40 group-hover:bg-cyan-300/10">
+            <span class="icon-pulse-soft grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-sm text-cyan-100 transition group-hover:border-cyan-300/40 group-hover:bg-cyan-300/10">
               0{index + 1}
             </span>
 

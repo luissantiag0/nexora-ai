@@ -1,0 +1,119 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Navbar from "../../../components/Navbar.astro";
+import Footer from "../../../components/Footer.astro";
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+const posts: Record<string, { title: string; date: string; category: string; content: string }> = {
+  "automatizacion-con-ia": {
+    title: "Automatización con IA: Guía completa para empresas",
+    date: "2026-05-01",
+    category: "Automatización",
+    content: `La automatización con inteligencia artificial está transformando la forma en que las empresas operan. Desde la gestión de leads hasta la generación de documentos, la IA permite reducir costes operativos y acelerar procesos que antes requerían horas de trabajo manual.
+
+## ¿Qué es la automatización con IA?
+
+La automatización con IA combina algoritmos de machine learning, procesamiento de lenguaje natural y sistemas de reglas para ejecutar tareas repetitivas sin intervención humana. A diferencia de la automatización tradicional, los sistemas con IA pueden aprender y adaptarse.
+
+## Beneficios clave
+
+- Reducción de hasta 40% en costes operativos
+- Eliminación de tareas repetitivas
+- Mejora en tiempos de respuesta
+- Escalabilidad sin aumentar equipo
+- Datos y métricas en tiempo real
+
+## Cómo empezar
+
+1. Identifica procesos repetitivos en tu negocio
+2. Evalúa el retorno de inversión potencial
+3. Implementa con un piloto controlado
+4. Mide resultados y escala
+
+En AverionAI ayudamos a empresas a implementar automatización con IA de forma práctica y medible.`,
+  },
+  "crm-inteligente": {
+    title: "CRM Inteligente: El futuro de la gestión de leads",
+    date: "2026-04-15",
+    category: "CRM",
+    content: `Los sistemas CRM tradicionales han sido durante años la columna vertebral de la gestión comercial. Sin embargo, la llegada de la inteligencia artificial está transformando radicalmente lo que un CRM puede hacer.
+
+## CRM tradicional vs CRM inteligente
+
+Un CRM tradicional registra contactos y actividades. Un CRM inteligente analiza, predice y automatiza. La diferencia no es solo tecnológica, es estratégica.
+
+## Capacidades de un CRM con IA
+
+- Clasificación automática de leads por intención
+- Priorización inteligente de oportunidades
+- Generación automática de emails comerciales
+- Predicción de cierre de ventas
+- Análisis de sentimiento en comunicaciones
+
+## Por qué tu negocio necesita un CRM inteligente
+
+La velocidad de respuesta y la personalización son factores críticos en las ventas B2B modernas. Un CRM con IA te permite actuar más rápido y con mejor información.`,
+  },
+  "ia-para-pymes": {
+    title: "IA para PYMES: Cómo empezar sin presupuesto millonario",
+    date: "2026-04-01",
+    category: "IA",
+    content: `Existe la percepción de que la inteligencia artificial es solo para grandes corporaciones con presupuestos millonarios. La realidad es muy diferente. Hoy, cualquier PYME puede empezar a utilizar IA con una inversión mínima.
+
+## Mitos sobre la IA
+
+- "La IA reemplazará empleados" → La IA aumenta capacidades, no reemplaza personas
+- "Es muy cara" → Existen soluciones desde 0€/mes con trial gratuito
+- "Es difícil de implementar" → Las plataformas modernas son intuitivas
+
+## Primeros pasos prácticos
+
+1. Automatiza la captación de leads
+2. Implementa un chatbot simple
+3. Usa IA para generar informes
+4. Prueba con un trial gratuito (como el de AverionAI)
+
+## Midiendo el éxito
+
+El objetivo no es implementar IA por implementar. Cada automatización debe medirse en términos de tiempo ahorrado, leads generados o ingresos incrementales.`,
+  },
+};
+
+const post = posts[slug || ""];
+
+if (!post) {
+  return Astro.redirect("/blog");
+}
+---
+
+<BaseLayout title={`${post.title} | AverionAI`} description={post.content.substring(0, 160)}>
+  <Navbar />
+  <main class="min-h-screen bg-[#07070A]">
+    <article class="container py-20 md:py-28">
+      <div class="mx-auto max-w-3xl">
+        <a href="/blog" class="text-sm text-white/45 transition hover:text-cyan-100">← Volver al blog</a>
+
+        <div class="mt-8" data-reveal>
+          <div class="flex flex-wrap items-center gap-3 text-sm">
+            <span class="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-200">{post.category}</span>
+            <span class="text-white/40">{post.date}</span>
+          </div>
+          <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">{post.title}</h1>
+        </div>
+
+        <div class="mt-12 prose prose-invert max-w-none text-white/75 leading-relaxed" data-reveal>
+          {post.content.split("\n").filter(Boolean).map((line) => {
+            if (line.startsWith("## ")) return <h2 class="mt-10 mb-4 text-2xl font-semibold text-white">{line.replace("## ", "")}</h2>;
+            if (line.startsWith("- ")) return <li class="ml-5 text-white/70">{line.replace("- ", "")}</li>;
+            if (/^\d+\./.test(line)) return <li class="ml-5 text-white/70 list-decimal">{line.replace(/^\d+\.\s*/, "")}</li>;
+            return <p class="mb-5">{line}</p>;
+          })}
+        </div>
+      </div>
+    </article>
+  </main>
+  <Footer />
+</BaseLayout>
