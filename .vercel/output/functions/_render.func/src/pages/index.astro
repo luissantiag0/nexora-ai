@@ -1,4 +1,6 @@
 ---
+console.log("[ssr] Rendering homepage /");
+
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
@@ -9,6 +11,8 @@ import FAQ from "../components/FAQ.astro";
 import CTA from "../components/CTA.astro";
 import Footer from "../components/Footer.astro";
 import LeadCaptureModal from "../components/LeadCaptureModal.astro";
+
+console.log("[ssr] Homepage imports OK");
 ---
 
 <BaseLayout

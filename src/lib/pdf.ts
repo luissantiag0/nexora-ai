@@ -28,10 +28,14 @@ function loadBanner(): Uint8Array | null {
     for (const p of paths) {
       try {
         bannerImage = readFileSync(p);
+        console.log("[pdf] Banner cargado desde", p);
         return bannerImage;
       } catch {}
     }
-  } catch {}
+    console.warn("[pdf] No se encontró banner-nexora.png en ninguna ruta");
+  } catch (error) {
+    console.error("[pdf] Error cargando banner:", error);
+  }
   return null;
 }
 

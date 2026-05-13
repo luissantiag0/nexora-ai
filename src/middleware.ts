@@ -51,81 +51,98 @@ const isSafeMethod = (method: string) =>
 
 export const onRequest = defineMiddleware(
   async ({ cookies, locals, redirect, request, url }, next) => {
-    const pathname = url.pathname;
+    try {
+      console.log("[ssr] START", url.pathname);
+      const pathname = url.pathname;
 
-    if (
-      !isProtectedPath(pathname) ||
-      isPublicPath(pathname)
-    ) {
+      if (
+        !isProtectedPath(pathname) ||
+        isPublicPath(pathname)
+      ) {
+        return addSecurityHeaders(await next());
+      }
+
+      if (!isSafeMethod(request.method)) {
+        const origin = request.headers.get("origin");
+
+        const originMatches =
+          !origin ||
+          (() => {
+            try {
+              return new URL(origin).origin === url.origin;
+            } catch {
+              return false;
+            }
+          })();
+
+        if (!originMatches) {
+          return addSecurityHeaders(
+            new Response("Forbidden", {
+              status: 403,
+            })
+          );
+        }
+      }
+
+      const token = cookies.get(SESSION_COOKIE)?.value;
+
+      const {
+        getCurrentUser,
+        userIsAdmin,
+        userHasPremiumAccess,
+      } = await import("./lib/auth");
+
+      const user = await getCurrentUser(token);
+
+      if (!user) {
+        if (token) {
+          cookies.delete(SESSION_COOKIE, { path: "/" });
+        }
+
+        const loginPath =
+          pathname.startsWith("/admin")
+            ? "/admin/login"
+            : "/login";
+
+        return addSecurityHeaders(redirect(loginPath));
+      }
+
+      if (
+        (pathname === "/admin" || pathname.startsWith("/admin/")) &&
+        !userIsAdmin(user)
+      ) {
+        return addSecurityHeaders(redirect("/dashboard"));
+      }
+
+      if (
+        (
+          pathname === "/premium" ||
+          pathname.startsWith("/premium/")
+        ) &&
+        !userHasPremiumAccess(user)
+      ) {
+        return addSecurityHeaders(redirect("/upgrade"));
+      }
+
+      locals.user = user;
+
       return addSecurityHeaders(await next());
-    }
+    } catch (error) {
+      console.error("[ssr] ERROR:", error);
+      console.error("[ssr] STACK:", error instanceof Error ? error.stack : "");
 
-    if (!isSafeMethod(request.method)) {
-      const origin = request.headers.get("origin");
-
-      const originMatches =
-        !origin ||
-        (() => {
-          try {
-            return new URL(origin).origin === url.origin;
-          } catch {
-            return false;
+      return addSecurityHeaders(
+        new Response(
+          JSON.stringify({
+            error: "Internal Server Error",
+            message: error instanceof Error ? error.message : String(error),
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
           }
-        })();
-
-      if (!originMatches) {
-        return addSecurityHeaders(
-          new Response("Forbidden", {
-            status: 403,
-          })
-        );
-      }
+        )
+      );
     }
-
-    const token = cookies.get(SESSION_COOKIE)?.value;
-
-    const {
-      getCurrentUser,
-      userIsAdmin,
-      userHasPremiumAccess,
-    } = await import("./lib/auth");
-
-    const user = await getCurrentUser(token);
-
-    if (!user) {
-      if (token) {
-        cookies.delete(SESSION_COOKIE, { path: "/" });
-      }
-
-      const loginPath =
-        pathname.startsWith("/admin")
-          ? "/admin/login"
-          : "/login";
-
-      return addSecurityHeaders(redirect(loginPath));
-    }
-
-    // Admin paths require admin role
-    if (
-      (pathname === "/admin" || pathname.startsWith("/admin/")) &&
-      !userIsAdmin(user)
-    ) {
-      return addSecurityHeaders(redirect("/dashboard"));
-    }
-
-    // Premium paths require premium access
-    if (
-      (
-        pathname === "/premium" ||
-        pathname.startsWith("/premium/")
-      ) &&
-      !userHasPremiumAccess(user)
-    ) {
-      return addSecurityHeaders(redirect("/upgrade"));
-    }
-
-    locals.user = user;
-
-    return addSecurityHeaders(await next());
   }
 );
