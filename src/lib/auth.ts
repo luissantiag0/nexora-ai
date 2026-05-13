@@ -6,6 +6,7 @@ import type { User } from "@prisma/client";
 
 import { prisma } from "./prisma";
 import { sendWelcomeEmail } from "./emailAutomation";
+import { logger } from "./logger";
 
 import {
   ADMIN_SESSION_DURATION_MS,
@@ -589,6 +590,7 @@ export const registerUser = async (
 
   const { token, startedAt } = await createSession(user);
 
+  logger.audit("user.register", user.id, { name, email, trialMinutes: 30 });
   sendWelcomeEmail(email, name).catch(() => {});
 
   return {

@@ -367,7 +367,6 @@
   }
 
   .icon-pulse-soft {
-    display: inline-block;
     animation: icon-pulse-soft 2.5s ease-in-out infinite;
   }
 
