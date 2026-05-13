@@ -8,13 +8,15 @@ const user = Astro.locals.user;
 const searchQuery = Astro.url.searchParams.get("search") || "";
 const statusFilter = Astro.url.searchParams.get("status") || "";
 
-const leads = user
+const result = user
   ? await getUserLeads(user.id, {
       search: searchQuery || undefined,
       status: statusFilter || undefined,
     })
-  : [];
+  : null;
 
+const leads = result?.data ?? [];
+const totalLeadsFromDb = result?.total ?? 0;
 const counts = user ? await getUserLeadCounts(user.id) : null;
 
 const statusLabels: Record<string, string> = {
@@ -114,7 +116,7 @@ const priorityColors: Record<string, string> = {
             ? "No se encontraron leads con los filtros actuales."
             : "Crea tu primer lead para empezar a gestionar tu CRM."}
         </p>
-        {!searchQuery && !statusFilter && (
+        {!searchQuery && !statusFilter && totalLeadsFromDb === 0 && (
           <a href="/dashboard/leads/new" class="btn-primary mt-6 inline-flex px-5 py-3 text-sm">
             + Crear primer lead
           </a>

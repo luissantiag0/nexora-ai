@@ -80,7 +80,7 @@ const nextStatus = {
   </section>
 
   <section class="mt-6 flex flex-wrap gap-3">
-    <a href={`/api/invoices/${invoice.id}`} target="_blank" class="btn-primary px-5 py-3 text-sm">Descargar PDF</a>
+    <a href={`/api/invoices/${invoice.id}?download=1`} target="_blank" class="btn-primary px-5 py-3 text-sm">Descargar PDF</a>
 
     {invoice.status === "borrador" && (
       <button type="button" data-action="emitir" data-id={invoice.id} class="btn-secondary px-5 py-3 text-sm">

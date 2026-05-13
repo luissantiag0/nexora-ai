@@ -6,13 +6,44 @@ import { generateInvoicePdf } from "../../../lib/pdf";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ cookies, params }) => {
+export const GET: APIRoute = async ({ cookies, params, url }) => {
   const token = cookies.get(SESSION_COOKIE)?.value;
   const user = await getCurrentUser(token);
   if (!user) return new Response(JSON.stringify({ error: "No autenticado" }), { status: 401, headers: { "Content-Type": "application/json" } });
 
   const invoice = await getUserInvoice(params.id!, user.id);
   if (!invoice) return new Response(JSON.stringify({ error: "No encontrada" }), { status: 404, headers: { "Content-Type": "application/json" } });
+
+  const download = url.searchParams.get("download") === "1";
+
+  if (download) {
+    const pdf = await generateInvoicePdf({
+      invoiceNumber: invoice.id.slice(0, 8),
+      clientName: invoice.clientName,
+      clientEmail: invoice.clientEmail,
+      company: invoice.company,
+      dueDate: invoice.dueDate?.toLocaleDateString("es-ES"),
+      status: invoice.status,
+      items: invoice.items.map((i) => ({
+        description: i.description,
+        quantity: i.quantity,
+        price: i.price,
+        total: i.total,
+      })),
+      subtotal: invoice.subtotal,
+      tax: invoice.tax,
+      total: invoice.total,
+      notes: invoice.notes,
+    });
+
+    return new Response(pdf, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="factura-${invoice.id.slice(0, 8)}.pdf"`,
+      },
+    });
+  }
 
   return new Response(JSON.stringify({ invoice }), { status: 200, headers: { "Content-Type": "application/json" } });
 };

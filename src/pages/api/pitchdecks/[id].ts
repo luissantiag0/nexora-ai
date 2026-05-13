@@ -6,12 +6,24 @@ import { generatePitchDeckPdf } from "../../../lib/pdf";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ cookies, params }) => {
+export const GET: APIRoute = async ({ cookies, params, url }) => {
   const token = cookies.get(SESSION_COOKIE)?.value;
   const user = await getCurrentUser(token);
   if (!user) return new Response(JSON.stringify({ error: "No autenticado" }), { status: 401, headers: { "Content-Type": "application/json" } });
   const deck = await getUserPitchDeck(params.id!, user.id);
   if (!deck) return new Response(JSON.stringify({ error: "No encontrado" }), { status: 404, headers: { "Content-Type": "application/json" } });
+
+  if (url.searchParams.get("download") === "1") {
+    const sections = deck.sections ? JSON.parse(deck.sections) : [];
+    const pdf = await generatePitchDeckPdf({
+      title: deck.title, clientType: deck.clientType, objective: deck.objective, sections,
+    });
+    return new Response(pdf, {
+      status: 200,
+      headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="pitchdeck-${deck.id.slice(0, 8)}.pdf"` },
+    });
+  }
+
   return new Response(JSON.stringify({ deck }), { status: 200, headers: { "Content-Type": "application/json" } });
 };
 
@@ -43,27 +55,4 @@ export const DELETE: APIRoute = async ({ cookies, params }) => {
   return new Response(JSON.stringify({ success: true }), { status: 200, headers: { "Content-Type": "application/json" } });
 };
 
-export const POST: APIRoute = async ({ cookies, params }) => {
-  const token = cookies.get(SESSION_COOKIE)?.value;
-  const user = await getCurrentUser(token);
-  if (!user) return new Response(JSON.stringify({ error: "No autenticado" }), { status: 401, headers: { "Content-Type": "application/json" } });
 
-  const deck = await getUserPitchDeck(params.id!, user.id);
-  if (!deck) return new Response(JSON.stringify({ error: "No encontrado" }), { status: 404, headers: { "Content-Type": "application/json" } });
-
-  const sections = deck.sections ? JSON.parse(deck.sections) : [];
-  const pdf = await generatePitchDeckPdf({
-    title: deck.title,
-    clientType: deck.clientType,
-    objective: deck.objective,
-    sections,
-  });
-
-  return new Response(pdf, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="pitchdeck-${deck.id.slice(0, 8)}.pdf"`,
-    },
-  });
-};
