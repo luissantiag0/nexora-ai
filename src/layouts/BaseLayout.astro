@@ -76,6 +76,8 @@ const {
 
         // Set initial hidden state
         items.forEach((el) => {
+          const delay = el.getAttribute("data-delay");
+          if (delay) el.style.transitionDelay = `${delay}ms`;
           if (el.hasAttribute("data-reveal-left")) el.classList.add("reveal-hidden-left");
           else if (el.hasAttribute("data-reveal-right")) el.classList.add("reveal-hidden-right");
           else el.classList.add("reveal-hidden");
