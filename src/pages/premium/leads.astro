@@ -34,7 +34,8 @@ const validStatus =
     ? status
     : "";
 
-const leads = await obtenerLeads();
+const rawLeads = await obtenerLeads();
+const leads = Array.isArray(rawLeads) ? rawLeads : [];
 const filteredLeads = leads.filter((lead) => {
   const matchesStatus =
     !validStatus || lead.estado === validStatus;

@@ -256,7 +256,11 @@ export const eliminarLead = async (
    OBTENER LEADS
 ========================================= */
 
-export const obtenerLeads = async () => {
+export const obtenerLeads = async (): Promise<any[]> => {
+  if (!prisma) {
+    console.warn("[leadStorage] prisma no disponible");
+    return [];
+  }
   const leads = await prisma.lead.findMany({
     orderBy: {
       createdAt: "desc",
