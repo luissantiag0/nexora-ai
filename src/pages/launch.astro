@@ -22,49 +22,36 @@ const benefits = [
 ];
 
 const faq = [
-  { q: "Que hace diferente a AverionAI de otros CRM?", a: "AverionAI esta construido desde cero con IA en el nucleo, no como un anadido. La generacion de documentos, clasificacion de leads y creacion de contenido son funcionalidades nativas, no integraciones de terceros." },
-  { q: "Mis datos estan seguros?", a: "Si. AverionAI utiliza arquitectura SSR, sesiones cifradas, proteccion CSRF, limitacion de tasa y auditoria completa. Todos los datos estan cifrados en transito y en reposo." },
-  { q: "Puedo probar antes de comprar?", a: "Si. Ofrecemos una prueba gratuita de 30 minutos con acceso completo a todas las funciones premium. No requiere tarjeta de credito." },
-  { q: "Que pasa cuando termina mi prueba?", a: "Tu cuenta permanece activa. Pierdes acceso a las funciones premium hasta que te suscribas. Tus datos nunca se eliminan." },
+  { q: "Que hace diferente a AverionAI de otros CRM?", a: "AverionAI esta construido desde cero con IA en el nucleo, no como un anadido. La generacion de documentos, clasificacion de leads y creacion de contenido son funcionalidades nativas." },
+  { q: "Mis datos estan seguros?", a: "AverionAI utiliza arquitectura SSR, sesiones cifradas, proteccion CSRF, limitacion de tasa y auditoria completa." },
+  { q: "Puedo probar antes de comprar?", a: "Ofrecemos una prueba gratuita de 30 minutos con acceso completo. No requiere tarjeta de credito." },
+  { q: "Que pasa cuando termina mi prueba?", a: "Tu cuenta permanece activa. Pierdes acceso a funciones premium hasta que te suscribas. Tus datos nunca se eliminan." },
 ];
 
 const growthPlan = [
-  { week: "Semana 1", title: "Fundacion", items: ["Publicar 2 articulos SEO en el blog", "Compartir AverionAI en LinkedIn personal", "Publicacion de pagina de empresa en LinkedIn", "Grabar y publicar video demo de 30 segundos", "Monitorear pagina /status para tiempo de actividad"] },
-  { week: "Semana 2", title: "Contenido", items: ["Publicar 2 articulos mas (CRM, automatizacion)", "Compartir mini tutoriales en LinkedIn", "Responder comentarios e interactuar en redes", "Actualizar /changelog con nuevas versiones"] },
-  { week: "Semana 3", title: "Comunidad", items: ["Publicar en comunidades SaaS (Indie Hackers, Reddit)", "Compartir casos de uso y consejos practicos", "Lanzar programa de referidos con descuentos", "Recopilar feedback temprano y priorizar mejoras"] },
-  { week: "Semana 4", title: "Optimizacion", items: ["Prueba A/B del hero de la landing", "Prueba A/B del CTA en pricing", "Analisis del embudo de conversion", "Enviar secuencia de onboarding a nuevos usuarios", "Enviar emails de reactivacion a trials inactivos"] },
+  { week: "Semana 1", title: "Fundacion", items: ["Publicar 2 articulos SEO en el blog", "Compartir AverionAI en LinkedIn", "Grabar y publicar video demo de 30 segundos", "Monitorear pagina /status"] },
+  { week: "Semana 2", title: "Contenido", items: ["Publicar 2 articulos (CRM, automatizacion)", "Compartir mini tutoriales en LinkedIn", "Actualizar /changelog con nuevas versiones"] },
+  { week: "Semana 3", title: "Comunidad", items: ["Publicar en Indie Hackers y Reddit", "Lanzar programa de referidos con descuentos", "Recopilar feedback y priorizar mejoras"] },
+  { week: "Semana 4", title: "Optimizacion", items: ["Prueba A/B del hero de la landing", "Prueba A/B del CTA en pricing", "Analisis del embudo de conversion", "Enviar secuencia de onboarding a nuevos usuarios"] },
 ];
 
 const checklist = [
   "Pagina /launch lista con diseno premium",
   "Pagina /pricing con planes Free, Premium y Business",
-  "Pagina /roadmap con secciones Completado, Ahora, Proximo, Futuro",
-  "Pagina /changelog con 10 versiones registradas",
-  "Pagina /status con 8 servicios monitoreados",
-  "Integracion Stripe preparada (Premium + Business)",
-  "Emails transaccionales funcionando con Resend",
+  "Pagina /roadmap con 4 secciones",
+  "Pagina /changelog con 10 versiones",
+  "Pagina /status con 8 servicios",
+  "Integracion Stripe preparada",
   "Blog SEO con articulos y categorias",
-  "Sitemap.xml con todas las rutas publicas",
-  "Robots.txt con reglas de rastreo adecuadas",
-  "Schema.org Organization, SoftwareApplication, BreadcrumbList",
-  "OpenGraph con imagen, Twitter cards, JSON-LD",
-  "Rate limiting en inicio de sesion",
-  "Sanitizacion de entrada en todos los formularios",
-  "Validacion de propiedad en todas las operaciones CRM",
-  "Auditoria de eventos clave del sistema",
-  "HTTPS forzado a traves de Vercel",
+  "Sitemap.xml con todas las rutas",
+  "Schema.org Organization y SoftwareApplication",
+  "OpenGraph, Twitter cards y JSON-LD",
+  "Rate limiting y sanitizacion de entrada",
   "Healthcheck endpoint en /api/health",
-];
-
-const adsSections = [
-  { title: "Google Ads", content: "10 palabras clave, 3 anuncios, 2 extensiones de sitio" },
-  { title: "Meta Ads", content: "3 creatividades, segmentacion B2B por rol y empresa" },
-  { title: "TikTok Ads", content: "2 scripts de 15 segundos, 1 estructura de video" },
-  { title: "LinkedIn Ads", content: "2 anuncios, segmentacion para tomadores de decision B2B" },
 ];
 ---
 
-<BaseLayout title="Lanzamiento AverionAI | CRM y Documentos con IA" description="Plataforma SaaS que combina CRM, generacion de documentos, facturacion y automatizacion con IA en un entorno SSR seguro.">
+<BaseLayout title="Lanzamiento AverionAI | CRM y Documentos con IA" description="Lanzamiento oficial de AverionAI: plataforma SaaS con CRM, documentos y automatizacion impulsada por IA.">
   <Navbar />
   <main class="min-h-screen bg-[#07070A]">
     <section class="relative overflow-hidden pb-20 pt-20 md:pb-28 md:pt-28">
@@ -76,7 +63,7 @@ const adsSections = [
           <h1 class="mt-6 text-5xl font-semibold leading-[1.05] tracking-tight text-white md:text-7xl">AverionAI<span class="text-cyan-200/60"> —</span><br /><span class="bg-gradient-to-r from-white via-cyan-100 to-emerald-100 bg-clip-text text-transparent">CRM y documentos con IA</span></h1>
           <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/50 md:text-xl">CRM impulsado por IA, generacion de documentos y automatizacion para empresas modernas.</p>
           <div class="mt-10 flex flex-wrap justify-center gap-4">
-            <a href="/register" class="group inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black shadow-[0_18px_45px_-26px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-28px_rgba(34,211,238,0.9)] active:translate-y-0">Probar gratis<span class="transition-transform group-hover:translate-x-1">→</span></a>
+            <a href="/register" class="group inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black shadow-[0_18px_45px_-26px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-28px_rgba(34,211,238,0.9)]">Probar gratis<span class="transition-transform group-hover:translate-x-1">→</span></a>
             <a href="/pricing" class="inline-flex items-center rounded-xl border border-white/15 bg-white/[0.02] px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100">Ver planes</a>
           </div>
         </div>
@@ -91,9 +78,9 @@ const adsSections = [
             <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Que es AverionAI</h2>
           </div>
           <div class="text-sm leading-relaxed text-white/50 space-y-4" data-reveal data-delay="100">
-            <p>AverionAI es una plataforma SaaS moderna que integra CRM, generacion de documentos con IA, facturacion automatizada y analitica de negocio en un entorno seguro.</p>
-            <p>A diferencia de los CRM tradicionales que requieren semanas de configuracion y multiples integraciones, AverionAI funciona de inmediato. Crea leads, clasificalos con IA, genera facturas y pitch decks profesionales, y realiza seguimiento de tu pipeline desde una unica interfaz renderizada en servidor para maxima seguridad y rendimiento.</p>
-            <p>Construido con Astro SSR, Prisma y Stripe, AverionAI ofrece seguridad de nivel empresarial sin complejidad empresarial. Cada pagina se renderiza en servidor. Las sesiones estan protegidas. Los datos permanecen cifrados.</p>
+            <p>AverionAI es una plataforma SaaS que integra CRM, generacion de documentos con IA, facturacion automatizada y analitica de negocio en un entorno seguro.</p>
+            <p>A diferencia de los CRM tradicionales que requieren semanas de configuracion, AverionAI funciona de inmediato. Crea leads, clasificalos con IA, genera facturas y pitch decks profesionales, y realiza seguimiento de tu pipeline desde una unica interfaz renderizada en servidor.</p>
+            <p>Construido con Astro SSR, Prisma y Stripe, AverionAI ofrece seguridad de nivel empresarial sin complejidad. Cada pagina se renderiza en servidor. Las sesiones estan protegidas. Los datos permanecen cifrados.</p>
           </div>
         </div>
       </div>
@@ -139,13 +126,13 @@ const adsSections = [
           <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Product Hunt</span>
           <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Lanzamiento en Product Hunt</h2>
           <p class="mt-4 text-base text-white/50">Sigue nuestro lanzamiento y se el primero en enterarte.</p>
-          <a href="/register" class="btn-secondary mt-6 inline-flex px-6 py-2.5 text-sm">Seguir el lanzamiento</a>
+          <a href="/register" class="btn-secondary mt-6 inline-flex px-6 py-2.5 text-sm">Seguir lanzamiento</a>
         </div>
         <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
           <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6" data-reveal><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Tagline</span><p class="mt-3 text-sm text-white/70">AI-powered CRM, documents, and automation for modern businesses.</p></div>
           <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6" data-reveal data-delay="60"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Descripcion corta</span><p class="mt-3 text-sm text-white/70">AverionAI combina CRM, generacion de documentos, facturacion y automatizacion con IA en una plataforma SaaS segura con SSR.</p></div>
-          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="120"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Descripcion larga</span><p class="mt-3 text-sm text-white/70 leading-relaxed">AverionAI es una plataforma SaaS moderna que integra CRM, generacion de documentos con IA, facturacion automatizada y analitica de negocio en un entorno seguro. A diferencia de los CRM tradicionales que requieren semanas de configuracion, AverionAI funciona de inmediato. Construido con Astro SSR, Prisma y Stripe, ofrece seguridad de nivel empresarial sin complejidad.</p></div>
-          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="180"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Comentario del creador</span><p class="mt-3 text-sm text-white/50 leading-relaxed italic">Soy Luis, fundador de AverionAI. Durante las ultimas semanas he construido una plataforma SaaS completa desde cero: CRM, generacion de documentos, integracion de IA, facturacion con Stripe y arquitectura renderizada en servidor, todo funcionando con Astro SSR, Prisma y PostgreSQL. AverionAI nace de una observacion simple: la mayoria de los CRM son demasiado basicos o demasiado complejos. Queriamos algo diferente: una plataforma donde la IA sea parte de los cimientos, accesible desde el primer dia.</p></div>
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="120"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Descripcion larga</span><p class="mt-3 text-sm text-white/70 leading-relaxed">AverionAI es una plataforma SaaS que integra CRM, generacion de documentos con IA, facturacion automatizada y analitica de negocio. Construido con Astro SSR, Prisma y Stripe, ofrece seguridad de nivel empresarial sin complejidad.</p></div>
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="180"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Comentario del creador</span><p class="mt-3 text-sm text-white/50 leading-relaxed italic">Soy Luis, fundador de AverionAI. Durante las ultimas semanas he construido una plataforma SaaS completa desde cero: CRM, generacion de documentos, integracion de IA, facturacion con Stripe y arquitectura renderizada en servidor, todo con Astro SSR, Prisma y PostgreSQL. AverionAI nace de una observacion simple: la mayoria de los CRM son demasiado basicos o demasiado complejos. Queriamos una plataforma donde la IA sea parte de los cimientos, accesible desde el primer dia.</p></div>
           <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="240"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">FAQ</span><div class="mt-4 grid gap-4">{faq.map((item) => (<div><p class="text-sm font-medium text-white/80">{item.q}</p><p class="mt-1 text-sm text-white/50">{item.a}</p></div>))}</div></div>
         </div>
       </div>
@@ -158,31 +145,14 @@ const adsSections = [
           <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Proximamente</h2>
           <p class="mt-4 text-base text-white/50">Los recursos visuales se agregaran antes del lanzamiento.</p>
         </div>
-        <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
-          {["Hero: pagina principal", "Dashboard: pipeline CRM", "Generador de documentos", "Panel de analitica"].map((s, i) => (
-            <div class="flex aspect-video items-center justify-center rounded-xl border border-dashed border-white/[0.08] bg-white/[0.01] text-sm text-white/30" data-reveal data-delay={i * 80}>{s}</div>
-          ))}
+        <div class="mt-16 mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
+          <div class="flex aspect-video items-center justify-center rounded-xl border border-dashed border-white/[0.08] bg-white/[0.01] text-sm text-white/30" data-reveal>Dashboard: pipeline CRM</div>
+          <div class="flex aspect-video items-center justify-center rounded-xl border border-dashed border-white/[0.08] bg-white/[0.01] text-sm text-white/30" data-reveal data-delay="80">Generador de documentos</div>
         </div>
       </div>
     </section>
 
-    <section class="border-t border-white/[0.06] bg-white/[0.015] py-24">
-      <div class="container">
-        <div class="mx-auto max-w-3xl text-center" data-reveal>
-          <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Demo</span>
-          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Video demostrativo</h2>
-          <p class="mt-4 text-base text-white/50">Video demo de 30 segundos proximamente.</p>
-        </div>
-        <div class="mx-auto mt-12 flex max-w-3xl aspect-video items-center justify-center rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.01]">
-          <div class="text-center">
-            <svg class="mx-auto h-12 w-12 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <p class="mt-4 text-sm text-white/30">Video demo de 30 segundos proximamente</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="border-t border-white/[0.06] py-24 md:py-28">
+    <section class="border-t border-white/[0.06] bg-white/[0.015] py-24 md:py-28">
       <div class="container">
         <div class="mx-auto max-w-3xl text-center" data-reveal>
           <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">LinkedIn</span>
@@ -195,18 +165,18 @@ const adsSections = [
       </div>
     </section>
 
-    <section class="border-t border-white/[0.06] bg-white/[0.015] py-24 md:py-28">
+    <section class="border-t border-white/[0.06] py-24 md:py-28">
       <div class="container">
         <div class="mx-auto max-w-3xl text-center" data-reveal>
           <span class="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium tracking-wider text-white/50 uppercase">Publicidad</span>
           <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Campanas publicitarias</h2>
-          <p class="mt-4 text-base text-white/50">Estructura preparada para plataformas de anuncios. Sin activar.</p>
+          <p class="mt-4 text-base text-white/50">Estructura preparada para cada plataforma. Sin activar.</p>
         </div>
         <div class="mt-16 mx-auto grid max-w-4xl gap-4 md:grid-cols-2">
-          {adsSections.map((ad, i) => (
+          {[{ t: "Google Ads", d: "10 palabras clave, 3 anuncios, 2 extensiones" },{ t: "Meta Ads", d: "3 creatividades, segmentacion B2B" },{ t: "TikTok Ads", d: "2 scripts de 15 segundos" },{ t: "LinkedIn Ads", d: "2 anuncios, segmentacion para decision makers B2B" }].map((ad, i) => (
             <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6" data-reveal data-delay={i * 80}>
-              <span class="text-sm font-semibold text-white">{ad.title}</span>
-              <p class="mt-2 text-sm text-white/50">{ad.content}</p>
+              <span class="text-sm font-semibold text-white">{ad.t}</span>
+              <p class="mt-2 text-sm text-white/50">{ad.d}</p>
             </div>
           ))}
         </div>
@@ -224,14 +194,7 @@ const adsSections = [
             <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6" data-reveal data-delay={i * 80}>
               <span class="text-xs font-semibold text-emerald-200/60 uppercase tracking-wider">{w.week}</span>
               <h3 class="mt-2 text-lg font-semibold text-white">{w.title}</h3>
-              <ul class="mt-4 grid gap-2">
-                {w.items.map((item) => (
-                  <li class="flex items-start gap-2 text-sm text-white/60">
-                    <span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400/50"></span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <ul class="mt-4 grid gap-2">{w.items.map((item) => (<li class="flex items-start gap-2 text-sm text-white/60"><span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400/50"></span>{item}</li>))}</ul>
             </div>
           ))}
         </div>
@@ -246,7 +209,7 @@ const adsSections = [
         </div>
         <div class="mt-16 mx-auto grid max-w-4xl gap-3 md:grid-cols-2">
           {checklist.map((item, i) => (
-            <div class="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-3 transition-all duration-300 hover:border-cyan-300/20 hover:bg-white/[0.03]" data-reveal data-delay={i * 40}>
+            <div class="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-3 transition-all duration-300 hover:border-cyan-300/20" data-reveal data-delay={i * 40}>
               <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/[0.15] text-xs text-white/30">{(i + 1).toString().padStart(2, "0")}</span>
               <span class="text-sm text-white/60">{item}</span>
             </div>
@@ -261,8 +224,7 @@ const adsSections = [
           <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Empieza ahora</span>
           <h2 class="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">Prueba AverionAI gratis</h2>
           <p class="mt-4 text-base text-white/50">30 minutos de acceso premium completo. Sin tarjeta. Sin riesgo.</p>
-          <a href="/register" class="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black shadow-[0_18px_45px_-26px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-28px_rgba(34,211,238,0.9)] active:translate-y-0">Crear cuenta gratis</a>
-          <p class="mt-6 text-xs text-white/20">No necesitas tarjeta. Cancela cuando quieras.</p>
+          <a href="/register" class="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black shadow-[0_18px_45px_-26px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-28px_rgba(34,211,238,0.9)]">Crear cuenta gratis</a>
         </div>
       </div>
     </section>

@@ -14,7 +14,7 @@ const isLoggedIn = !!user;
   <div class="site-header-inner container flex min-h-16 items-center justify-between gap-4 transition-all duration-300 ease-in-out">
     <BrandLogo markClass="h-8 w-8" textClass="text-lg" />
 
-    <nav class="hidden items-center gap-7 text-sm md:flex">
+    <nav class="hidden items-center gap-7 text-sm md:flex md:flex-1 md:justify-center">
       <a href="/pricing" class="text-white/55 transition hover:text-cyan-100">
         Pricing
       </a>
@@ -54,30 +54,19 @@ const isLoggedIn = !!user;
       )}
     </nav>
 
-    {!isLoggedIn && (
-      <div class="flex items-center gap-3">
-        <a
-          href="/login"
-          class="btn-secondary px-4 py-2.5 text-sm hidden sm:inline-flex"
-        >
-          Iniciar sesión
-        </a>
-        <a
-          href="/register"
-          class="btn-primary px-5 py-2.5 text-sm"
-        >
-          Probar gratis
-        </a>
-      </div>
-    )}
-
-    {isLoggedIn && (
-      <form method="POST" action="/logout" class="hidden md:block">
-        <button class="btn-secondary px-4 py-2.5 text-sm">
-          Salir
-        </button>
-      </form>
-    )}
+    <div class="flex items-center gap-3">
+      {!isLoggedIn && (
+        <>
+          <a href="/login" class="btn-secondary px-4 py-2.5 text-sm hidden sm:inline-flex">Iniciar sesion</a>
+          <a href="/register" class="btn-primary px-5 py-2.5 text-sm">Probar gratis</a>
+        </>
+      )}
+      {isLoggedIn && (
+        <form method="POST" action="/logout" class="hidden md:block">
+          <button class="btn-secondary px-4 py-2.5 text-sm">Salir</button>
+        </form>
+      )}
+    </div>
   </div>
 
   <script is:inline>
