@@ -1,0 +1,127 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+
+const kpis = [
+  { label: "Leads hoy", value: "12", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
+  { label: "Leads por etapa", value: "8 activos", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+  { label: "Conversion", value: "34%", icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" },
+  { label: "Documentos", value: "24", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+  { label: "Auto. activas", value: "6", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
+  { label: "Integraciones", value: "3/5", icon: "M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" },
+];
+
+const activity = [
+  { time: "Hace 5 min", text: "Lead creado: Cliente potencial", type: "lead" },
+  { time: "Hace 12 min", text: "Lead movido a Negociacion", type: "move" },
+  { time: "Hace 1 h", text: "Documento generado: Factura #0012", type: "doc" },
+  { time: "Hace 2 h", text: "Automatizacion ejecutada: Clasificar lead", type: "auto" },
+  { time: "Hace 3 h", text: "Integracion conectada: Gmail API", type: "int" },
+];
+
+const team = [
+  { name: "Ana Garcia", email: "ana@empresa.com", role: "Admin", lastSeen: "Ahora" },
+  { name: "Carlos Lopez", email: "carlos@empresa.com", role: "Editor", lastSeen: "Hace 15 min" },
+  { name: "Maria Perez", email: "maria@empresa.com", role: "Viewer", lastSeen: "Hace 2 h" },
+];
+---
+
+<BusinessLayout title="Dashboard">
+  <section class="rounded-2xl border border-white/[0.06] bg-[linear-gradient(135deg,rgba(34,211,238,0.06),rgba(255,255,255,0.02)_48%,rgba(16,185,129,0.05))] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-[0.18em] text-cyan-100/70">Panel Business</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-5xl">Dashboard ejecutivo</h2>
+    <p class="mt-4 max-w-2xl text-sm leading-relaxed text-white/50">Metricas clave, actividad del equipo y estado del sistema en tiempo real.</p>
+  </section>
+
+  <section class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    {kpis.map((k, i) => (
+      <div class="premium-panel p-5 transition-all duration-300 hover:-translate-y-0.5" data-reveal data-delay={i * 60}>
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-white/45">{k.label}</p>
+          <svg class="h-5 w-5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={k.icon}/></svg>
+        </div>
+        <p class="mt-3 text-3xl font-semibold text-white">{k.value}</p>
+      </div>
+    ))}
+  </section>
+
+  <section class="mt-8 grid gap-6 xl:grid-cols-3">
+    <div class="premium-panel p-5 md:p-6 xl:col-span-2">
+      <h2 class="text-lg font-semibold text-white">Actividad reciente</h2>
+      <div class="mt-5 grid gap-4">
+        {activity.map((a, i) => (
+          <div class="flex items-start gap-4" data-reveal data-delay={i * 40}>
+            <span class={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${
+              a.type === "lead" ? "border-cyan-300/20 bg-cyan-300/10" :
+              a.type === "move" ? "border-amber-300/20 bg-amber-300/10" :
+              a.type === "doc" ? "border-emerald-300/20 bg-emerald-300/10" :
+              a.type === "auto" ? "border-purple-300/20 bg-purple-300/10" :
+              "border-white/10 bg-white/[0.04]"
+            }`}>
+              <svg class={`h-4 w-4 ${
+                a.type === "lead" ? "text-cyan-200" :
+                a.type === "move" ? "text-amber-200" :
+                a.type === "doc" ? "text-emerald-200" :
+                a.type === "auto" ? "text-purple-200" : "text-white/40"
+              }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {a.type === "lead" && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>}
+                {a.type === "move" && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>}
+                {a.type === "doc" && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>}
+                {a.type === "auto" && <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>}
+              </svg>
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-white/80">{a.text}</p>
+              <p class="text-xs text-white/35 mt-0.5">{a.time}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-lg font-semibold text-white">Estado del equipo</h2>
+      <div class="mt-5 grid gap-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3 text-sm"><span class="text-white/50">Usuarios activos</span><span class="text-white">3</span></div>
+        <div class="flex items-center justify-between border-b border-white/10 pb-3 text-sm"><span class="text-white/50">Roles</span><span class="text-white">Admin, Editor, Viewer</span></div>
+        <div class="flex items-center justify-between text-sm"><span class="text-white/50">Ultima actividad</span><span class="text-white">Hace 5 min</span></div>
+        <a href="/business/users" class="btn-secondary mt-2 w-full justify-center text-xs py-2.5">Gestionar equipo</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-8 grid gap-6 xl:grid-cols-2">
+    <div class="premium-panel p-5 md:p-6">
+      <div class="flex items-center justify-between"><h2 class="text-lg font-semibold text-white">Integraciones</h2><a href="/business/integrations" class="text-xs text-cyan-200 hover:text-white transition">Configurar</a></div>
+      <div class="mt-5 grid gap-3">
+        {[{n:"WhatsApp",s:false},{n:"Gmail",s:false},{n:"Webhooks",s:true},{n:"Zapier / Make",s:false},{n:"API Publica",s:true}].map((int, i) => (
+          <div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3" data-reveal data-delay={i * 40}>
+            <span class="text-sm text-white/70">{int.n}</span>
+            <span class={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${int.s ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200" : "border-white/10 bg-white/[0.04] text-white/40"}`}>{int.s ? "Conectado" : "No conectado"}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="premium-panel p-5 md:p-6">
+      <div class="flex items-center justify-between"><h2 class="text-lg font-semibold text-white">Estado del sistema</h2><span class="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full font-medium">99.9% uptime</span></div>
+      <div class="mt-5 grid gap-3">
+        {[{s:"Latencia",v:"< 120ms"},{s:"Servidor",v:"Operativo"},{s:"Automatizaciones",v:"6 activas"},{s:"Integraciones",v:"2/5 conectadas"},{s:"SLA Business",v:"99.9%"}].map((sys) => (
+          <div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"><span class="text-sm text-white/50">{sys.s}</span><span class="text-sm text-white/80 font-mono">{sys.v}</span></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-8 premium-panel p-5 md:p-6">
+    <h2 class="text-lg font-semibold text-white">Acciones rapidas</h2>
+    <div class="mt-5 flex flex-wrap gap-3">
+      <a href="/business/users" class="btn-secondary px-4 py-2.5 text-xs">Crear usuario</a>
+      <a href="/dashboard/automations" class="btn-secondary px-4 py-2.5 text-xs">Crear automatizacion</a>
+      <a href="/business/webhooks" class="btn-secondary px-4 py-2.5 text-xs">Crear webhook</a>
+      <a href="/business/api" class="btn-secondary px-4 py-2.5 text-xs">Generar API Key</a>
+      <a href="/business/roles" class="btn-secondary px-4 py-2.5 text-xs">Ver roles</a>
+      <a href="/business/integrations" class="btn-secondary px-4 py-2.5 text-xs">Ver integraciones</a>
+    </div>
+  </section>
+</BusinessLayout>
