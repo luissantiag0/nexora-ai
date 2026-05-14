@@ -92,7 +92,7 @@ const isPremium = user?.isPremium === true || user?.role === "admin" || user?.ro
           </ul>
           <div class="mt-8">
             {isLoggedIn && isPremium ? (
-              <button type="button" data-checkout-trigger="business" class="btn-primary w-full justify-center text-center bg-emerald-400 hover:bg-emerald-300 text-black shadow-[0_18px_45px_-26px_rgba(16,185,129,0.9)] hover:shadow-[0_24px_70px_-28px_rgba(16,185,129,0.9)]">Elegir Business</button>
+              <a href="/premium/dashboard" class="btn-primary w-full justify-center text-center bg-emerald-400 hover:bg-emerald-300 text-black shadow-[0_18px_45px_-26px_rgba(16,185,129,0.9)] hover:shadow-[0_24px_70px_-28px_rgba(16,185,129,0.9)]">Ir al panel</a>
             ) : isLoggedIn ? (
               <button type="button" data-checkout-trigger="business" class="btn-primary w-full justify-center text-center bg-emerald-400 hover:bg-emerald-300 text-black shadow-[0_18px_45px_-26px_rgba(16,185,129,0.9)] hover:shadow-[0_24px_70px_-28px_rgba(16,185,129,0.9)]">Elegir Business</button>
             ) : (
