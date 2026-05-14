@@ -1,70 +1,46 @@
 ---
-const useCases = [
+const servicios = [
   {
-    title: "Ecommerce",
-    description:
-      "Actualización de catálogo, consultas de clientes y flujos postventa para proteger margen y velocidad."
+    icon: "01",
+    title: "Agentes de IA para ventas y atencion",
+    desc: "Automatizacion de conversaciones, captacion y calificacion de leads con integracion directa a WhatsApp, web o CRM.",
+    metrics: ["24/7", "Calificacion automatica", "Integracion inmediata"],
   },
   {
-    title: "Startups",
-    description:
-      "Operaciones repetitivas, reporting y soporte automatizado para ejecutar más sin aumentar estructura."
+    icon: "02",
+    title: "Dashboards internos y automatizacion",
+    desc: "Paneles internos, informes automaticos y optimizacion de procesos que reducen el tiempo operativo de tu equipo.",
+    metrics: ["-68% tiempo operativo", "Procesos optimizados", "Integracion con herramientas actuales"],
   },
   {
-    title: "Empresas",
-    description:
-      "Estandarización entre departamentos con sistemas seguros, medibles y fáciles de adoptar."
+    icon: "03",
+    title: "Webs y sistemas inteligentes",
+    desc: "Landing optimizada, reservas inteligentes y campanas automatizadas para maximizar la conversion de tu negocio.",
+    metrics: ["+54% conversion", "Carga rapida", "Automatizacion completa"],
   },
-  {
-    title: "Negocios locales",
-    description:
-      "Reservas, comunicación, facturación y tareas administrativas diarias con menos fricción."
-  }
 ];
 ---
 
-<section id="use-cases" class="border-t border-white/10 bg-[#07070A]">
-  <div class="container py-24 md:py-32">
-    <div class="max-w-3xl" data-reveal>
-      <span class="badge bg-emerald-300/10 text-emerald-100">
-        Casos de uso
-      </span>
-
-      <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-        IA aplicada a los equipos que hacen funcionar tu negocio
-      </h2>
-
-      <p class="mt-5 text-base leading-relaxed text-white/60 md:text-lg">
-        Adaptamos sistemas de IA a cuellos de botella específicos para aumentar productividad sin añadir complejidad operativa.
-      </p>
+<section id="services-section" class="border-t border-white/[0.06] py-24 md:py-28">
+  <div class="container">
+    <div class="mx-auto max-w-3xl text-center" data-reveal>
+      <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Servicios</span>
+      <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Servicios que ofrecemos</h2>
+      <p class="mt-4 text-base text-white/50">Soluciones de IA diseñadas para optimizar la operacion de tu negocio en cada punto de contacto.</p>
     </div>
 
-    <div class="mt-14 grid gap-6 md:grid-cols-2">
-      {useCases.map((item, i) => (
-        <article class="interactive-card group border-glow flex min-h-48 flex-col justify-between" data-reveal data-delay={i * 120}>
-          <div>
-            <div class="mb-5 flex items-center gap-3">
-              <span class="h-px w-8 bg-emerald-300/70"></span>
-              <span class="text-xs uppercase tracking-[0.16em] text-white/40">Aplicación</span>
-            </div>
-
-            <h3 class="text-xl font-semibold text-white">
-              {item.title}
-            </h3>
-
-            <p class="mt-3 text-sm leading-relaxed text-white/60">
-              {item.description}
-            </p>
+    <div class="mt-16 grid gap-6 md:grid-cols-3">
+      {servicios.map((s, i) => (
+        <div class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/20 hover:shadow-[0_20px_60px_-30px_rgba(34,211,238,0.25)] md:p-8" data-reveal data-delay={i * 100}>
+          <span class="text-4xl font-bold tracking-tighter text-white/[0.06]">{s.icon}</span>
+          <h3 class="mt-4 text-xl font-semibold text-white">{s.title}</h3>
+          <p class="mt-3 text-sm leading-relaxed text-white/50">{s.desc}</p>
+          <div class="mt-6 flex flex-wrap gap-2">
+            {s.metrics.map((m) => (
+              <span class="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-[11px] font-medium text-white/40 transition-colors duration-200 group-hover:border-cyan-300/20 group-hover:text-cyan-200/70">{m}</span>
+            ))}
           </div>
-
-          <button
-            type="button"
-            data-open-lead-modal
-            class="mt-6 w-fit text-sm font-semibold text-cyan-100 transition group-hover:translate-x-1"
-          >
-            Explorar caso →
-          </button>
-        </article>
+        </div>
       ))}
     </div>
   </div>
