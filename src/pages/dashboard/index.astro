@@ -2,6 +2,8 @@
 import DashboardLayout from "../../layouts/DashboardLayout.astro";
 import { getTrialRemainingMs } from "../../lib/auth";
 import { getUserLeadCounts } from "../../lib/crm";
+import OnboardingTour from "../../components/OnboardingTour.astro";
+import ActivationChecklist from "../../components/ActivationChecklist.astro";
 
 export const prerender = false;
 
@@ -12,6 +14,7 @@ const trialSeconds = Math.floor((trialRemaining % 60000) / 1000);
 const isTrialActive = trialRemaining > 0;
 
 const counts = user ? await getUserLeadCounts(user.id) : null;
+const isNewUser = counts?.total === 0;
 ---
 
 <DashboardLayout title="Dashboard">
@@ -58,6 +61,12 @@ const counts = user ? await getUserLeadCounts(user.id) : null;
         </div>
       </div>
     </section>
+  )}
+
+  <OnboardingTour show={isNewUser} />
+
+  {isNewUser && (
+    <ActivationChecklist totalLeads={counts?.total ?? 0} />
   )}
 
   <section class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
