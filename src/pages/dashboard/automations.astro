@@ -1,0 +1,102 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+
+export const prerender = false;
+
+const triggers = [
+  { id: "lead.created", label: "Cuando se crea un lead" },
+  { id: "lead.stage", label: "Cuando un lead cambia de etapa" },
+  { id: "lead.inactive", label: "Cuando un lead esta inactivo X dias" },
+  { id: "doc.generated", label: "Cuando se genera un documento" },
+];
+
+const actions = [
+  { id: "email.send", label: "Enviar email automatico" },
+  { id: "ai.classify", label: "Clasificar lead con IA" },
+  { id: "lead.move", label: "Mover lead a otra etapa" },
+  { id: "doc.auto", label: "Generar documento automatico" },
+  { id: "note.auto", label: "Anadir nota automatica" },
+];
+
+const templates = [
+  { trigger: "Cuando se crea un lead", action: "Clasificarlo con IA" },
+  { trigger: "Lead pasa a Interesado", action: "Enviar email de seguimiento" },
+  { trigger: "Lead pasa a Cliente", action: "Generar factura" },
+  { trigger: "Lead inactivo 7 dias", action: "Enviar recordatorio" },
+];
+---
+
+<DashboardLayout title="Automatizaciones">
+  <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-cyan-100/70">Workflows</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Automatizaciones</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">Crea reglas automaticas que se ejecutan cuando ocurre un evento en tu CRM.</p>
+      </div>
+      <button id="new-auto-btn" class="btn-primary shrink-0 px-5 py-3 text-sm text-center">+ Crear automatizacion</button>
+    </div>
+  </section>
+
+  <section class="mt-8 premium-panel p-5 md:p-6">
+    <h2 class="text-xl font-semibold text-white">Plantillas predefinidas</h2>
+    <p class="mt-1 text-sm text-white/45">Selecciona una plantilla para empezar.</p>
+    <div class="mt-5 grid gap-3 md:grid-cols-2">
+      {templates.map((t, i) => (
+        <button class="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/20 hover:bg-white/[0.03]" data-reveal data-delay={i * 60}>
+          <div class="flex flex-1 items-center gap-3">
+            <span class="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-mono text-cyan-200/60">{t.trigger}</span>
+            <svg class="h-4 w-4 shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <span class="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] px-3 py-1.5 text-xs font-mono text-emerald-200/60">{t.action}</span>
+          </div>
+          <span class="text-xs text-white/30 group-hover:text-cyan-200 transition-colors">Usar</span>
+        </button>
+      ))}
+    </div>
+  </section>
+
+  <section class="mt-6 premium-panel p-8 text-center">
+    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+      <svg class="h-8 w-8 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    </div>
+    <h3 class="mt-5 text-lg font-medium text-white">Aun no tienes automatizaciones</h3>
+    <p class="mt-2 text-sm text-white/45">Crea tu primera automatizacion o usa una plantilla predefinida.</p>
+    <button id="new-auto-btn-2" class="btn-primary mt-6 inline-flex px-5 py-3 text-sm">+ Crear automatizacion</button>
+  </section>
+
+  <div id="auto-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="mx-4 w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-white">Nueva automatizacion</h3>
+        <button id="close-modal" class="text-white/30 hover:text-white/60 transition"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <div class="space-y-5">
+        <div>
+          <label class="text-sm text-white/60 mb-2 block">Cuando ocurre</label>
+          <select class="input-premium w-full">{triggers.map((t) => <option value={t.id}>{t.label}</option>)}</select>
+        </div>
+        <div class="flex justify-center"><svg class="h-5 w-5 text-cyan-300/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>
+        <div>
+          <label class="text-sm text-white/60 mb-2 block">Entonces hacer</label>
+          <select class="input-premium w-full">{actions.map((a) => <option value={a.id}>{a.label}</option>)}</select>
+        </div>
+        <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+          <p class="text-xs text-white/40 uppercase tracking-wider">Configuración adicional</p>
+          <div class="mt-3 space-y-3">
+            <input class="input-premium w-full" placeholder="Texto del email (opcional)" />
+            <select class="input-premium w-full"><option>Seleccionar etapa</option></select>
+          </div>
+        </div>
+        <button class="w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-20px_rgba(34,211,238,0.6)]">Crear automatizacion</button>
+      </div>
+    </div>
+  </div>
+</DashboardLayout>
+
+<script>
+  (() => {
+    const modal = document.getElementById("auto-modal");
+    document.querySelectorAll("[id^=new-auto-btn]").forEach((btn) => btn.addEventListener("click", () => modal?.classList.remove("hidden", "flex") || modal?.classList.add("flex")));
+    document.getElementById("close-modal")?.addEventListener("click", () => modal?.classList.add("hidden"));
+  })();
+</script>
