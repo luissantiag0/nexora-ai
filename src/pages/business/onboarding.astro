@@ -1,0 +1,105 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+
+const steps = ["Empresa", "Configuracion", "Equipo", "Resumen"];
+const sectors = ["Tecnologia", "Consultoria", "Ecommerce", "Salud", "Educacion", "Finanzas", "Otro"];
+const objectives = ["Captacion de leads", "Automatizacion de procesos", "Integracion de sistemas", "Analitica y reporting", "Gestion de equipo"];
+const modules = ["CRM", "Documentos", "Automatizaciones", "Integraciones", "API", "Auditoria"];
+const initialIntegrations = ["WhatsApp API", "Gmail API", "Webhooks", "Zapier / Make"];
+const initialRoles = ["Admin", "Editor", "Viewer", "Manager"];
+---
+
+<BusinessLayout title="Onboarding">
+  <section class="rounded-2xl border border-white/[0.06] bg-[linear-gradient(135deg,rgba(34,211,238,0.06),rgba(255,255,255,0.02)_48%,rgba(16,185,129,0.05))] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-wider text-cyan-100/70">Configuracion inicial</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Configurar empresa</h2>
+    <p class="mt-3 text-sm text-white/50">Completa los pasos para configurar AverionAI para tu equipo.</p>
+  </section>
+
+  <div class="mt-8 flex items-center gap-3 overflow-x-auto px-1">
+    {steps.map((s, i) => (
+      <div class="flex items-center gap-3 shrink-0">
+        <span class="step-dot flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition-all duration-300" data-step={i + 1}>{i + 1}</span>
+        <span class="text-sm text-white/50 hidden sm:block">{s}</span>
+        {i < steps.length - 1 && <svg class="h-4 w-4 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>}
+      </div>
+    ))}
+  </div>
+
+  <div class="mt-8 premium-panel p-6 md:p-8">
+    <div id="step-1">
+      <h3 class="text-xl font-semibold text-white">Informacion de la empresa</h3>
+      <div class="mt-6 grid gap-5 sm:grid-cols-2">
+        <label class="block space-y-1.5 col-span-2"><span class="text-sm text-white/60">Nombre de la empresa</span><input class="input-premium w-full" placeholder="Mi empresa" /></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Sector</span><select class="input-premium w-full">{sectors.map((s) => <option>{s}</option>)}</select></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Tamano del equipo</span><select class="input-premium w-full"><option>1-5</option><option>6-20</option><option selected>21-50</option><option>51-200</option><option>200+</option></select></label>
+        <label class="block space-y-1.5 col-span-2"><span class="text-sm text-white/60">Objetivo principal</span><select class="input-premium w-full">{objectives.map((o) => <option>{o}</option>)}</select></label>
+      </div>
+    </div>
+
+    <div id="step-2" style="display:none">
+      <h3 class="text-xl font-semibold text-white">Configuracion inicial</h3>
+      <div class="mt-6 grid gap-6 sm:grid-cols-2">
+        <div><p class="text-sm text-white/60 mb-3">Modulos a activar</p><div class="grid gap-2">{modules.map((m) => (<label class="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 cursor-pointer transition hover:border-cyan-300/20"><input type="checkbox" class="accent-cyan-300" checked /><span class="text-sm text-white/70">{m}</span></label>))}</div></div>
+        <div><p class="text-sm text-white/60 mb-3">Integraciones iniciales</p><div class="grid gap-2">{initialIntegrations.map((i) => (<label class="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 cursor-pointer transition hover:border-cyan-300/20"><input type="checkbox" class="accent-cyan-300" /><span class="text-sm text-white/70">{i}</span></label>))}</div></div>
+      </div>
+      <p class="text-sm text-white/60 mt-6 mb-3">Roles iniciales</p>
+      <div class="flex flex-wrap gap-2">{initialRoles.map((r) => (<span class="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-xs font-medium text-cyan-200">{r}</span>))}</div>
+    </div>
+
+    <div id="step-3" style="display:none">
+      <h3 class="text-xl font-semibold text-white">Anadir primer usuario</h3>
+      <div class="mt-6 grid gap-5 sm:grid-cols-2">
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Nombre</span><input class="input-premium w-full" placeholder="Nombre completo" /></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Email</span><input class="input-premium w-full" placeholder="email@empresa.com" /></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Rol</span><select class="input-premium w-full">{initialRoles.map((r) => <option>{r}</option>)}</select></label>
+      </div>
+    </div>
+
+    <div id="step-4" style="display:none">
+      <h3 class="text-xl font-semibold text-white">Resumen de configuracion</h3>
+      <div class="mt-6 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 space-y-4">
+        {[{l:"Empresa",v:"Mi empresa — Tecnologia, 21-50 empleados"},{l:"Objetivo",v:"Captacion de leads"},{l:"Modulos",v:"CRM, Documentos, Automatizaciones, Integraciones, API, Auditoria"},{l:"Integraciones",v:"WhatsApp API, Gmail API, Webhooks, Zapier / Make"},{l:"Roles",v:"Admin, Editor, Viewer, Manager"}].map((r) => (<div class="flex items-center justify-between"><span class="text-sm text-white/50">{r.l}</span><span class="text-sm text-white/80">{r.v}</span></div>))}
+      </div>
+      <a href="/business/dashboard" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5">Ir al Dashboard Business</a>
+    </div>
+
+    <div class="mt-8 flex items-center justify-between border-t border-white/[0.06] pt-6">
+      <button id="prev-step" class="btn-secondary px-5 py-2.5 text-sm" style="visibility:hidden">Anterior</button>
+      <button id="next-step" class="btn-primary px-6 py-2.5 text-sm">Siguiente</button>
+    </div>
+  </div>
+</BusinessLayout>
+
+<script>
+  (() => {
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    function updateStep() {
+      for (let i = 1; i <= totalSteps; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (el) el.style.display = i === currentStep ? "block" : "none";
+      }
+      document.querySelectorAll(".step-dot").forEach((dot) => {
+        const n = parseInt(dot.dataset.step);
+        dot.style.background = n <= currentStep ? "rgba(34,211,238,0.2)" : "";
+        dot.style.borderColor = n <= currentStep ? "rgba(34,211,238,0.4)" : "rgba(255,255,255,0.15)";
+        dot.style.color = n <= currentStep ? "#22d3ee" : "rgba(255,255,255,0.5)";
+      });
+      document.getElementById("prev-step").style.visibility = currentStep === 1 ? "hidden" : "visible";
+      document.getElementById("next-step").textContent = currentStep === totalSteps ? "Finalizar" : "Siguiente";
+    }
+
+    document.getElementById("next-step")?.addEventListener("click", () => {
+      if (currentStep < totalSteps) currentStep++;
+      updateStep();
+    });
+    document.getElementById("prev-step")?.addEventListener("click", () => {
+      if (currentStep > 1) currentStep--;
+      updateStep();
+    });
+    updateStep();
+  })();
+</script>
