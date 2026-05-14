@@ -1,0 +1,49 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+
+const roles = ["Admin", "Editor", "Viewer"];
+const modules = ["CRM", "Documentos", "Automatizaciones", "Integraciones", "Configuracion"];
+const perms: Record<string, string[]> = { Admin: ["full"], Editor: ["full"], Viewer: ["lectura"] };
+---
+
+<BusinessLayout title="Roles">
+  <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-wider text-cyan-100/70">Permisos</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Roles y permisos</h2>
+    <p class="mt-3 text-sm text-white/50">Controla lo que cada usuario puede hacer en AverionAI.</p>
+  </section>
+
+  <section class="mt-6 premium-panel overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-premium">
+        <thead><tr><th>Rol</th><th>Acceso</th><th class="text-right">Accion</th></tr></thead>
+        <tbody>
+          {roles.map((r) => (<tr><td class="font-medium text-white">{r}</td><td class="text-white/60">{perms[r]?.join(", ") || "lectura"}</td><td class="text-right"><button class="edit-role-btn text-xs text-cyan-200 hover:text-white transition" data-role={r}>Editar</button></td></tr>))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6">
+    <h2 class="text-lg font-semibold text-white">Permisos por modulo</h2>
+    <div class="mt-5 grid gap-3">
+      {modules.map((m) => (<div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-3"><span class="text-sm text-white/70">{m}</span><span class="text-xs text-white/40">Admin: full | Editor: full | Viewer: lectura</span></div>))}
+    </div>
+  </section>
+
+  <div id="role-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="mx-4 w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-semibold text-white">Editar rol: <span id="role-name"></span></h3><button class="close-modal text-white/30 hover:text-white/60"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      {modules.map((m) => (<div class="flex items-center justify-between py-2 border-b border-white/[0.04]"><span class="text-sm text-white/70">{m}</span><select class="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white/60"><option>Sin acceso</option><option selected>Lectura</option><option>Edicion</option><option>Full</option></select></div>))}
+      <button class="mt-6 w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5">Guardar cambios</button>
+    </div>
+  </div>
+</BusinessLayout>
+
+<script>
+  (() => {
+    document.querySelectorAll(".edit-role-btn").forEach((b) => b.addEventListener("click", () => { document.getElementById("role-name")!.textContent = b.dataset.role || ""; document.getElementById("role-modal")?.classList.remove("hidden", "flex") || document.getElementById("role-modal")?.classList.add("flex"); }));
+    document.querySelectorAll(".close-modal").forEach((b) => b.addEventListener("click", () => b.closest("[id$=-modal]")?.classList.add("hidden")));
+  })();
+</script>

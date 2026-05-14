@@ -1,0 +1,35 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+---
+
+<BusinessLayout title="API">
+  <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-wider text-cyan-100/70">Desarrolladores</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">API publica</h2>
+    <p class="mt-3 text-sm text-white/50">Integra AverionAI con tus propias herramientas mediante nuestra API REST.</p>
+  </section>
+
+  <section class="mt-6 grid gap-6 xl:grid-cols-2">
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-lg font-semibold text-white">API Keys</h2>
+      <p class="mt-1 text-sm text-white/45">Tus claves de API para autenticar las peticiones.</p>
+      <div class="mt-5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+        <div class="flex items-center justify-between"><span class="text-sm font-mono text-white/30">sk-••••••••••••••••</span><button class="text-xs text-cyan-200 hover:text-white transition">Regenerar clave</button></div>
+      </div>
+    </div>
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-lg font-semibold text-white">Limites de uso</h2>
+      <div class="mt-5 grid gap-4">
+        {[{l:"Peticiones por hora",v:"1,000 / 10,000"},{l:"Peticiones por dia",v:"10,000 / 100,000"},{l:"Tiempo de respuesta",v:"< 200ms"}].map((l) => (<div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"><span class="text-sm text-white/60">{l.l}</span><span class="text-sm text-white/80 font-mono">{l.v}</span></div>))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6">
+    <h2 class="text-lg font-semibold text-white">Documentacion basica</h2>
+    <div class="mt-5 grid gap-3 text-sm">
+      {[{m:"GET",e:"/api/v1/leads",d:"Listar leads"},{m:"POST",e:"/api/v1/leads",d:"Crear lead"},{m:"GET",e:"/api/v1/leads/:id",d:"Obtener lead"},{m:"PATCH",e:"/api/v1/leads/:id",d:"Actualizar lead"},{m:"DELETE",e:"/api/v1/leads/:id",d:"Eliminar lead"}].map((e) => (<div class="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-3"><span class={`rounded font-mono text-xs font-bold px-2 py-0.5 ${e.m === "GET" ? "text-emerald-300 bg-emerald-300/10" : e.m === "POST" ? "text-cyan-300 bg-cyan-300/10" : e.m === "PATCH" ? "text-amber-300 bg-amber-300/10" : "text-red-300 bg-red-300/10"}`}>{e.m}</span><span class="font-mono text-xs text-white/50">{e.e}</span><span class="text-xs text-white/40 ml-auto">{e.d}</span></div>))}
+    </div>
+  </section>
+</BusinessLayout>

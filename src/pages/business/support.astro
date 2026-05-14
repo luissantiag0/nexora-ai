@@ -1,0 +1,31 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+---
+
+<BusinessLayout title="Soporte">
+  <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-wider text-cyan-100/70">Soporte</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">SLA y soporte dedicado</h2>
+    <p class="mt-3 text-sm text-white/50">Soporte prioritario con tiempos de respuesta garantizados para tu equipo.</p>
+  </section>
+
+  <section class="mt-6 grid gap-6 xl:grid-cols-3">
+    <div class="premium-panel p-5"><p class="text-xs text-white/45">Tiempo de respuesta</p><p class="mt-2 text-2xl font-semibold text-emerald-200">&lt; 1 hora</p><p class="mt-1 text-xs text-white/40">En horas laborables</p></div>
+    <div class="premium-panel p-5"><p class="text-xs text-white/45">SLA garantizado</p><p class="mt-2 text-2xl font-semibold text-cyan-200">99.9%</p><p class="mt-1 text-xs text-white/40">Uptime del servicio</p></div>
+    <div class="premium-panel p-5"><p class="text-xs text-white/45">Soporte</p><p class="mt-2 text-2xl font-semibold text-white">24/7</p><p class="mt-1 text-xs text-white/40">Prioritario</p></div>
+  </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6">
+    <h2 class="text-lg font-semibold text-white">Estado del sistema</h2>
+    <div class="mt-5 grid gap-3">
+      {[{s:"API Principal",e:"ok"},{s:"Base de datos",e:"ok"},{s:"Autenticacion",e:"ok"},{s:"Generacion PDF",e:"ok"},{s:"Stripe",e:"ok"}].map((svc) => (<div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-3"><div class="flex items-center gap-3"><span class={`h-2.5 w-2.5 rounded-full ${svc.e === "ok" ? "bg-emerald-400" : "bg-red-400"}`}></span><span class="text-sm text-white/70">{svc.s}</span></div><span class="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full font-medium">Operativo</span></div>))}
+    </div>
+  </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6">
+    <h2 class="text-lg font-semibold text-white">Contactar soporte Business</h2>
+    <p class="mt-2 text-sm text-white/50">Nuestro equipo de soporte dedicado esta disponible para resolver cualquier incidencia.</p>
+    <a href="mailto:contact@averionai.es" class="btn-primary mt-5 inline-flex px-6 py-3 text-sm">Contactar soporte</a>
+  </section>
+</BusinessLayout>

@@ -1,0 +1,34 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+
+const integrations = [
+  { name: "WhatsApp API", desc: "Automatiza conversaciones y notificaciones en WhatsApp.", connected: false },
+  { name: "Gmail API", desc: "Conecta AverionAI con Gmail para envio y recepcion de correos.", connected: false },
+  { name: "Webhooks", desc: "Recibe notificaciones en tiempo real de eventos del CRM.", connected: true },
+  { name: "Zapier / Make", desc: "Conecta AverionAI con miles de aplicaciones a traves de Zapier o Make.", connected: false },
+  { name: "Integraciones personalizadas", desc: "Crea tus propias integraciones mediante nuestra API publica.", connected: false },
+];
+---
+
+<BusinessLayout title="Integrations">
+  <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-wider text-cyan-100/70">Conexiones</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Integraciones avanzadas</h2>
+    <p class="mt-3 text-sm text-white/50">Conecta AverionAI con las herramientas que tu equipo utiliza.</p>
+  </section>
+
+  <section class="mt-6 grid gap-4">
+    {integrations.map((int, i) => (
+      <div class="premium-panel p-5" data-reveal data-delay={i * 60}>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div><h3 class="text-base font-semibold text-white">{int.name}</h3><p class="mt-1 text-sm text-white/50">{int.desc}</p></div>
+          <div class="flex items-center gap-3 shrink-0">
+            <span class={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${int.connected ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200" : "border-white/10 bg-white/[0.04] text-white/40"}`}>{int.connected ? "Conectado" : "No conectado"}</span>
+            <button class="btn-secondary px-4 py-2 text-xs">Configurar</button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </section>
+</BusinessLayout>
