@@ -1,19 +1,19 @@
 ---
 const servicios = [
   {
-    icon: "01",
+    num: "01",
     title: "Agentes de IA para ventas y atencion",
     desc: "Automatizacion de conversaciones, captacion y calificacion de leads con integracion directa a WhatsApp, web o CRM.",
     metrics: ["24/7", "Calificacion automatica", "Integracion inmediata"],
   },
   {
-    icon: "02",
+    num: "02",
     title: "Dashboards internos y automatizacion",
     desc: "Paneles internos, informes automaticos y optimizacion de procesos que reducen el tiempo operativo de tu equipo.",
     metrics: ["-68% tiempo operativo", "Procesos optimizados", "Integracion con herramientas actuales"],
   },
   {
-    icon: "03",
+    num: "03",
     title: "Webs y sistemas inteligentes",
     desc: "Landing optimizada, reservas inteligentes y campanas automatizadas para maximizar la conversion de tu negocio.",
     metrics: ["+54% conversion", "Carga rapida", "Automatizacion completa"],
@@ -26,7 +26,7 @@ const servicios = [
     <div class="mx-auto max-w-3xl text-center" data-reveal>
       <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Servicios</span>
       <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Servicios que ofrecemos</h2>
-      <p class="mt-4 text-base text-white/50">Soluciones de IA disenadas para optimizar la operacion de tu negocio en cada punto de contacto.</p>
+      <p class="mt-4 text-base text-white/50">Soluciones de IA para optimizar cada area de tu negocio.</p>
     </div>
 
     <div class="mt-16 grid gap-6 md:grid-cols-3">
@@ -34,13 +34,15 @@ const servicios = [
         <div class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-cyan-300/20 hover:shadow-[0_24px_70px_-35px_rgba(34,211,238,0.2)] md:p-8" data-reveal data-delay={i * 100}>
           <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-cyan-300/[0.03] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
           <div class="relative">
-            <span class="text-5xl font-bold tracking-tighter text-white/[0.06]">{s.icon}</span>
-            <h3 class="mt-4 text-xl font-semibold text-white">{s.title}</h3>
-            <p class="mt-3 text-sm leading-relaxed text-white/50">{s.desc}</p>
-            <div class="mt-6 flex flex-wrap gap-2">
-              {s.metrics.map((m) => (
-                <span class="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-[11px] font-medium text-white/40 transition-all duration-300 group-hover:border-cyan-300/20 group-hover:bg-cyan-300/[0.04] group-hover:text-cyan-200/70">{m}</span>
-              ))}
+            <span class="text-6xl font-bold tracking-tighter text-white/[0.05]">{s.num}</span>
+            <div class="-mt-3">
+              <h3 class="text-xl font-semibold text-white">{s.title}</h3>
+              <p class="mt-3 text-sm leading-relaxed text-white/50">{s.desc}</p>
+              <div class="mt-6 flex flex-wrap gap-2">
+                {s.metrics.map((m) => (
+                  <span class="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-[11px] font-medium text-white/40 transition-all duration-300 group-hover:border-cyan-300/20 group-hover:bg-cyan-300/[0.04] group-hover:text-cyan-200/70">{m}</span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
