@@ -1,0 +1,75 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+
+const fonts = ["Inter", "System UI", "Plus Jakarta Sans", "DM Sans"];
+const baseSizes = ["14px", "15px", "16px", "18px"];
+---
+
+<BusinessLayout title="Branding">
+  <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-wider text-cyan-100/70">Personalizacion</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Branding personalizado</h2>
+    <p class="mt-3 text-sm text-white/50">Personaliza la apariencia de AverionAI para tu empresa.</p>
+  </section>
+
+  <section class="mt-8 grid gap-6 xl:grid-cols-2">
+    <div class="grid gap-6">
+      <div class="premium-panel p-5 md:p-6">
+        <h2 class="text-lg font-semibold text-white">Colores</h2>
+        <div class="mt-5 grid gap-4">
+          {[{l:"Color primario",v:"#22d3ee"},{l:"Color secundario",v:"#10b981"},{l:"Color de fondo",v:"#07070A"},{l:"Color de texto",v:"#ffffff"}].map((c) => (
+            <div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+              <span class="text-sm text-white/70">{c.l}</span>
+              <div class="flex items-center gap-3">
+                <span class="flex h-8 w-8 rounded-lg border border-white/[0.08]" style={`background:${c.v}`}></span>
+                <input class="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-mono text-white/60 w-24" value={c.v} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="premium-panel p-5 md:p-6">
+        <h2 class="text-lg font-semibold text-white">Tipografia</h2>
+        <div class="mt-5 grid gap-4">
+          <label class="block space-y-1.5"><span class="text-sm text-white/60">Fuente principal</span><select class="input-premium w-full">{fonts.map((f) => <option selected={f === "Inter"}>{f}</option>)}</select></label>
+          <label class="block space-y-1.5"><span class="text-sm text-white/60">Tamano base</span><select class="input-premium w-full">{baseSizes.map((s) => <option selected={s === "16px"}>{s}</option>)}</select></label>
+        </div>
+      </div>
+
+      <div class="premium-panel p-5 md:p-6">
+        <h2 class="text-lg font-semibold text-white">Logo y favicon</h2>
+        <div class="mt-5 grid gap-4">
+          <div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"><span class="text-sm text-white/70">Logo</span><button class="btn-secondary px-4 py-2 text-xs">Subir logo</button></div>
+          <div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"><span class="text-sm text-white/70">Favicon</span><button class="btn-secondary px-4 py-2 text-xs">Subir favicon</button></div>
+        </div>
+        <button class="btn-primary mt-5 w-fit px-6 py-2.5 text-sm">Guardar branding</button>
+      </div>
+    </div>
+
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-lg font-semibold text-white">Vista previa</h2>
+      <p class="mt-1 text-sm text-white/45">Asi se vera tu dashboard con el branding aplicado.</p>
+      <div class="mt-5 overflow-hidden rounded-xl border border-white/[0.06] bg-[#07070A]">
+        <div class="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+          <div class="flex gap-1.5"><span class="h-3 w-3 rounded-full bg-red-400/40"></span><span class="h-3 w-3 rounded-full bg-amber-400/40"></span><span class="h-3 w-3 rounded-full bg-emerald-400/40"></span></div>
+          <span class="text-xs text-white/30 ml-2">Dashboard — Vista previa</span>
+        </div>
+        <div class="p-5 space-y-3">
+          <div class="flex h-8 w-32 rounded-lg" style="background:#22d3ee"></div>
+          <div class="grid gap-2">
+            <div class="h-4 w-full rounded bg-white/10"></div>
+            <div class="h-4 w-3/4 rounded bg-white/10"></div>
+            <div class="h-4 w-1/2 rounded bg-white/10"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-3">
+            <div class="h-16 rounded-lg" style="background:#22d3ee;opacity:0.8"></div>
+            <div class="h-16 rounded-lg" style="background:#10b981;opacity:0.8"></div>
+            <div class="h-16 rounded-lg border border-white/10 bg-white/[0.04]"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BusinessLayout>
