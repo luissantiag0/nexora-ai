@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 const DEFAULT_ADMIN_EMAIL =
-  "luissantiagomorales07@gmail.com";
+  "contact@averionai.es";
 
 type LeadEmailPayload = {
   nombre: string;

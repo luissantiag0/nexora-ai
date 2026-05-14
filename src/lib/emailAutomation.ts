@@ -11,7 +11,7 @@ const readEnv = (key: string): string => {
 };
 
 const getFromEmail = () =>
-  readEnv("LEAD_FROM_EMAIL") || "onboarding@resend.dev";
+  readEnv("LEAD_FROM_EMAIL") || "contact@averionai.es";
 
 function getResend() {
   const key = readEnv("RESEND_API_KEY");
@@ -83,7 +83,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
        </a>
      </p>
      <p style="margin-top:16px;font-size:13px;color:#6b7280">
-       ¿Preguntas? Escríbenos a <a href="mailto:soporte@averion.ai">soporte@averion.ai</a>
+       ¿Preguntas? Escríbenos a <a href="mailto:contact@averionai.es">contact@averionai.es</a>
      </p>`
   );
 }
