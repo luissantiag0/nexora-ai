@@ -13,9 +13,18 @@ export const prerender = false;
   <section class="mt-6 grid gap-6 xl:grid-cols-2">
     <div class="premium-panel p-5 md:p-6">
       <h2 class="text-lg font-semibold text-white">API Keys</h2>
-      <p class="mt-1 text-sm text-white/45">Tus claves de API para autenticar las peticiones.</p>
-      <div class="mt-5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-        <div class="flex items-center justify-between"><span class="text-sm font-mono text-white/30">sk-••••••••••••••••</span><button class="text-xs text-cyan-200 hover:text-white transition">Regenerar clave</button></div>
+      <p class="mt-1 text-sm text-white/45">Tus claves de API para autenticar peticiones.</p>
+      <div class="mt-5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+        <div id="api-key-display" class="flex items-center justify-between">
+          <span id="api-key-text" class="text-sm font-mono text-white/30">sk-••••••••••••••••</span>
+          <div class="flex gap-2">
+            <button id="toggle-key" class="text-xs text-cyan-200 hover:text-white transition">Mostrar</button>
+            <button id="copy-key" class="text-xs text-cyan-200 hover:text-white transition">Copiar</button>
+            <button id="regenerate-key" class="text-xs text-amber-300 hover:text-white transition">Regenerar</button>
+          </div>
+        </div>
+        <p id="copy-toast" class="mt-3 text-xs text-emerald-300 hidden">Clave copiada al portapapeles.</p>
+        <p class="mt-4 text-xs text-white/30">Esta clave se muestra solo una vez. Si la pierdes, deberas regenerarla.</p>
       </div>
     </div>
     <div class="premium-panel p-5 md:p-6">
@@ -25,11 +34,61 @@ export const prerender = false;
       </div>
     </div>
   </section>
-
   <section class="mt-6 premium-panel p-5 md:p-6">
     <h2 class="text-lg font-semibold text-white">Documentacion basica</h2>
     <div class="mt-5 grid gap-3 text-sm">
-      {[{m:"GET",e:"/api/v1/leads",d:"Listar leads"},{m:"POST",e:"/api/v1/leads",d:"Crear lead"},{m:"GET",e:"/api/v1/leads/:id",d:"Obtener lead"},{m:"PATCH",e:"/api/v1/leads/:id",d:"Actualizar lead"},{m:"DELETE",e:"/api/v1/leads/:id",d:"Eliminar lead"}].map((e) => (<div class="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-3"><span class={`rounded font-mono text-xs font-bold px-2 py-0.5 ${e.m === "GET" ? "text-emerald-300 bg-emerald-300/10" : e.m === "POST" ? "text-cyan-300 bg-cyan-300/10" : e.m === "PATCH" ? "text-amber-300 bg-amber-300/10" : "text-red-300 bg-red-300/10"}`}>{e.m}</span><span class="font-mono text-xs text-white/50">{e.e}</span><span class="text-xs text-white/40 ml-auto">{e.d}</span></div>))}
+      {[{m:"GET",e:"/api/v1/leads",d:"Listar leads",c:"text-emerald-300 bg-emerald-300/10"},{m:"POST",e:"/api/v1/leads",d:"Crear lead",c:"text-cyan-300 bg-cyan-300/10"},{m:"GET",e:"/api/v1/leads/:id",d:"Obtener lead",c:"text-emerald-300 bg-emerald-300/10"},{m:"PATCH",e:"/api/v1/leads/:id",d:"Actualizar lead",c:"text-amber-300 bg-amber-300/10"},{m:"DELETE",e:"/api/v1/leads/:id",d:"Eliminar lead",c:"text-red-300 bg-red-300/10"}].map((e) => (<div class="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-3"><span class={`rounded font-mono text-xs font-bold px-2 py-0.5 ${e.c}`}>{e.m}</span><span class="font-mono text-xs text-white/50">{e.e}</span><span class="text-xs text-white/40 ml-auto">{e.d}</span></div>))}
     </div>
   </section>
 </BusinessLayout>
+
+<script>
+  (() => {
+    const STORAGE_KEY = "averionai_api_key";
+    let hidden = true;
+
+    function generateKey() {
+      const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+      let key = "sk-";
+      for (let i = 0; i < 32; i++) key += chars.charAt(Math.floor(Math.random() * chars.length));
+      return key;
+    }
+
+    function loadKey() {
+      let key = localStorage.getItem(STORAGE_KEY);
+      if (!key) { key = generateKey(); localStorage.setItem(STORAGE_KEY, key); }
+      return key;
+    }
+
+    const keyText = document.getElementById("api-key-text");
+    const toggleBtn = document.getElementById("toggle-key");
+    const copyBtn = document.getElementById("copy-key");
+    const regenBtn = document.getElementById("regenerate-key");
+    const toast = document.getElementById("copy-toast");
+
+    if (keyText) {
+      const apiKey = loadKey();
+      const masked = `sk-${"•".repeat(16)}`;
+
+      function render() {
+        keyText.textContent = hidden ? masked : apiKey;
+        if (toggleBtn) toggleBtn.textContent = hidden ? "Mostrar" : "Ocultar";
+      }
+
+      toggleBtn?.addEventListener("click", () => { hidden = !hidden; render(); });
+      copyBtn?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(apiKey);
+        if (toast) { toast.classList.remove("hidden"); setTimeout(() => toast.classList.add("hidden"), 2000); }
+      });
+      regenBtn?.addEventListener("click", () => {
+        if (confirm("Se regenerara una nueva clave. La anterior dejara de funcionar.")) {
+          const newKey = generateKey();
+          localStorage.setItem(STORAGE_KEY, newKey);
+          location.reload();
+        }
+      });
+
+      render();
+    }
+  })();
+</script>

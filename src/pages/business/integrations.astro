@@ -1,34 +1,152 @@
 ---
 import BusinessLayout from "../../layouts/BusinessLayout.astro";
 export const prerender = false;
-
-const integrations = [
-  { name: "WhatsApp API", desc: "Automatiza conversaciones y notificaciones en WhatsApp.", connected: false },
-  { name: "Gmail API", desc: "Conecta AverionAI con Gmail para envio y recepcion de correos.", connected: false },
-  { name: "Webhooks", desc: "Recibe notificaciones en tiempo real de eventos del CRM.", connected: true },
-  { name: "Zapier / Make", desc: "Conecta AverionAI con miles de aplicaciones a traves de Zapier o Make.", connected: false },
-  { name: "Integraciones personalizadas", desc: "Crea tus propias integraciones mediante nuestra API publica.", connected: false },
-];
 ---
 
 <BusinessLayout title="Integrations">
   <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
     <p class="text-xs uppercase tracking-wider text-cyan-100/70">Conexiones</p>
-    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Integraciones avanzadas</h2>
-    <p class="mt-3 text-sm text-white/50">Conecta AverionAI con las herramientas que tu equipo utiliza.</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Integraciones</h2>
+    <p class="mt-3 text-sm text-white/50">Conecta AverionAI con tus herramientas.</p>
   </section>
 
-  <section class="mt-6 grid gap-4">
-    {integrations.map((int, i) => (
-      <div class="premium-panel p-5" data-reveal data-delay={i * 60}>
+  <section class="mt-6 grid gap-4" id="integrations-list">
+    {[
+      { id: "whatsapp", name: "WhatsApp API", desc: "Automatiza conversaciones en WhatsApp.", fields: [{l:"Numero",p:"+34 600 000 000"},{l:"Token",p:"EAAT..."},{l:"Business ID",p:"123456789"}] },
+      { id: "gmail", name: "Gmail API", desc: "Conecta Gmail para envio de correos.", oauth: true },
+      { id: "zapier", name: "Zapier / Make", desc: "Conecta con miles de apps.", webhook: true },
+      { id: "custom", name: "Integraciones personalizadas", desc: "Crea tus propias integraciones.", custom: true },
+    ].map((int, i) => (
+      <div class="premium-panel p-5 transition-all duration-300 hover:-translate-y-0.5" data-reveal data-delay={i * 60}>
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div><h3 class="text-base font-semibold text-white">{int.name}</h3><p class="mt-1 text-sm text-white/50">{int.desc}</p></div>
           <div class="flex items-center gap-3 shrink-0">
-            <span class={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${int.connected ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200" : "border-white/10 bg-white/[0.04] text-white/40"}`}>{int.connected ? "Conectado" : "No conectado"}</span>
-            <button class="btn-secondary px-4 py-2 text-xs">Configurar</button>
+            <span class="int-status text-xs font-medium px-3 py-1 rounded-full border" data-id={int.id} data-default="no">No conectado</span>
+            <button class="btn-secondary px-4 py-2 text-xs config-int" data-id={int.id}>Configurar</button>
           </div>
         </div>
       </div>
     ))}
   </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6" id="custom-list-section" style="display:none">
+    <div class="flex items-center justify-between"><h2 class="text-lg font-semibold text-white">Integraciones personalizadas</h2><button id="add-custom-btn" class="btn-secondary px-4 py-2 text-xs">+ Nueva</button></div>
+    <div id="custom-list" class="mt-5 grid gap-3"></div>
+  </section>
+
+  <div id="whatsapp-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="mx-4 w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-semibold text-white">WhatsApp API</h3><button class="close-modal text-white/30 hover:text-white/60"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <div class="space-y-4">
+        {[{l:"Numero de telefono",p:"+34 600 000 000"},{l:"Token de API",p:"EAAT..."},{l:"Business ID",p:"123456789"}].map((f) => (<label class="block space-y-1.5"><span class="text-sm text-white/60">{f.l}</span><input class="input-premium w-full wp-input" placeholder={f.p} /></label>))}
+        <button class="save-int-btn w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5" data-id="whatsapp">Guardar configuracion</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gmail-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="mx-4 w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-semibold text-white">Gmail API</h3><button class="close-modal text-white/30 hover:text-white/60"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <p class="text-sm text-white/50">Conecta AverionAI con Gmail mediante OAuth 2.0. Una vez conectado, podras enviar y recibir correos directamente desde el CRM.</p>
+      <button class="save-int-btn mt-6 w-full rounded-xl border border-cyan-300/20 bg-cyan-300/[0.06] px-6 py-3 text-sm font-semibold text-cyan-200 transition-all duration-300 hover:-translate-y-0.5" data-id="gmail">Conectar Gmail</button>
+    </div>
+  </div>
+
+  <div id="zapier-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="mx-4 w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-semibold text-white">Zapier / Make</h3><button class="close-modal text-white/30 hover:text-white/60"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <p class="text-sm text-white/50 mb-4">Copia esta URL en tu cuenta de Zapier o Make para conectar con AverionAI.</p>
+      <div class="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"><span class="text-sm font-mono text-white/40 truncate flex-1">https://averionai.co.in/api/webhook</span><button id="copy-webhook-url" class="text-xs text-cyan-200 hover:text-white transition shrink-0">Copiar</button></div>
+      <button class="save-int-btn mt-4 w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5" data-id="zapier">Guardar configuracion</button>
+    </div>
+  </div>
+
+  <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="mx-4 w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-semibold text-white">Nueva integracion</h3><button class="close-modal text-white/30 hover:text-white/60"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <div class="space-y-4">
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Nombre</span><input id="custom-name" class="input-premium w-full" placeholder="Mi integracion" /></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">URL</span><input id="custom-url" class="input-premium w-full" placeholder="https://tuapp.com/api" /></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Metodo</span><select id="custom-method" class="input-premium w-full"><option>GET</option><option selected>POST</option><option>PUT</option><option>DELETE</option></select></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Headers (JSON)</span><textarea id="custom-headers" rows="2" class="input-premium w-full resize-none" placeholder='{"Authorization": "Bearer ..."}'></textarea></label>
+        <button id="save-custom" class="w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5">Crear integracion</button>
+      </div>
+    </div>
+  </div>
 </BusinessLayout>
+
+<script>
+  (() => {
+    const STATUS_KEY = "averionai_int_status";
+
+    function getStatus() { try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "{}"); } catch { return {}; } }
+    function setStatus(id, val) { const s = getStatus(); s[id] = val; localStorage.setItem(STATUS_KEY, JSON.stringify(s)); }
+
+    function renderStatuses() {
+      const statuses = getStatus();
+      document.querySelectorAll(".int-status").forEach((el) => {
+        const id = el.dataset.id;
+        const connected = statuses[id];
+        el.textContent = connected ? "Conectado" : "No conectado";
+        el.className = `int-status text-xs font-medium px-3 py-1 rounded-full border ${connected ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200" : "border-white/10 bg-white/[0.04] text-white/40"}`;
+      });
+    }
+
+    document.querySelectorAll(".config-int").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const modal = document.getElementById(`${id}-modal`);
+        if (modal) modal.classList.remove("hidden", "flex") || modal.classList.add("flex");
+      });
+    });
+
+    document.querySelectorAll(".close-modal").forEach((b) => b.addEventListener("click", () => b.closest("[id$=-modal]")?.classList.add("hidden")));
+
+    document.querySelectorAll(".save-int-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        setStatus(id, true);
+        renderStatuses();
+        btn.closest("[id$=-modal]")?.classList.add("hidden");
+      });
+    });
+
+    document.getElementById("copy-webhook-url")?.addEventListener("click", () => {
+      navigator.clipboard.writeText("https://averionai.co.in/api/webhook");
+    });
+
+    // Custom integrations
+    const customKey = "averionai_custom_ints";
+    function getCustom() { try { return JSON.parse(localStorage.getItem(customKey) || "[]"); } catch { return []; } }
+    function saveCustom(arr) { localStorage.setItem(customKey, JSON.stringify(arr)); }
+
+    function renderCustom() {
+      const list = document.getElementById("custom-list");
+      const section = document.getElementById("custom-list-section");
+      const items = getCustom();
+      if (items.length > 0 && section) section.style.display = "block";
+      if (list) {
+        if (items.length === 0) { list.innerHTML = '<p class="text-sm text-white/40">Sin integraciones personalizadas.</p>'; return; }
+        list.innerHTML = items.map((c, i) => `<div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"><div><p class="text-sm text-white/80">${c.name}</p><p class="text-xs text-white/40 font-mono">${c.method} ${c.url}</p></div><button class="del-custom text-xs text-red-300 hover:text-red-100 transition" data-idx="${i}">Eliminar</button></div>`).join("");
+        document.querySelectorAll(".del-custom").forEach((b) => b.addEventListener("click", () => { const items = getCustom(); items.splice(parseInt(b.dataset.idx), 1); saveCustom(items); renderCustom(); }));
+      }
+    }
+
+    document.getElementById("add-custom-btn")?.addEventListener("click", () => document.getElementById("custom-modal")?.classList.remove("hidden", "flex") || document.getElementById("custom-modal")?.classList.add("flex"));
+    document.getElementById("save-custom")?.addEventListener("click", () => {
+      const name = document.getElementById("custom-name");
+      const url = document.getElementById("custom-url");
+      const method = document.getElementById("custom-method");
+      if (!name?.value || !url?.value) return;
+      const items = getCustom();
+      items.push({ name: name.value, url: url.value, method: method?.value || "POST", headers: document.getElementById("custom-headers")?.value || "" });
+      saveCustom(items);
+      renderCustom();
+      document.getElementById("custom-modal")?.classList.add("hidden");
+      name.value = ""; url.value = "";
+    });
+
+    renderStatuses();
+    renderCustom();
+  })();
+</script>

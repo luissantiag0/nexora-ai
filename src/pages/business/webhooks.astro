@@ -6,25 +6,24 @@ export const prerender = false;
 <BusinessLayout title="Webhooks">
   <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div><p class="text-xs uppercase tracking-wider text-cyan-100/70">Webhooks</p><h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Webhooks avanzados</h2><p class="mt-3 text-sm text-white/50">Recibe notificaciones en tiempo real de los eventos de AverionAI.</p></div>
+      <div><p class="text-xs uppercase tracking-wider text-cyan-100/70">Webhooks</p><h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Webhooks</h2><p class="mt-3 text-sm text-white/50">Recibe notificaciones en tiempo real.</p></div>
       <button id="add-webhook-btn" class="btn-primary shrink-0 px-5 py-3 text-sm">+ Crear webhook</button>
     </div>
   </section>
 
-  <section class="mt-6 premium-panel p-8 text-center">
-    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.02]"><svg class="h-7 w-7 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
-    <h3 class="mt-4 text-lg font-medium text-white">Sin webhooks configurados</h3>
-    <p class="mt-2 text-sm text-white/45">Crea tu primer webhook para empezar a recibir eventos.</p>
+  <section class="mt-6 premium-panel p-5 md:p-6">
+    <h2 class="text-lg font-semibold text-white">Tus webhooks</h2>
+    <div id="webhook-list" class="mt-5 grid gap-3"></div>
   </section>
 
   <div id="webhook-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
     <div class="mx-4 w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
       <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-semibold text-white">Crear webhook</h3><button class="close-modal text-white/30 hover:text-white/60"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
       <div class="space-y-4">
-        <label class="block space-y-1.5"><span class="text-sm text-white/60">URL</span><input class="input-premium w-full" placeholder="https://tuapp.com/webhook" /></label>
-        <label class="block space-y-1.5"><span class="text-sm text-white/60">Evento</span><select class="input-premium w-full"><option>lead.created</option><option>lead.updated</option><option>lead.moved</option><option>document.generated</option></select></label>
-        <label class="block space-y-1.5"><span class="text-sm text-white/60">Secreto</span><input class="input-premium w-full" placeholder="whsec_..." /></label>
-        <button class="w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5">Crear webhook</button>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">URL</span><input id="wh-url" class="input-premium w-full" placeholder="https://tuapp.com/webhook" /></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Evento</span><select id="wh-event" class="input-premium w-full"><option>lead.created</option><option>lead.updated</option><option>lead.moved</option><option>document.generated</option></select></label>
+        <label class="block space-y-1.5"><span class="text-sm text-white/60">Secreto</span><input id="wh-secret" class="input-premium w-full" placeholder="whsec_..." /></label>
+        <button id="save-webhook" class="w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5">Crear webhook</button>
       </div>
     </div>
   </div>
@@ -32,7 +31,40 @@ export const prerender = false;
 
 <script>
   (() => {
+    const STORAGE_KEY = "averionai_webhooks";
+
+    function getWebhooks() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; } }
+    function saveWebhooks(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+
+    function render() {
+      const list = document.getElementById("webhook-list");
+      if (!list) return;
+      const webhooks = getWebhooks();
+      if (webhooks.length === 0) {
+        list.innerHTML = '<div class="rounded-xl border border-dashed border-white/[0.06] bg-white/[0.02] p-8 text-center"><p class="text-sm text-white/40">Sin webhooks configurados.</p></div>';
+        return;
+      }
+      list.innerHTML = webhooks.map((w, i) => `<div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 transition-all duration-300 hover:border-white/10"><div><p class="text-sm font-mono text-white/80">${w.url}</p><p class="text-xs text-white/40 mt-0.5">Evento: ${w.event} ${w.secret ? `| Secreto: ${w.secret.substring(0, 8)}...` : ""}</p></div><button class="del-wh text-xs text-red-300 hover:text-red-100 transition" data-idx="${i}">Eliminar</button></div>`).join("");
+
+      document.querySelectorAll(".del-wh").forEach((b) => b.addEventListener("click", () => { const items = getWebhooks(); items.splice(parseInt(b.dataset.idx), 1); saveWebhooks(items); render(); }));
+    }
+
     document.getElementById("add-webhook-btn")?.addEventListener("click", () => document.getElementById("webhook-modal")?.classList.remove("hidden", "flex") || document.getElementById("webhook-modal")?.classList.add("flex"));
     document.querySelectorAll(".close-modal").forEach((b) => b.addEventListener("click", () => b.closest("[id$=-modal]")?.classList.add("hidden")));
+
+    document.getElementById("save-webhook")?.addEventListener("click", () => {
+      const url = document.getElementById("wh-url");
+      const event = document.getElementById("wh-event");
+      const secret = document.getElementById("wh-secret");
+      if (!url?.value) return;
+      const items = getWebhooks();
+      items.push({ url: url.value, event: event?.value || "lead.created", secret: secret?.value || "", createdAt: new Date().toISOString() });
+      saveWebhooks(items);
+      render();
+      document.getElementById("webhook-modal")?.classList.add("hidden");
+      url.value = ""; if (secret) secret.value = "";
+    });
+
+    render();
   })();
 </script>
