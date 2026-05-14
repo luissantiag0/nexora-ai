@@ -1,0 +1,147 @@
+---
+import BusinessLayout from "../../layouts/BusinessLayout.astro";
+export const prerender = false;
+
+const eventTypes = [
+  { id: "all", label: "Todos" },
+  { id: "lead", label: "Leads" },
+  { id: "document", label: "Documentos" },
+  { id: "automation", label: "Automatizaciones" },
+  { id: "integration", label: "Integraciones" },
+  { id: "user", label: "Usuarios" },
+];
+
+const events = [
+  { type: "lead", time: "Hace 2 min", user: "Ana Garcia", action: "Lead creado", detail: "Cliente potencial — contacto@empresa.com", status: "ok" },
+  { type: "lead", time: "Hace 8 min", user: "Carlos Lopez", action: "Lead movido a Negociacion", detail: "Empresa SaaS — etapa cambiada", status: "ok" },
+  { type: "document", time: "Hace 15 min", user: "Ana Garcia", action: "Factura generada", detail: "Factura #0013 — 2.900,00 EUR", status: "ok" },
+  { type: "automation", time: "Hace 22 min", user: "Sistema", action: "Automatizacion ejecutada", detail: "Clasificar lead con IA — lead #0042", status: "ok" },
+  { type: "integration", time: "Hace 35 min", user: "Admin", action: "WhatsApp conectado", detail: "Numero: +34 600 000 000", status: "ok" },
+  { type: "user", time: "Hace 1 h", user: "Admin", action: "Usuario anadido", detail: "Maria Perez — rol Viewer", status: "ok" },
+  { type: "lead", time: "Hace 1 h", user: "Sistema", action: "Lead clasificado", detail: "Prioridad: alta — oportunidad detectada", status: "ok" },
+  { type: "document", time: "Hace 2 h", user: "Ana Garcia", action: "Pitch deck generado", detail: "Presentacion comercial — 8 slides", status: "ok" },
+  { type: "automation", time: "Hace 2 h", user: "Sistema", action: "Webhook enviado", detail: "Evento: lead.updated — URL: https://app.com/hook", status: "error" },
+  { type: "integration", time: "Hace 3 h", user: "Admin", action: "API Key regenerada", detail: "Usuario: Carlos Lopez", status: "ok" },
+  { type: "lead", time: "Hace 4 h", user: "Maria Perez", action: "Lead marcado como ganado", detail: "Cliente potencial -> Cliente", status: "ok" },
+  { type: "user", time: "Hace 5 h", user: "Admin", action: "Rol actualizado", detail: "Carlos Lopez: Editor -> Admin", status: "ok" },
+  { type: "document", time: "Hace 6 h", user: "Sistema", action: "Informe automatico generado", detail: "Informe semanal — pipeline actual", status: "ok" },
+  { type: "automation", time: "Hace 8 h", user: "Sistema", action: "Recordatorio enviado", detail: "Lead inactivo 7 dias — email enviado", status: "ok" },
+  { type: "integration", time: "Hace 10 h", user: "Admin", action: "Webhook eliminado", detail: "URL: https://oldapp.com/hook", status: "ok" },
+];
+
+const audits = [
+  { time: "Hace 1 h", user: "Admin", action: "Elimino lead #0031", category: "critico", detail: "Lead eliminado permanentemente" },
+  { time: "Hace 3 h", user: "Admin", action: "Modifico rol de usuario", category: "importante", detail: "Carlos Lopez: Editor -> Admin" },
+  { time: "Hace 6 h", user: "Sistema", action: "Fallo en webhook", category: "error", detail: "Timeout en https://app.com/hook" },
+  { time: "Hace 12 h", user: "Admin", action: "Exporto lista de leads", category: "info", detail: "CSV exportado — 45 leads" },
+  { time: "Hace 1 d", user: "Sistema", action: "Backup completado", category: "info", detail: "Base de datos — 12 MB" },
+];
+---
+
+<BusinessLayout title="Actividad">
+  <section class="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8">
+    <p class="text-xs uppercase tracking-wider text-cyan-100/70">Monitoreo</p>
+    <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Actividad global</h2>
+    <p class="mt-3 max-w-2xl text-sm text-white/50">Timeline centralizado de eventos, cambios y acciones en AverionAI.</p>
+  </section>
+
+  <section class="mt-6 premium-panel p-5 md:p-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-wrap gap-2" id="filter-btns">
+        {eventTypes.map((t) => (
+          <button class="filter-btn rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5" data-filter={t.id} data-reveal>{t.label}</button>
+        ))}
+      </div>
+      <div class="relative">
+        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="activity-search" class="input-premium w-full max-w-xs pl-10" placeholder="Buscar por usuario, evento o ID" />
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6 grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-lg font-semibold text-white">Timeline de eventos</h2>
+      <div id="event-list" class="mt-5 grid gap-3">
+        {events.map((e, i) => (
+          <div class="event-item flex items-start gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/10" data-type={e.type} data-reveal data-delay={i * 30}>
+            <span class={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold ${
+              e.type === "lead" ? "border-cyan-300/20 bg-cyan-300/10 text-cyan-200" :
+              e.type === "document" ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200" :
+              e.type === "automation" ? "border-purple-300/20 bg-purple-300/10 text-purple-200" :
+              e.type === "integration" ? "border-amber-300/20 bg-amber-300/10 text-amber-200" :
+              "border-white/10 bg-white/[0.04] text-white/50"
+            }`}>{e.type === "lead" ? "L" : e.type === "document" ? "D" : e.type === "automation" ? "A" : e.type === "integration" ? "I" : "U"}</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-medium text-white/90">{e.action}</span><span class={`text-[10px] font-medium px-1.5 py-0.5 rounded ${e.status === "ok" ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{e.status === "ok" ? "OK" : "ERROR"}</span></div>
+              <p class="text-xs text-white/45 mt-0.5">{e.detail}</p>
+              <p class="text-[11px] text-white/30 mt-0.5">{e.user} — {e.time}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-lg font-semibold text-white">Auditoria</h2>
+      <p class="mt-1 text-sm text-white/45">Acciones criticas del sistema.</p>
+      <div class="mt-5 grid gap-3">
+        {audits.map((a, i) => (
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3.5 transition-all duration-200 hover:bg-white/[0.03]" data-reveal data-delay={i * 50}>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class={`h-2 w-2 rounded-full ${a.category === "critico" ? "bg-red-400" : a.category === "importante" ? "bg-amber-400" : a.category === "error" ? "bg-red-400" : "bg-cyan-400"}`}></span>
+              <span class="text-sm font-medium text-white/80">{a.action}</span>
+            </div>
+            <p class="text-xs text-white/45">{a.detail}</p>
+            <p class="text-[11px] text-white/30 mt-1">{a.user} — {a.time}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BusinessLayout>
+
+<script>
+  (() => {
+    const searchInput = document.getElementById("activity-search");
+
+    document.querySelectorAll(".filter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const filter = btn.dataset.filter;
+        document.querySelectorAll(".filter-btn").forEach((b) => { b.style.background = ""; b.style.borderColor = ""; b.style.color = ""; });
+        btn.style.background = "rgba(34,211,238,0.1)";
+        btn.style.borderColor = "rgba(34,211,238,0.3)";
+        btn.style.color = "rgba(34,211,238,0.9)";
+
+        document.querySelectorAll(".event-item").forEach((el) => {
+          const type = el.dataset.type;
+          const search = searchInput?.value?.toLowerCase() || "";
+          const text = el.textContent?.toLowerCase() || "";
+          const matchesType = filter === "all" || type === filter;
+          const matchesSearch = !search || text.includes(search);
+          el.style.display = matchesType && matchesSearch ? "" : "none";
+        });
+      });
+    });
+
+    searchInput?.addEventListener("input", () => {
+      const filter = document.querySelector(".filter-btn[style*='rgba(34,211,238,0.1)']")?.dataset?.filter || "all";
+      document.querySelectorAll(".event-item").forEach((el) => {
+        const type = el.dataset.type;
+        const search = searchInput.value.toLowerCase();
+        const text = el.textContent?.toLowerCase() || "";
+        const matchesType = filter === "all" || type === filter;
+        const matchesSearch = !search || text.includes(search);
+        el.style.display = matchesType && matchesSearch ? "" : "none";
+      });
+    });
+
+    // Set initial filter to "Todos"
+    const firstBtn = document.querySelector(".filter-btn");
+    if (firstBtn) {
+      firstBtn.style.background = "rgba(34,211,238,0.1)";
+      firstBtn.style.borderColor = "rgba(34,211,238,0.3)";
+      firstBtn.style.color = "rgba(34,211,238,0.9)";
+    }
+  })();
+</script>
