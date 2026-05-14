@@ -38,8 +38,15 @@ const isActive = (href: string) => Astro.url.pathname === href;
       <div class="flex min-h-screen w-full flex-col lg:pl-64">
         <header class="sticky top-0 z-40 border-b border-white/10 bg-[#07070A]/82 backdrop-blur-xl">
           <div class="flex min-h-14 items-center justify-between px-5 md:px-8">
-            <div class="lg:hidden"><BrandLogo markClass="h-8 w-8" textClass="text-base" /></div>
-            <p class="hidden text-sm text-white/40 lg:block">Business / {title}</p>
+            <div class="flex items-center gap-3">
+              <div class="lg:hidden"><BrandLogo markClass="h-8 w-8" textClass="text-base" /></div>
+              <a href="/business/dashboard" class="hidden text-xs text-white/30 hover:text-cyan-200 transition items-center gap-1.5 lg:flex">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Business Dashboard
+              </a>
+              <span class="hidden text-white/10 lg:block">/</span>
+              <p class="text-sm text-white/40">{title}</p>
+            </div>
             <div class="flex items-center gap-3">
               <a href="/dashboard" class="text-xs text-white/40 hover:text-cyan-200 transition">Dashboard</a>
               <form method="POST" action="/logout"><button class="btn-secondary px-3 py-1.5 text-xs">Salir</button></form>

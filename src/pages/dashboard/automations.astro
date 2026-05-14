@@ -1,6 +1,5 @@
 ---
 import DashboardLayout from "../../layouts/DashboardLayout.astro";
-
 export const prerender = false;
 
 const triggers = [
@@ -8,6 +7,10 @@ const triggers = [
   { id: "lead.stage", label: "Cuando un lead cambia de etapa" },
   { id: "lead.inactive", label: "Cuando un lead esta inactivo X dias" },
   { id: "doc.generated", label: "Cuando se genera un documento" },
+  { id: "lead.won", label: "Lead marcado como ganado" },
+  { id: "lead.lost", label: "Lead marcado como perdido" },
+  { id: "doc.signed", label: "Documento firmado" },
+  { id: "custom.event", label: "Evento personalizado" },
 ];
 
 const actions = [
@@ -16,13 +19,28 @@ const actions = [
   { id: "lead.move", label: "Mover lead a otra etapa" },
   { id: "doc.auto", label: "Generar documento automatico" },
   { id: "note.auto", label: "Anadir nota automatica" },
+  { id: "whatsapp.send", label: "Enviar WhatsApp automatico" },
+  { id: "gmail.send", label: "Enviar email Gmail automatico" },
+  { id: "webhook.send", label: "Enviar webhook" },
+  { id: "task.create", label: "Crear tarea interna" },
+  { id: "tag.add", label: "Anadir etiqueta al lead" },
 ];
 
 const templates = [
   { trigger: "Cuando se crea un lead", action: "Clasificarlo con IA" },
   { trigger: "Lead pasa a Interesado", action: "Enviar email de seguimiento" },
-  { trigger: "Lead pasa a Cliente", action: "Generar factura" },
+  { trigger: "Lead pasa a Cliente", action: "Generar factura y enviar WhatsApp" },
   { trigger: "Lead inactivo 7 dias", action: "Enviar recordatorio" },
+  { trigger: "Lead ganado", action: "Crear tarea y enviar email" },
+  { trigger: "Evento personalizado", action: "Enviar webhook" },
+];
+
+const logs = [
+  { time: "Hace 5 min", trigger: "Lead creado", status: "ok", detail: "Clasificacion completada" },
+  { time: "Hace 12 min", trigger: "Lead movido", status: "ok", detail: "Email enviado a cliente" },
+  { time: "Hace 1 h", trigger: "Documento generado", status: "ok", detail: "Factura #0012 generada" },
+  { time: "Hace 3 h", trigger: "Lead inactivo", status: "error", detail: "Fallo al enviar webhook" },
+  { time: "Hace 5 h", trigger: "Lead ganado", status: "ok", detail: "Tarea creada + notificacion" },
 ];
 ---
 
@@ -31,63 +49,60 @@ const templates = [
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.18em] text-cyan-100/70">Workflows</p>
-        <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Automatizaciones</h2>
-        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">Crea reglas automaticas que se ejecutan cuando ocurre un evento en tu CRM.</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">Automatizaciones avanzadas</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">Crea reglas con multiples acciones que se ejecutan automaticamente.</p>
       </div>
       <button id="new-auto-btn" class="btn-primary shrink-0 px-5 py-3 text-sm text-center">+ Crear automatizacion</button>
     </div>
   </section>
 
+  <section class="mt-8 grid gap-6 xl:grid-cols-2">
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-xl font-semibold text-white">Plantillas</h2>
+      <div class="mt-5 grid gap-3">
+        {templates.map((t, i) => (
+          <button class="use-template group flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/20" data-reveal data-delay={i * 40}>
+            <span class="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[11px] font-mono text-cyan-200/60 shrink-0">{t.trigger}</span>
+            <svg class="h-3.5 w-3.5 shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <span class="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] px-2.5 py-1 text-[11px] font-mono text-emerald-200/60 truncate">{t.action}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div class="premium-panel p-5 md:p-6">
+      <h2 class="text-xl font-semibold text-white">Tus automatizaciones</h2>
+      <div id="auto-list" class="mt-5 grid gap-3"></div>
+    </div>
+  </section>
+
   <section class="mt-8 premium-panel p-5 md:p-6">
-    <h2 class="text-xl font-semibold text-white">Plantillas predefinidas</h2>
-    <p class="mt-1 text-sm text-white/45">Selecciona una plantilla para empezar.</p>
-    <div class="mt-5 grid gap-3 md:grid-cols-2">
-      {templates.map((t, i) => (
-        <button class="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/20 hover:bg-white/[0.03]" data-reveal data-delay={i * 60}>
-          <div class="flex flex-1 items-center gap-3">
-            <span class="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-mono text-cyan-200/60">{t.trigger}</span>
-            <svg class="h-4 w-4 shrink-0 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            <span class="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] px-3 py-1.5 text-xs font-mono text-emerald-200/60">{t.action}</span>
-          </div>
-          <span class="text-xs text-white/30 group-hover:text-cyan-200 transition-colors">Usar</span>
-        </button>
+    <h2 class="text-xl font-semibold text-white">Logs de ejecucion</h2>
+    <p class="mt-1 text-sm text-white/45">Ultimas ejecuciones de tus automatizaciones.</p>
+    <div class="mt-5 grid gap-2">
+      {logs.map((l, i) => (
+        <div class="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3" data-reveal data-delay={i * 40}>
+          <span class={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${l.status === "ok" ? "bg-emerald-400/20 text-emerald-300" : "bg-red-400/20 text-red-300"}`}>{l.status === "ok" ? "OK" : "!"}</span>
+          <div class="flex-1 min-w-0"><p class="text-sm text-white/80 truncate">{l.detail}</p><p class="text-xs text-white/35">{l.trigger} — {l.time}</p></div>
+          <span class={`text-[11px] font-medium px-2 py-0.5 rounded-full ${l.status === "ok" ? "text-emerald-300 bg-emerald-300/10" : "text-red-300 bg-red-300/10"}`}>{l.status === "ok" ? "Exito" : "Error"}</span>
+        </div>
       ))}
     </div>
   </section>
 
-  <section class="mt-6 premium-panel p-8 text-center">
-    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-      <svg class="h-8 w-8 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-    </div>
-    <h3 class="mt-5 text-lg font-medium text-white">Aun no tienes automatizaciones</h3>
-    <p class="mt-2 text-sm text-white/45">Crea tu primera automatizacion o usa una plantilla predefinida.</p>
-    <button id="new-auto-btn-2" class="btn-primary mt-6 inline-flex px-5 py-3 text-sm">+ Crear automatizacion</button>
-  </section>
-
   <div id="auto-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
     <div class="mx-4 w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#07070A] p-6 shadow-[0_40px_100px_-40px_rgba(34,211,238,0.3)] md:p-8">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-semibold text-white">Nueva automatizacion</h3>
-        <button id="close-modal" class="text-white/30 hover:text-white/60 transition"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-      </div>
-      <div class="space-y-5">
-        <div>
-          <label class="text-sm text-white/60 mb-2 block">Cuando ocurre</label>
-          <select class="input-premium w-full">{triggers.map((t) => <option value={t.id}>{t.label}</option>)}</select>
-        </div>
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-semibold text-white">Nueva automatizacion</h3><button class="close-modal text-white/30 hover:text-white/60"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <div class="space-y-4">
+        <div><label class="text-sm text-white/60 mb-2 block">Cuando ocurre</label><select id="modal-trigger" class="input-premium w-full">{triggers.map((t) => <option value={t.id}>{t.label}</option>)}</select></div>
         <div class="flex justify-center"><svg class="h-5 w-5 text-cyan-300/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>
-        <div>
-          <label class="text-sm text-white/60 mb-2 block">Entonces hacer</label>
-          <select class="input-premium w-full">{actions.map((a) => <option value={a.id}>{a.label}</option>)}</select>
+        <div><label class="text-sm text-white/60 mb-2 block">Entonces hacer (puedes anadir varias)</label><select id="modal-action" class="input-premium w-full">{actions.map((a) => <option value={a.id}>{a.label}</option>)}</select></div>
+        <button id="add-action-btn" class="text-xs text-cyan-200 hover:text-white transition">+ Anadir otra accion</button>
+        <div id="actions-list" class="grid gap-2"></div>
+        <div class="flex items-center gap-3 pt-2">
+          <button id="save-auto" class="flex-1 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5">Crear automatizacion</button>
+          <button id="toggle-auto" class="flex-1 rounded-xl border border-white/15 bg-white/[0.02] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5">Activar</button>
         </div>
-        <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-          <p class="text-xs text-white/40 uppercase tracking-wider">Configuración adicional</p>
-          <div class="mt-3 space-y-3">
-            <input class="input-premium w-full" placeholder="Texto del email (opcional)" />
-            <select class="input-premium w-full"><option>Seleccionar etapa</option></select>
-          </div>
-        </div>
-        <button class="w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-20px_rgba(34,211,238,0.6)]">Crear automatizacion</button>
       </div>
     </div>
   </div>
@@ -95,8 +110,68 @@ const templates = [
 
 <script>
   (() => {
-    const modal = document.getElementById("auto-modal");
-    document.querySelectorAll("[id^=new-auto-btn]").forEach((btn) => btn.addEventListener("click", () => modal?.classList.remove("hidden", "flex") || modal?.classList.add("flex")));
-    document.getElementById("close-modal")?.addEventListener("click", () => modal?.classList.add("hidden"));
+    const STORAGE_KEY = "averionai_autos";
+
+    function getAutos() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; } }
+    function saveAutos(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+
+    let selectedActions = [];
+
+    function renderAutos() {
+      const list = document.getElementById("auto-list");
+      if (!list) return;
+      const autos = getAutos();
+      if (autos.length === 0) { list.innerHTML = '<p class="text-sm text-white/40">Sin automatizaciones creadas.</p>'; return; }
+      list.innerHTML = autos.map((a, i) => `<div class="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 transition hover:border-white/10"><div><p class="text-sm text-white/80">${a.trigger} <span class="text-white/30">→</span> ${a.actions.join(", ")}</p><p class="text-xs text-white/40 mt-0.5">${a.active ? "Activa" : "Inactiva"}</p></div><div class="flex gap-2"><button class="toggle-auto text-xs text-cyan-200 hover:text-white transition" data-idx="${i}">${a.active ? "Desactivar" : "Activar"}</button><button class="dup-auto text-xs text-white/40 hover:text-white transition" data-idx="${i}">Duplicar</button><button class="del-auto text-xs text-red-300 hover:text-red-100 transition" data-idx="${i}">Eliminar</button></div></div>`).join("");
+
+      document.querySelectorAll(".toggle-auto").forEach((b) => b.addEventListener("click", () => { const items = getAutos(); items[parseInt(b.dataset.idx)].active = !items[parseInt(b.dataset.idx)].active; saveAutos(items); renderAutos(); }));
+      document.querySelectorAll(".dup-auto").forEach((b) => b.addEventListener("click", () => { const items = getAutos(); const orig = items[parseInt(b.dataset.idx)]; items.push({...orig, active: false}); saveAutos(items); renderAutos(); }));
+      document.querySelectorAll(".del-auto").forEach((b) => b.addEventListener("click", () => { const items = getAutos(); items.splice(parseInt(b.dataset.idx), 1); saveAutos(items); renderAutos(); }));
+    }
+
+    // Templates
+    document.querySelectorAll(".use-template").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const spans = btn.querySelectorAll("span");
+        if (spans.length >= 2) {
+          const trigger = spans[0].textContent?.trim() || "";
+          const action = spans[1].textContent?.trim() || "";
+          const items = getAutos();
+          items.push({ trigger, actions: [action], active: true, createdAt: new Date().toISOString() });
+          saveAutos(items); renderAutos();
+        }
+      });
+    });
+
+    document.getElementById("new-auto-btn")?.addEventListener("click", () => {
+      selectedActions = [];
+      document.getElementById("actions-list").innerHTML = "";
+      document.getElementById("auto-modal")?.classList.remove("hidden", "flex") || document.getElementById("auto-modal")?.classList.add("flex");
+    });
+
+    document.querySelectorAll(".close-modal").forEach((b) => b.addEventListener("click", () => b.closest("[id$=-modal]")?.classList.add("hidden")));
+
+    document.getElementById("add-action-btn")?.addEventListener("click", () => {
+      const sel = document.getElementById("modal-action");
+      if (!sel) return;
+      const label = sel.options[sel.selectedIndex]?.text || "";
+      selectedActions.push(label);
+      const list = document.getElementById("actions-list");
+      if (list) list.innerHTML = selectedActions.map((a) => `<span class="inline-flex items-center gap-1 rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] px-2.5 py-1 text-[11px] text-emerald-200/80">${a}</span>`).join(" ");
+    });
+
+    document.getElementById("save-auto")?.addEventListener("click", () => {
+      const triggerSel = document.getElementById("modal-trigger");
+      const trigger = triggerSel?.options[triggerSel.selectedIndex]?.text || "";
+      if (!trigger) return;
+      const items = getAutos();
+      items.push({ trigger, actions: selectedActions.length ? [...selectedActions] : ["Sin accion"], active: true, createdAt: new Date().toISOString() });
+      saveAutos(items); renderAutos();
+      document.getElementById("auto-modal")?.classList.add("hidden");
+      selectedActions = [];
+      document.getElementById("actions-list").innerHTML = "";
+    });
+
+    renderAutos();
   })();
 </script>
