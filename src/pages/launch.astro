@@ -2,61 +2,47 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
-import LeadCaptureModal from "../components/LeadCaptureModal.astro";
-
-export const prerender = false;
 
 const features = [
-  { title: "CRM inteligente", desc: "Gestiona leads con clasificación automática por IA, pipeline visual y seguimiento automatizado en tiempo real." },
-  { title: "Documentación IA", desc: "Genera facturas, pitch decks, informes y ebooks profesionales con un solo clic desde tu navegador." },
-  { title: "Automatización total", desc: "Workflows automáticos, recordatorios, emails transaccionales y acciones inteligentes sin necesidad de código." },
-  { title: "Analítica real", desc: "Métricas de conversión, pipeline, actividad comercial y forecasting basado en datos reales del sistema." },
-  { title: "Seguridad SSR", desc: "Autenticación robusta, sesiones protegidas, rate limiting, CSRF y auditoría completa de actividades." },
-  { title: "IA aplicada", desc: "Scoring de leads, predicción de cierre, análisis de sentimiento y contenido generado por IA contextual." },
+  "CRM with AI-powered lead classification and pipeline management",
+  "Professional document generation (invoices, pitch decks, ebooks, reports)",
+  "Automated workflows and email triggers",
+  "Real-time analytics and conversion forecasting",
+  "SSR architecture for security and performance",
+  "Stripe integration for subscription management",
+  "Role-based access for team collaboration (Business plan)",
 ];
 
-const whatsNext = [
-  { title: "IA real con OpenAI y Claude", desc: "Scoring avanzado, predicción de conversión y análisis semántico profundo de cada lead." },
-  { title: "Workflows visuales", desc: "Editor drag & drop para crear automatizaciones sin escribir una sola línea de código." },
-  { title: "API pública", desc: "Integra AverionAI con tus herramientas existentes mediante nuestra API REST documentada." },
+const benefits = [
+  "Reduce lead response time from hours to minutes with AI classification",
+  "Generate professional documents in seconds instead of hours",
+  "Eliminate manual data entry with automated workflows",
+  "Make data-driven decisions with real-time pipeline analytics",
+  "Deploy with confidence — every page is server-rendered and secure",
 ];
 
-const whyItems = [
-  { number: "01", title: "Arquitectura SSR", desc: "Todas las páginas se renderizan en servidor. Sin client-side que comprometa seguridad, velocidad o SEO." },
-  { number: "02", title: "IA integrada", desc: "La inteligencia artificial no es un add-on. Está en el núcleo del producto: leads, documentos, predicciones." },
-  { number: "03", title: "Sin riesgo", desc: "30 minutos de prueba gratuita con acceso completo. Sin tarjeta de crédito. Sin compromiso." },
+const faq = [
+  { q: "What makes AverionAI different from other CRMs?", a: "AverionAI is built from the ground up with AI at the core, not as an add-on. Document generation, lead classification, and content creation are native features, not third-party integrations." },
+  { q: "Is my data secure?", a: "Yes. AverionAI uses SSR architecture, encrypted sessions, CSRF protection, rate limiting, and comprehensive audit logging. All data is encrypted in transit and at rest." },
+  { q: "Can I try before buying?", a: "Yes. We offer a 30-minute free trial with full access to all premium features. No credit card required." },
+  { q: "What happens when my trial ends?", a: "Your account remains active. You lose access to premium features until you subscribe. Your data is never deleted." },
 ];
 ---
 
-<BaseLayout title="AverionAI | Automatización con IA para empresas" description="Plataforma SaaS de automatización con IA: CRM inteligente, documentos, facturación y analítica en un solo producto.">
+<BaseLayout title="AverionAI Launch | AI-native CRM & Document Platform" description="AverionAI combines CRM, document generation, invoicing, and AI automation into a single SSR-secured SaaS platform.">
   <Navbar />
   <main class="min-h-screen bg-[#07070A]">
-    <section class="relative overflow-hidden pb-20 pt-20 md:pb-28 md:pt-24">
+    <section class="relative overflow-hidden pb-20 pt-20 md:pb-28 md:pt-28">
       <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(34,211,238,0.08),transparent_50%),radial-gradient(ellipse_at_70%_80%,rgba(16,185,129,0.06),transparent_50%)]"></div>
       <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent"></div>
       <div class="container relative">
         <div class="mx-auto max-w-4xl text-center" data-reveal>
-          <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium tracking-wider text-white/50 uppercase">Lanzamiento oficial</span>
-          <h1 class="mt-6 text-5xl font-semibold leading-[1.05] tracking-tight text-white md:text-7xl">
-            Automatización con IA<br />
-            <span class="bg-gradient-to-r from-white via-cyan-100 to-emerald-100 bg-clip-text text-transparent">para empresas modernas</span>
-          </h1>
-          <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/50 md:text-xl">
-            CRM inteligente, documentos automatizados, facturación y analítica potenciados por inteligencia artificial. Todo en una plataforma SaaS.
-          </p>
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium tracking-wider text-white/50 uppercase">Launch</span>
+          <h1 class="mt-6 text-5xl font-semibold leading-[1.05] tracking-tight text-white md:text-7xl">AverionAI<span class="text-cyan-200/60"> —</span><br /><span class="text-gradient">AI-native CRM & Document Platform</span></h1>
+          <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/50 md:text-xl">AI-powered CRM, documents, and automation for modern businesses.</p>
           <div class="mt-10 flex flex-wrap justify-center gap-4">
-            <a href="/register" class="group inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black shadow-[0_18px_45px_-26px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-28px_rgba(34,211,238,0.9)] active:translate-y-0">
-              Empezar gratis
-              <svg class="h-4 w-4 transition group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </a>
-            <a href="/pricing" class="inline-flex items-center rounded-xl border border-white/15 bg-white/[0.02] px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100 active:translate-y-0">
-              Ver planes
-            </a>
-          </div>
-          <div class="mt-8 flex flex-wrap justify-center gap-8 text-xs text-white/30">
-            <span class="flex items-center gap-2"><span class="h-1 w-1 rounded-full bg-emerald-400/70"></span> Sin tarjeta de crédito</span>
-            <span class="flex items-center gap-2"><span class="h-1 w-1 rounded-full bg-emerald-400/70"></span> 30 minutos de prueba</span>
-            <span class="flex items-center gap-2"><span class="h-1 w-1 rounded-full bg-emerald-400/70"></span> Acceso completo</span>
+            <a href="/register" class="group inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black shadow-[0_18px_45px_-26px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-28px_rgba(34,211,238,0.9)] active:translate-y-0">Start Free Trial<span class="transition-transform group-hover:translate-x-1">→</span></a>
+            <a href="/pricing" class="inline-flex items-center rounded-xl border border-white/15 bg-white/[0.02] px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100">View Pricing</a>
           </div>
         </div>
       </div>
@@ -64,36 +50,31 @@ const whyItems = [
 
     <section class="border-t border-white/[0.06] py-24 md:py-28">
       <div class="container">
-        <div class="mx-auto max-w-3xl text-center" data-reveal>
-          <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Funcionalidades</span>
-          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Qué hemos construido</h2>
-          <p class="mt-4 text-base text-white/50">Cada funcionalidad está diseñada para resolver un problema real. Sin relleno. Sin distracciones.</p>
+        <div class="mx-auto grid max-w-5xl gap-12 md:grid-cols-2 md:items-center">
+          <div data-reveal>
+            <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">About</span>
+            <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">What is AverionAI</h2>
+          </div>
+          <div class="text-sm leading-relaxed text-white/50 space-y-4" data-reveal data-delay="100">
+            <p>AverionAI is a modern SaaS platform that brings together CRM, AI-powered document generation, automated invoicing, and business analytics in one secure environment.</p>
+            <p>Unlike traditional CRMs that require weeks of setup and multiple integrations, AverionAI works immediately. Create leads, classify them with AI, generate professional invoices and pitch decks, and track your pipeline — all from a single interface rendered server-side for security and performance.</p>
+            <p>Built with Astro SSR, Prisma, and Stripe, AverionAI delivers enterprise-grade security without enterprise complexity. Every page is server-rendered. Sessions are protected. Data stays encrypted.</p>
+          </div>
         </div>
-        <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] md:grid-cols-3">
+      </div>
+    </section>
+
+    <section class="border-t border-white/[0.06] bg-white/[0.015] py-24 md:py-28">
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center" data-reveal>
+          <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Features</span>
+          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Key Features</h2>
+        </div>
+        <div class="mt-16 grid gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] md:grid-cols-2">
           {features.map((f, i) => (
-            <div class="relative bg-[#07070A] p-6 transition-all duration-500 hover:bg-white/[0.02] md:p-8" data-reveal data-delay={i * 80}>
-              <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-sm font-mono text-white/30">{String(i + 1).padStart(2, "0")}</div>
-              <h3 class="text-lg font-semibold text-white">{f.title}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-white/50">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="border-t border-white/[0.06] bg-white/[0.01] py-24 md:py-28">
-      <div class="container">
-        <div class="mx-auto max-w-3xl text-center" data-reveal>
-          <span class="inline-flex items-center rounded-full border border-emerald-300/20 bg-emerald-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-emerald-200/80 uppercase">Próximamente</span>
-          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Qué viene después</h2>
-          <p class="mt-4 text-base text-white/50">Esto es lo que estamos construyendo ahora mismo para la próxima versión.</p>
-        </div>
-        <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
-          {whatsNext.map((item, i) => (
-            <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/20 hover:shadow-[0_16px_40px_-20px_rgba(34,211,238,0.2)] md:p-8" data-reveal data-delay={i * 100}>
-              <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-sm font-mono text-emerald-200/50">{String(i + 1).padStart(2, "0")}</div>
-              <h3 class="text-lg font-semibold text-white">{item.title}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-white/50">{item.desc}</p>
+            <div class="bg-[#07070A] p-6 transition-all duration-300 hover:bg-white/[0.02] md:p-8" data-reveal data-delay={i * 60}>
+              <span class="text-xs font-mono text-cyan-200/40">{(i + 1).toString().padStart(2, "0")}</span>
+              <p class="mt-3 text-sm text-white/80">{f}</p>
             </div>
           ))}
         </div>
@@ -103,78 +84,68 @@ const whyItems = [
     <section class="border-t border-white/[0.06] py-24 md:py-28">
       <div class="container">
         <div class="mx-auto max-w-3xl text-center" data-reveal>
-          <span class="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium tracking-wider text-white/50 uppercase">Por qué AverionAI</span>
-          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Una plataforma, no un parche</h2>
-          <p class="mt-4 text-base text-white/50">No añadimos IA a un CRM existente. Construimos un sistema nuevo desde cero con IA en el centro.</p>
+          <span class="inline-flex items-center rounded-full border border-emerald-300/20 bg-emerald-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-emerald-200/80 uppercase">Benefits</span>
+          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Why teams choose AverionAI</h2>
         </div>
-        <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
-          {whyItems.map((item, i) => (
-            <div class="text-center" data-reveal data-delay={i * 100}>
-              <span class="text-5xl font-bold tracking-tighter text-white/[0.06]">{item.number}</span>
-              <h3 class="mt-4 text-lg font-semibold text-white">{item.title}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-white/50">{item.desc}</p>
+        <div class="mt-16 mx-auto grid max-w-4xl gap-4 md:grid-cols-2">
+          {benefits.map((b, i) => (
+            <div class="flex items-start gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300/20" data-reveal data-delay={i * 80}>
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-400/20 text-emerald-300 text-xs font-bold">✓</span>
+              <span class="text-sm text-white/70">{b}</span>
             </div>
           ))}
         </div>
       </div>
     </section>
 
-    <section class="border-t border-white/[0.06] bg-white/[0.01] py-24 md:py-28">
+    <section class="border-t border-white/[0.06] bg-white/[0.015] py-24 md:py-28">
       <div class="container">
         <div class="mx-auto max-w-3xl text-center" data-reveal>
-          <span class="inline-flex items-center rounded-full border border-purple-300/20 bg-purple-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-purple-200/80 uppercase">Demo</span>
-          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Así funciona AverionAI</h2>
-          <p class="mt-4 text-base text-white/50">Crea un lead, générale un email, conviértelo en factura y exporta un PDF profesional. Todo en segundos.</p>
+          <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Product Hunt</span>
+          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Launching on Product Hunt</h2>
+          <p class="mt-4 text-base text-white/50">Follow our launch and be the first to know.</p>
+          <a href="/register" class="btn-secondary mt-6 inline-flex px-6 py-2.5 text-sm">Follow the Launch</a>
         </div>
-        <div class="mt-12 mx-auto max-w-4xl">
-          <div class="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 md:p-12" data-reveal>
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(34,211,238,0.04),transparent_60%)]"></div>
-            <div class="relative">
-              <div class="grid gap-8 md:grid-cols-[1fr_auto_1fr_auto_1fr] items-center text-center">
-                <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] px-6 py-5">
-                  <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] text-white/30">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path></svg>
-                  </div>
-                  <p class="text-sm font-medium text-white/80">Captura un lead</p>
-                  <p class="mt-1 text-xs text-white/40">Desde formulario o manual</p>
-                </div>
-                <svg class="h-5 w-5 text-cyan-300/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] px-6 py-5">
-                  <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] text-white/30">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                  </div>
-                  <p class="text-sm font-medium text-white/80">IA lo clasifica</p>
-                  <p class="mt-1 text-xs text-white/40">Score, prioridad, categoría</p>
-                </div>
-                <svg class="h-5 w-5 text-cyan-300/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] px-6 py-5">
-                  <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] text-white/30">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                  </div>
-                  <p class="text-sm font-medium text-white/80">Exporta resultados</p>
-                  <p class="mt-1 text-xs text-white/40">PDF, factura, informe</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6" data-reveal><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Tagline</span><p class="mt-3 text-sm text-white/70">AI-powered CRM, documents, and automation for modern businesses.</p></div>
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6" data-reveal data-delay="60"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Short Description</span><p class="mt-3 text-sm text-white/70">AverionAI combines CRM, document generation, invoicing, and AI automation into a single SSR-secured SaaS platform. Built for teams that need intelligent lead management without the complexity of enterprise tools.</p></div>
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="120"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Long Description</span><p class="mt-3 text-sm text-white/70 leading-relaxed">AverionAI is a modern SaaS platform that brings together CRM, AI-powered document generation, automated invoicing, and business analytics in one secure environment. Unlike traditional CRMs that require weeks of setup and multiple integrations, AverionAI works immediately. Create leads, classify them with AI, generate professional invoices and pitch decks, and track your pipeline — all from a single interface rendered server-side for security and performance. Built with Astro SSR, Prisma, and Stripe, AverionAI delivers enterprise-grade security without enterprise complexity.</p></div>
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="180"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">Maker's Comment</span><p class="mt-3 text-sm text-white/50 leading-relaxed italic">"I'm Luis, founder of AverionAI. Over the past weeks, I've built a complete SaaS platform from scratch — CRM, document generation, AI integration, Stripe billing, and server-rendered architecture — all running on Astro SSR, Prisma, and PostgreSQL. AverionAI was born from a simple observation: most CRMs are either too basic or too complex. The ones with AI features often require expensive enterprise plans. We wanted something different — a platform where AI is part of the foundation, accessible from day one."</p></div>
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2" data-reveal data-delay="240"><span class="text-xs font-semibold text-cyan-200/60 uppercase tracking-wider">FAQ</span><div class="mt-4 grid gap-4">{faq.map((item) => (<div><p class="text-sm font-medium text-white/80">{item.q}</p><p class="mt-1 text-sm text-white/50">{item.a}</p></div>))}</div></div>
         </div>
       </div>
     </section>
 
-    <section class="border-t border-white/[0.06] py-24">
+    <section class="border-t border-white/[0.06] py-24 md:py-28">
       <div class="container">
-        <div class="mx-auto max-w-3xl rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-10 text-center md:p-14" data-reveal>
-          <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Empieza ahora</span>
-          <h2 class="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">Prueba AverionAI gratis</h2>
-          <p class="mt-4 text-base text-white/50">30 minutos de acceso premium completo. Sin tarjeta. Sin riesgo.</p>
-          <a href="/register" class="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-black shadow-[0_18px_45px_-26px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_-28px_rgba(34,211,238,0.9)] active:translate-y-0">
-            Crear cuenta gratis
-          </a>
-          <p class="mt-6 text-xs text-white/20">No necesitas tarjeta. Cancela cuando quieras.</p>
+        <div class="mx-auto max-w-3xl text-center" data-reveal>
+          <span class="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium tracking-wider text-white/50 uppercase">Screenshots</span>
+          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Coming Soon</h2>
+          <p class="mt-4 text-base text-white/50">Visual assets will be added before launch.</p>
+        </div>
+        <div class="mt-16 mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+          {["Hero Screenshot", "Dashboard Screenshot", "Document Generator", "Analytics View"].map((s, i) => (
+            <div class="flex aspect-video items-center justify-center rounded-xl border border-dashed border-white/[0.08] bg-white/[0.01] text-sm text-white/30" data-reveal data-delay={i * 80}>{s}</div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-white/[0.06] bg-white/[0.015] py-24">
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center" data-reveal>
+          <span class="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-cyan-200/80 uppercase">Demo</span>
+          <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">See it in action</h2>
+          <p class="mt-4 text-base text-white/50">30-second demo video coming soon.</p>
+        </div>
+        <div class="mx-auto mt-12 flex max-w-3xl aspect-video items-center justify-center rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.01]">
+          <div class="text-center">
+            <span class="text-4xl text-white/20">▶</span>
+            <p class="mt-4 text-sm text-white/30">30-second demo video coming soon</p>
+          </div>
         </div>
       </div>
     </section>
   </main>
   <Footer />
-  <LeadCaptureModal />
 </BaseLayout>

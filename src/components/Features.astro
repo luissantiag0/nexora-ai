@@ -1,63 +1,35 @@
 ---
-const features = [
-  {
-    title: "LLM integrados",
-    description:
-      "Capacidades de IA fiables para ejecutar decisiones repetibles, no respuestas improvisadas."
-  },
-  {
-    title: "Pipelines RAG",
-    description:
-      "Documentos, SOPs y conocimiento interno convertidos en una capa de consulta útil para equipos."
-  },
-  {
-    title: "Flujos automatizados",
-    description:
-      "Automatizaciones entre herramientas para reducir tiempos muertos y mantener el trabajo en movimiento."
-  },
-  {
-    title: "Arquitectura SaaS",
-    description:
-      "Sistemas preparados para crecer con tu operación sin perder rendimiento ni estabilidad."
-  }
+const techs = [
+  { name: "Astro SSR", desc: "Framework web con renderizado en servidor para maxima velocidad y SEO." },
+  { name: "TypeScript", desc: "Tipado estatico para un codigo robusto y mantenible." },
+  { name: "TailwindCSS", desc: "Estilos utilitarios modernos con diseno responsive y consistente." },
+  { name: "Prisma", desc: "ORM tipado para PostgreSQL con migraciones seguras y consultas eficientes." },
+  { name: "PostgreSQL (Supabase)", desc: "Base de datos relacional escalable con backup y autenticacion integrada." },
+  { name: "Stripe", desc: "Plataforma de pagos y suscripciones con facturacion profesional." },
+  { name: "Resend", desc: "Email API para notificaciones transaccionales y automaticas." },
+  { name: "Zod", desc: "Validacion de esquemas en tiempo de ejecucion para datos seguros." },
+  { name: "HMAC sessions", desc: "Sesiones firmadas criptograficamente con proteccion contra manipulacion." },
+  { name: "Vercel (serverless)", desc: "Plataforma de despliegue con funciones serverless y CDN global." },
 ];
 ---
 
-<section id="technology" class="border-t border-white/10 bg-[#07070A] py-24 md:py-28">
+<section id="technology" class="border-t border-white/[0.06] py-24 md:py-28">
   <div class="container">
-    <div class="max-w-3xl" data-reveal>
-      <span class="badge bg-purple-300/10 text-purple-100">
-        Tecnología
-      </span>
-
-      <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-        Infraestructura moderna para IA aplicada
-      </h2>
-
-      <p class="mt-5 text-base leading-relaxed text-white/60 md:text-lg">
-        Diseñamos sistemas que conectan modelos, datos y procesos internos para convertir la IA en ejecución diaria.
-      </p>
+    <div class="mx-auto max-w-3xl text-center" data-reveal>
+      <span class="inline-flex items-center rounded-full border border-purple-300/20 bg-purple-300/[0.06] px-3 py-1 text-xs font-medium tracking-wider text-purple-200/80 uppercase">Tecnologia</span>
+      <h2 class="mt-5 text-3xl font-semibold tracking-tight text-white md:text-5xl">Stack tecnologico</h2>
+      <p class="mt-4 text-base text-white/50">Construido con tecnologias modernas y probadas para garantizar rendimiento, seguridad y escalabilidad.</p>
     </div>
 
-    <div class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      {features.map((feature, index) => (
-        <article class="interactive-card group border-glow" data-reveal data-delay={index * 100}>
-          <div class="mb-6 flex items-center justify-between">
-            <span class="icon-pulse-soft grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-sm text-cyan-100 transition group-hover:border-cyan-300/40 group-hover:bg-cyan-300/10">
-              0{index + 1}
-            </span>
-
-            <span class="h-px flex-1 bg-gradient-to-r from-white/15 to-transparent"></span>
+    <div class="mt-16 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      {techs.map((t, i) => (
+        <div class="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-purple-300/20 hover:bg-purple-300/[0.03] hover:shadow-[0_8px_30px_-20px_rgba(168,85,247,0.2)]" data-reveal data-delay={i * 60}>
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-[10px] font-bold tracking-wider text-white/30">{String(i + 1).padStart(2, "0")}</span>
+          <div>
+            <span class="text-sm font-medium text-white">{t.name}</span>
+            <p class="text-xs text-white/40 mt-0.5">{t.desc}</p>
           </div>
-
-          <h3 class="text-lg font-semibold text-white">
-            {feature.title}
-          </h3>
-
-          <p class="mt-3 text-sm leading-relaxed text-white/60">
-            {feature.description}
-          </p>
-        </article>
+        </div>
       ))}
     </div>
   </div>
